@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Comportamental - I.E DE MARÍA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #90EE90;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .header h1 {
+            color: #2c5f2d;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #4a7c4e;
+            font-size: 18px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .status-online {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-offline {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .status-syncing {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="date"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .signature-pad {
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            cursor: crosshair;
+            background-color: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-secondary {
+            background-color: #008CBA;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #007399;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+
+        .btn-print {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background-color: #F57C00;
+        }
+
+        .btn-edit {
+            background-color: #9C27B0;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background-color: #7B1FA2;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .search-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+        }
+
+        .records-section {
+            margin-top: 30px;
+        }
+
+        .student-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+        }
+
+        .student-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-header h3 {
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th {
+            background-color: #2c5f2d;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .signature-cell img {
+            max-width: 150px;
+            max-height: 60px;
+            border: 1px solid #ccc;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .form-section, .search-section, .button-group, .btn-print, .btn-edit, .btn-delete, .action-buttons, .connection-status {
+                display: none !important;
+            }
+            .student-section {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Indicador de estado de conexión -->
+    <div id="connectionStatus" class="connection-status status-offline">
+        Offline
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>I.E DE MARÍA, SEDE RURAL SANTA JUANA</h1>
+            <h2>Seguimiento comportamental y disciplinario 2026</h2>
+        </div>
+
+        <!-- Formulario de Registro -->
+        <div class="form-section">
+            <h3 style="margin-bottom: 20px; color: #2c5f2d;">Nuevo Registro</h3>
+            <form id="registroForm">
+                <input type="hidden" id="editId">
+
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombreEstudiante">Nombre del estudiante:</label>
+                    <input type="text" id="nombreEstudiante" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="comportamiento">Comportamiento:</label>
+                    <textarea id="comportamiento" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="descargos">Descargos:</label>
+                    <textarea id="descargos" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="procedimiento">Procedimiento:</label>
+                    <textarea id="procedimiento" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Firma:</label>
+                    <canvas id="signaturePad" class="signature-pad" width="600" height="200"></canvas>
+                    <div class="button-group">
+                        <button type="button" class="btn-danger" onclick="clearSignature()">Limpiar Firma</button>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary" id="submitBtn">Guardar Registro</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn" onclick="cancelEdit()" style="display: none;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sección de Búsqueda -->
+        <div class="search-section">
+            <h3 style="margin-bottom: 15px; color: #2c5f2d;">Buscar Estudiante</h3>
+            <input type="text" id="searchInput" class="search-input" placeholder="Escribe el nombre del estudiante para ver todos sus registros...">
+        </div>
+
+        <!-- Sección de Registros -->
+        <div class="records-section" id="recordsSection">
+            <h3 style="margin-bottom: 20px; color: #2c5f2d;">Registros por Estudiante</h3>
+            <div id="recordsList"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+            authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+            projectId: "diariodeprocesos-6f78d",
+            storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
+            messagingSenderId: "487922338632",
+            appId: "1:487922338632:web:47fc48c23dbea064b0817d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables globales
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.getDocs = getDocs;
+        window.onSnapshot = onSnapshot;
+
+        // Estado de conexión
+        let isOnline = navigator.onLine;
+        updateConnectionStatus();
+
+        // Escuchar cambios de conexión
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateConnectionStatus();
+            syncOfflineData();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateConnectionStatus();
+        });
+
+        function updateConnectionStatus() {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (isOnline) {
+                statusDiv.textContent = 'Online - Conectado a Firebase';
+                statusDiv.className = 'connection-status status-online';
+            } else {
+                statusDiv.textContent = 'Offline - Guardando localmente';
+                statusDiv.className = 'connection-status status-offline';
+            }
+        }
+
+        // Sincronizar datos offline con Firebase
+        async function syncOfflineData() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.textContent = 'Sincronizando...';
+            statusDiv.className = 'connection-status status-syncing';
+
+            try {
+                const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+
+                for (const operation of offlineQueue) {
+                    if (operation.type === 'add') {
+                        await addDoc(collection(db, 'registrosComportamentales'), operation.data);
+                    } else if (operation.type === 'update') {
+                        await updateDoc(doc(db, 'registrosComportamentales', operation.docId), operation.data);
+                    } else if (operation.type === 'delete') {
+                        await deleteDoc(doc(db, 'registrosComportamentales', operation.docId));
+                    }
+                }
+
+                // Limpiar cola offline
+                localStorage.setItem('offlineQueue', JSON.stringify([]));
+
+                // Recargar datos desde Firebase
+                await loadFromFirebase();
+
+                updateConnectionStatus();
+                alert('Datos sincronizados exitosamente con Firebase');
+            } catch (error) {
+                console.error('Error al sincronizar:', error);
+                updateConnectionStatus();
+            }
+        }
+
+        // Cargar datos desde Firebase
+        async function loadFromFirebase() {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'registrosComportamentales'));
+                const registrosFirebase = [];
+
+                querySnapshot.forEach((doc) => {
+                    registrosFirebase.push({
+                        firebaseId: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Guardar en localStorage también
+                localStorage.setItem('registrosComportamentales', JSON.stringify(registrosFirebase));
+                window.registros = registrosFirebase;
+                window.displayRecordsByStudent(registrosFirebase);
+            } catch (error) {
+                console.error('Error al cargar desde Firebase:', error);
+                // Si falla, cargar desde localStorage
+                window.registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
+                window.displayRecordsByStudent(window.registros);
+            }
+        }
+
+        // Escuchar cambios en tiempo real de Firebase
+        onSnapshot(collection(db, 'registrosComportamentales'), (snapshot) => {
+            if (isOnline) {
+                loadFromFirebase();
+            }
+        });
+
+        // Cargar datos al inicio
+        if (isOnline) {
+            loadFromFirebase();
+        } else {
+            window.registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
+            window.displayRecordsByStudent(window.registros);
+        }
+
+        // Exportar funciones para uso global
+        window.isOnline = () => isOnline;
+        window.syncOfflineData = syncOfflineData;
+    </script>
+
+    <script>
+        // Configuración del canvas de firma
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Soporte táctil
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            isDrawing = true;
+            lastX = touch.clientX - rect.left;
+            lastY = touch.clientY - rect.top;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            lastX = x;
+            lastY = y;
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Cargar registros del localStorage
+        let registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
+
+        // Guardar o actualizar registro
+        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editId').value;
+            const registro = {
+                id: editId ? parseInt(editId) : Date.now(),
+                fecha: document.getElementById('fecha').value,
+                nombreEstudiante: document.getElementById('nombreEstudiante').value,
+                comportamiento: document.getElementById('comportamiento').value,
+                descargos: document.getElementById('descargos').value,
+                procedimiento: document.getElementById('procedimiento').value,
+                firma: canvas.toDataURL()
+            };
+
+            try {
+                if (window.isOnline()) {
+                    // Guardar en Firebase
+                    if (editId) {
+                        // Actualizar registro existente
+                        const index = registros.findIndex(r => r.id === parseInt(editId));
+                        if (index !== -1) {
+                            const firebaseId = registros[index].firebaseId;
+                            if (firebaseId) {
+                                await window.updateDoc(window.doc(window.db, 'registrosComportamentales', firebaseId), registro);
+                            }
+                            registros[index] = { ...registro, firebaseId };
+                        }
+                        alert('Registro actualizado exitosamente en Firebase');
+                    } else {
+                        // Nuevo registro
+                        const docRef = await window.addDoc(window.collection(window.db, 'registrosComportamentales'), registro);
+                        registro.firebaseId = docRef.id;
+                        registros.push(registro);
+                        alert('Registro guardado exitosamente en Firebase');
+                    }
+                } else {
+                    // Guardar offline
+                    const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+
+                    if (editId) {
+                        const index = registros.findIndex(r => r.id === parseInt(editId));
+                        if (index !== -1) {
+                            registros[index] = registro;
+                            offlineQueue.push({
+                                type: 'update',
+                                docId: registros[index].firebaseId,
+                                data: registro
+                            });
+                        }
+                        alert('Registro actualizado localmente. Se sincronizará cuando haya conexión.');
+                    } else {
+                        registros.push(registro);
+                        offlineQueue.push({
+                            type: 'add',
+                            data: registro
+                        });
+                        alert('Registro guardado localmente. Se sincronizará cuando haya conexión.');
+                    }
+
+                    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+                }
+
+                // Guardar en localStorage siempre
+                localStorage.setItem('registrosComportamentales', JSON.stringify(registros));
+
+                this.reset();
+                document.getElementById('editId').value = '';
+                document.getElementById('submitBtn').textContent = 'Guardar Registro';
+                document.getElementById('cancelBtn').style.display = 'none';
+                clearSignature();
+                displayRecordsByStudent(registros);
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                alert('Error al guardar el registro. Intenta nuevamente.');
+            }
+        });
+
+        // Cancelar edición
+        function cancelEdit() {
+            document.getElementById('registroForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('submitBtn').textContent = 'Guardar Registro';
+            document.getElementById('cancelBtn').style.display = 'none';
+            clearSignature();
+        }
+
+        // Editar registro
+        function editRecord(id) {
+            const registro = registros.find(r => r.id === id);
+            if (!registro) return;
+
+            document.getElementById('editId').value = registro.id;
+            document.getElementById('fecha').value = registro.fecha;
+            document.getElementById('nombreEstudiante').value = registro.nombreEstudiante;
+            document.getElementById('comportamiento').value = registro.comportamiento;
+            document.getElementById('descargos').value = registro.descargos;
+            document.getElementById('procedimiento').value = registro.procedimiento;
+
+            // Cargar firma
+            const img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = registro.firma;
+
+            document.getElementById('submitBtn').textContent = 'Actualizar Registro';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+
+            // Scroll al formulario
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Eliminar registro
+        async function deleteRecord(id) {
+            if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+                try {
+                    const index = registros.findIndex(r => r.id === id);
+                    if (index === -1) return;
+
+                    if (window.isOnline()) {
+                        // Eliminar de Firebase
+                        const firebaseId = registros[index].firebaseId;
+                        if (firebaseId) {
+                            await window.deleteDoc(window.doc(window.db, 'registrosComportamentales', firebaseId));
+                        }
+                        alert('Registro eliminado exitosamente de Firebase');
+                    } else {
+                        // Guardar operación offline
+                        const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+                        offlineQueue.push({
+                            type: 'delete',
+                            docId: registros[index].firebaseId
+                        });
+                        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+                        alert('Registro eliminado localmente. Se sincronizará cuando haya conexión.');
+                    }
+
+                    registros = registros.filter(r => r.id !== id);
+                    localStorage.setItem('registrosComportamentales', JSON.stringify(registros));
+                    displayRecordsByStudent(registros);
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
+                    alert('Error al eliminar el registro. Intenta nuevamente.');
+                }
+            }
+        }
+
+        // Agrupar registros por estudiante
+        function groupByStudent(records) {
+            const grouped = {};
+            records.forEach(registro => {
+                const nombre = registro.nombreEstudiante;
+                if (!grouped[nombre]) {
+                    grouped[nombre] = [];
+                }
+                grouped[nombre].push(registro);
+            });
+            return grouped;
+        }
+
+        // Mostrar registros agrupados por estudiante
+        function displayRecordsByStudent(recordsToShow) {
+            const recordsList = document.getElementById('recordsList');
+
+            if (recordsToShow.length === 0) {
+                recordsList.innerHTML = '<div class="no-records">No hay registros disponibles</div>';
+                return;
+            }
+
+            const grouped = groupByStudent(recordsToShow);
+            let html = '';
+
+            Object.keys(grouped).sort().forEach(nombreEstudiante => {
+                const registrosEstudiante = grouped[nombreEstudiante];
+
+                html += '<div class="student-section">';
+                html += '<div class="student-header">';
+                html += '<h3>Estudiante: ' + nombreEstudiante + '</h3>';
+                html += '<button class="btn-print" onclick="downloadStudentPDF(\'' + nombreEstudiante.replace(/'/g, "\\'") + '\')">Descargar PDF</button>';
+                html += '</div>';
+                html += '<table>';
+                html += '<thead>';
+                html += '<tr>';
+                html += '<th style="width: 10%;">Fecha</th>';
+                html += '<th style="width: 20%;">Comportamiento</th>';
+                html += '<th style="width: 20%;">Descargos</th>';
+                html += '<th style="width: 20%;">Procedimiento</th>';
+                html += '<th style="width: 15%;">Firma</th>';
+                html += '<th style="width: 15%;">Acciones</th>';
+                html += '</tr>';
+                html += '</thead>';
+                html += '<tbody>';
+
+                registrosEstudiante.forEach(registro => {
+                    html += '<tr>';
+                    html += '<td>' + registro.fecha + '</td>';
+                    html += '<td>' + registro.comportamiento + '</td>';
+                    html += '<td>' + registro.descargos + '</td>';
+                    html += '<td>' + registro.procedimiento + '</td>';
+                    html += '<td class="signature-cell"><img src="' + registro.firma + '" alt="Firma"></td>';
+                    html += '<td class="action-buttons">';
+                    html += '<button class="btn-edit" onclick="editRecord(' + registro.id + ')">Editar</button>';
+                    html += '<button class="btn-delete" onclick="deleteRecord(' + registro.id + ')">Eliminar</button>';
+                    html += '</td>';
+                    html += '</tr>';
+                });
+
+                html += '</tbody>';
+                html += '</table>';
+                html += '</div>';
+            });
+
+            recordsList.innerHTML = html;
+        }
+
+        // Búsqueda
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm === '') {
+                displayRecordsByStudent(registros);
+            } else {
+                const filteredRecords = registros.filter(registro => 
+                    registro.nombreEstudiante.toLowerCase().includes(searchTerm)
+                );
+                displayRecordsByStudent(filteredRecords);
+            }
+        });
+
+        // Descargar PDF de un estudiante específico
+        function downloadStudentPDF(nombreEstudiante) {
+            const jsPDF = window.jspdf.jsPDF;
+            const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+            const registrosEstudiante = registros.filter(r => r.nombreEstudiante === nombreEstudiante);
+
+            if (registrosEstudiante.length === 0) {
+                alert('No hay registros para este estudiante');
+                return;
+            }
+
+            // Encabezado
+            pdf.setFontSize(16);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('I.E DE MARÍA, SEDE RURAL SANTA JUANA', 148, 15, { align: 'center' });
+            pdf.setFontSize(14);
+            pdf.text('Seguimiento comportamental y disciplinario 2026', 148, 22, { align: 'center' });
+
+            pdf.setFontSize(12);
+            pdf.text('Estudiante: ' + nombreEstudiante, 148, 30, { align: 'center' });
+
+            // Preparar datos para la tabla
+            const tableData = registrosEstudiante.map(registro => {
+                return [
+                    registro.fecha,
+                    registro.comportamiento,
+                    registro.descargos,
+                    registro.procedimiento,
+                    ''
+                ];
+            });
+
+            // Crear tabla
+            pdf.autoTable({
+                startY: 35,
+                head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma']],
+                body: tableData,
+                theme: 'grid',
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3,
+                    overflow: 'linebreak',
+                    valign: 'top'
+                },
+                headStyles: {
+                    fillColor: [44, 95, 45],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 60 },
+                    3: { cellWidth: 60 },
+                    4: { cellWidth: 40 }
+                },
+                didDrawCell: function(data) {
+                    if (data.column.index === 4 && data.section === 'body') {
+                        const registro = registrosEstudiante[data.row.index];
+                        if (registro && registro.firma) {
+                            try {
+                                pdf.addImage(
+                                    registro.firma, 
+                                    'PNG', 
+                                    data.cell.x + 2, 
+                                    data.cell.y + 2, 
+                                    35, 
+                                    data.cell.height - 4
+                                );
+                            } catch (e) {
+                                console.error('Error al agregar firma:', e);
+                            }
+                        }
+                    }
+                }
+            });
+
+            pdf.save('Registro_' + nombreEstudiante.replace(/\s+/g, '_') + '.pdf');
+        }
+
+        // Exportar funciones para uso global
+        window.displayRecordsByStudent = displayRecordsByStudent;
+        window.registros = registros;
+
+        // Establecer fecha actual por defecto
+        document.getElementById('fecha').valueAsDate = new Date();
+    </script>
+</body>
+</html>
