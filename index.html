@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registro Comportamental - I.E DE MARÍA</title>
 
-    <!-- PWA -->
-    <meta name="theme-color" content="#4CAF50">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <!-- PWA: color de la barra del navegador -->
+    <meta name="theme-color" content="#4CAF50" />
+
+    <!-- PWA: manifest (DEBE existir en la misma carpeta que este index.html) -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- PWA: iconos (carpeta icons/ en la raíz del repo) -->
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -312,16 +316,16 @@
         <div class="form-section">
             <h3 style="margin-bottom: 20px; color: #2c5f2d;">Nuevo Registro</h3>
             <form id="registroForm">
-                <input type="hidden" id="editId">
+                <input type="hidden" id="editId" />
 
                 <div class="form-group">
                     <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" required>
+                    <input type="date" id="fecha" required />
                 </div>
 
                 <div class="form-group">
                     <label for="nombreEstudiante">Nombre del estudiante:</label>
-                    <input type="text" id="nombreEstudiante" required>
+                    <input type="text" id="nombreEstudiante" required />
                 </div>
 
                 <div class="form-group">
@@ -357,7 +361,7 @@
         <!-- Sección de Búsqueda -->
         <div class="search-section">
             <h3 style="margin-bottom: 15px; color: #2c5f2d;">Buscar Estudiante</h3>
-            <input type="text" id="searchInput" class="search-input" placeholder="Escribe el nombre del estudiante para ver todos sus registros...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Escribe el nombre del estudiante para ver todos sus registros..." />
         </div>
 
         <!-- Sección de Registros -->
@@ -386,7 +390,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Variables globales
+        // Variables globales Firebase
         window.db = db;
         window.collection = collection;
         window.addDoc = addDoc;
@@ -400,7 +404,6 @@
         let isOnline = navigator.onLine;
         updateConnectionStatus();
 
-        // Escuchar cambios de conexión
         window.addEventListener('online', () => {
             isOnline = true;
             updateConnectionStatus();
@@ -423,7 +426,6 @@
             }
         }
 
-        // Sincronizar datos offline con Firebase
         async function syncOfflineData() {
             const statusDiv = document.getElementById('connectionStatus');
             statusDiv.textContent = 'Sincronizando...';
@@ -442,10 +444,8 @@
                     }
                 }
 
-                // Limpiar cola offline
                 localStorage.setItem('offlineQueue', JSON.stringify([]));
 
-                // Recargar datos desde Firebase
                 await loadFromFirebase();
 
                 updateConnectionStatus();
@@ -456,39 +456,34 @@
             }
         }
 
-        // Cargar datos desde Firebase
         async function loadFromFirebase() {
             try {
                 const querySnapshot = await getDocs(collection(db, 'registrosComportamentales'));
                 const registrosFirebase = [];
 
-                querySnapshot.forEach((doc) => {
+                querySnapshot.forEach((docSnap) => {
                     registrosFirebase.push({
-                        firebaseId: doc.id,
-                        ...doc.data()
+                        firebaseId: docSnap.id,
+                        ...docSnap.data()
                     });
                 });
 
-                // Guardar en localStorage también
                 localStorage.setItem('registrosComportamentales', JSON.stringify(registrosFirebase));
                 window.registros = registrosFirebase;
                 window.displayRecordsByStudent(registrosFirebase);
             } catch (error) {
                 console.error('Error al cargar desde Firebase:', error);
-                // Si falla, cargar desde localStorage
                 window.registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
                 window.displayRecordsByStudent(window.registros);
             }
         }
 
-        // Escuchar cambios en tiempo real de Firebase
-        onSnapshot(collection(db, 'registrosComportamentales'), (snapshot) => {
+        onSnapshot(collection(db, 'registrosComportamentales'), () => {
             if (isOnline) {
                 loadFromFirebase();
             }
         });
 
-        // Cargar datos al inicio
         if (isOnline) {
             loadFromFirebase();
         } else {
@@ -496,13 +491,12 @@
             window.displayRecordsByStudent(window.registros);
         }
 
-        // Exportar funciones para uso global
         window.isOnline = () => isOnline;
         window.syncOfflineData = syncOfflineData;
     </script>
 
     <script>
-        // Configuración del canvas de firma
+        // Firma en canvas
         const canvas = document.getElementById('signaturePad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -514,7 +508,6 @@
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mouseout', stopDrawing);
 
-        // Soporte táctil
         canvas.addEventListener('touchstart', handleTouchStart);
         canvas.addEventListener('touchmove', handleTouchMove);
         canvas.addEventListener('touchend', stopDrawing);
@@ -571,10 +564,8 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Cargar registros del localStorage
         let registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
 
-        // Guardar o actualizar registro
         document.getElementById('registroForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -591,9 +582,7 @@
 
             try {
                 if (window.isOnline()) {
-                    // Guardar en Firebase
                     if (editId) {
-                        // Actualizar registro existente
                         const index = registros.findIndex(r => r.id === parseInt(editId));
                         if (index !== -1) {
                             const firebaseId = registros[index].firebaseId;
@@ -604,14 +593,12 @@
                         }
                         alert('Registro actualizado exitosamente en Firebase');
                     } else {
-                        // Nuevo registro
                         const docRef = await window.addDoc(window.collection(window.db, 'registrosComportamentales'), registro);
                         registro.firebaseId = docRef.id;
                         registros.push(registro);
                         alert('Registro guardado exitosamente en Firebase');
                     }
                 } else {
-                    // Guardar offline
                     const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
 
                     if (editId) {
@@ -637,7 +624,6 @@
                     localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
                 }
 
-                // Guardar en localStorage siempre
                 localStorage.setItem('registrosComportamentales', JSON.stringify(registros));
 
                 this.reset();
@@ -652,7 +638,6 @@
             }
         });
 
-        // Cancelar edición
         function cancelEdit() {
             document.getElementById('registroForm').reset();
             document.getElementById('editId').value = '';
@@ -661,34 +646,6 @@
             clearSignature();
         }
 
-        // Editar registro
-        function editRecord(id) {
-            const registro = registros.find(r => r.id === id);
-            if (!registro) return;
-
-            document.getElementById('editId').value = registro.id;
-            document.getElementById('fecha').value = registro.fecha;
-            document.getElementById('nombreEstudiante').value = registro.nombreEstudiante;
-            document.getElementById('comportamiento').value = registro.comportamiento;
-            document.getElementById('descargos').value = registro.descargos;
-            document.getElementById('procedimiento').value = registro.procedimiento;
-
-            // Cargar firma
-            const img = new Image();
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = registro.firma;
-
-            document.getElementById('submitBtn').textContent = 'Actualizar Registro';
-            document.getElementById('cancelBtn').style.display = 'inline-block';
-
-            // Scroll al formulario
-            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Eliminar registro
         async function deleteRecord(id) {
             if (confirm('¿Está seguro de que desea eliminar este registro?')) {
                 try {
@@ -696,14 +653,12 @@
                     if (index === -1) return;
 
                     if (window.isOnline()) {
-                        // Eliminar de Firebase
                         const firebaseId = registros[index].firebaseId;
                         if (firebaseId) {
                             await window.deleteDoc(window.doc(window.db, 'registrosComportamentales', firebaseId));
                         }
                         alert('Registro eliminado exitosamente de Firebase');
                     } else {
-                        // Guardar operación offline
                         const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
                         offlineQueue.push({
                             type: 'delete',
@@ -723,7 +678,6 @@
             }
         }
 
-        // Agrupar registros por estudiante
         function groupByStudent(records) {
             const grouped = {};
             records.forEach(registro => {
@@ -736,11 +690,10 @@
             return grouped;
         }
 
-        // Mostrar registros agrupados por estudiante
         function displayRecordsByStudent(recordsToShow) {
             const recordsList = document.getElementById('recordsList');
 
-            if (recordsToShow.length === 0) {
+            if (!recordsToShow || recordsToShow.length === 0) {
                 recordsList.innerHTML = '<div class="no-records">No hay registros disponibles</div>';
                 return;
             }
@@ -791,7 +744,6 @@
             recordsList.innerHTML = html;
         }
 
-        // Búsqueda
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             if (searchTerm === '') {
@@ -804,7 +756,6 @@
             }
         });
 
-        // Descargar PDF de un estudiante específico
         function downloadStudentPDF(nombreEstudiante) {
             const jsPDF = window.jspdf.jsPDF;
             const pdf = new jsPDF('landscape', 'mm', 'a4');
@@ -816,7 +767,6 @@
                 return;
             }
 
-            // Encabezado
             pdf.setFontSize(16);
             pdf.setFont(undefined, 'bold');
             pdf.text('I.E DE MARÍA, SEDE RURAL SANTA JUANA', 148, 15, { align: 'center' });
@@ -826,7 +776,6 @@
             pdf.setFontSize(12);
             pdf.text('Estudiante: ' + nombreEstudiante, 148, 30, { align: 'center' });
 
-            // Preparar datos para la tabla
             const tableData = registrosEstudiante.map(registro => {
                 return [
                     registro.fecha,
@@ -837,7 +786,6 @@
                 ];
             });
 
-            // Crear tabla
             pdf.autoTable({
                 startY: 35,
                 head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma']],
@@ -886,11 +834,9 @@
             pdf.save('Registro_' + nombreEstudiante.replace(/\s+/g, '_') + '.pdf');
         }
 
-        // Exportar funciones para uso global
         window.displayRecordsByStudent = displayRecordsByStudent;
         window.registros = registros;
 
-        // Establecer fecha actual por defecto
         document.getElementById('fecha').valueAsDate = new Date();
     </script>
 
