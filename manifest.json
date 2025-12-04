@@ -1,9 +1,9 @@
 {
   "name": "Registro Comportamental - I.E DE MARÍA",
   "short_name": "Registro IE",
-  "description": "Seguimiento comportamental y disciplinario I.E. De María, sede rural Santa Juana.",
+  "description": "Seguimiento comportamental y disciplinario 2026 - I.E De María, sede rural Santa Juana.",
   "lang": "es",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
