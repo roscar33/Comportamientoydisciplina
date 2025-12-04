@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -33,7 +33,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px; /* un poco más compacto para móvil */
             margin: 0 auto;
             background-color: white;
             padding: 30px;
@@ -124,6 +124,9 @@
             border-radius: 4px;
             cursor: crosshair;
             background-color: white;
+            width: 100%;     /* responsive */
+            max-width: 100%; /* no se sale del contenedor */
+            height: 200px;   /* altura fija cómoda */
         }
 
         .button-group {
@@ -226,6 +229,7 @@
             background-color: #fff;
             border: 2px solid #4CAF50;
             border-radius: 8px;
+            overflow-x: auto; /* scroll horizontal si la tabla es muy ancha */
         }
 
         .student-header {
@@ -298,6 +302,35 @@
                 page-break-after: always;
             }
         }
+
+        /* Ajustes extra para pantallas pequeñas */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .form-section,
+            .search-section,
+            .student-section {
+                padding: 15px;
+            }
+
+            table th,
+            table td {
+                font-size: 12px;
+                padding: 6px;
+            }
+
+            .connection-status {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+            }
+        }
     </style>
 </head>
 <body>
@@ -345,7 +378,8 @@
 
                 <div class="form-group">
                     <label>Firma:</label>
-                    <canvas id="signaturePad" class="signature-pad" width="600" height="200"></canvas>
+                    <!-- sin width fijo, solo height -->
+                    <canvas id="signaturePad" class="signature-pad" height="200"></canvas>
                     <div class="button-group">
                         <button type="button" class="btn-danger" onclick="clearSignature()">Limpiar Firma</button>
                     </div>
@@ -514,19 +548,26 @@
 
         function startDrawing(e) {
             isDrawing = true;
-            [lastX, lastY] = [e.offsetX, e.offsetY];
+            const rect = canvas.getBoundingClientRect();
+            const x = e.offsetX ?? (e.clientX - rect.left);
+            const y = e.offsetY ?? (e.clientY - rect.top);
+            [lastX, lastY] = [x, y];
         }
 
         function draw(e) {
             if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.offsetX ?? (e.clientX - rect.left);
+            const y = e.offsetY ?? (e.clientY - rect.top);
+
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.lineTo(x, y);
             ctx.stroke();
-            [lastX, lastY] = [e.offsetX, e.offsetY];
+            [lastX, lastY] = [x, y];
         }
 
         function stopDrawing() {
@@ -749,7 +790,7 @@
             if (searchTerm === '') {
                 displayRecordsByStudent(registros);
             } else {
-                const filteredRecords = registros.filter(registro => 
+                const filteredRecords = registros.filter(registro =>
                     registro.nombreEstudiante.toLowerCase().includes(searchTerm)
                 );
                 displayRecordsByStudent(filteredRecords);
@@ -816,11 +857,11 @@
                         if (registro && registro.firma) {
                             try {
                                 pdf.addImage(
-                                    registro.firma, 
-                                    'PNG', 
-                                    data.cell.x + 2, 
-                                    data.cell.y + 2, 
-                                    35, 
+                                    registro.firma,
+                                    'PNG',
+                                    data.cell.x + 2,
+                                    data.cell.y + 2,
+                                    35,
                                     data.cell.height - 4
                                 );
                             } catch (e) {
