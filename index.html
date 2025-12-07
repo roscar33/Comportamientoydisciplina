@@ -1,4 +1,4 @@
-here<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
@@ -119,6 +119,7 @@ here<!DOCTYPE html>
             resize: vertical;
         }
 
+        /* --- MODIFICACIÓN: touch-action: none es vital para lápiz óptico --- */
         .signature-pad {
             border: 2px solid #ccc;
             border-radius: 4px;
@@ -127,6 +128,7 @@ here<!DOCTYPE html>
             width: 100%;     /* responsive */
             max-width: 100%; /* no se sale del contenedor */
             height: 200px;   /* altura fija cómoda */
+            touch-action: none; /* CRÍTICO: Bloquea el scroll del navegador en este elemento */
         }
 
         .button-group {
@@ -530,76 +532,93 @@ here<!DOCTYPE html>
     </script>
 
     <script>
-        // Firma en canvas
+        // --- INICIO DE MODIFICACIÓN: LÓGICA DE FIRMA MEJORADA PARA LÁPIZ ÓPTICO ---
         const canvas = document.getElementById('signaturePad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
 
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
+        // Función para ajustar el tamaño del canvas al tamaño real de pantalla
+        // Esto evita que el puntero se dibuje en un lugar diferente a donde tocas
+        function initCanvasSize() {
+             // Solo si las dimensiones difieren, ajustamos. 
+             // Ojo: cambiar el tamaño borra el canvas, así que lo hacemos al inicio.
+             if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
+                 canvas.width = canvas.offsetWidth;
+                 canvas.height = canvas.offsetHeight;
+             }
+        }
+        
+        // Ejecutamos ajuste al cargar
+        window.addEventListener('load', initCanvasSize);
 
-        canvas.addEventListener('touchstart', handleTouchStart);
-        canvas.addEventListener('touchmove', handleTouchMove);
-        canvas.addEventListener('touchend', stopDrawing);
+        // Función unificada para obtener coordenadas (Ratón o Táctil)
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
 
         function startDrawing(e) {
+            // Evitamos scroll si es un toque
+            if (e.cancelable) e.preventDefault(); 
+            
             isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.offsetX ?? (e.clientX - rect.left);
-            const y = e.offsetY ?? (e.clientY - rect.top);
-            [lastX, lastY] = [x, y];
+            ctx.beginPath();
+            
+            const pos = getPointerPos(e);
+            ctx.moveTo(pos.x, pos.y);
+
+            // Configuración del trazo
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#000';
         }
 
         function draw(e) {
             if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.offsetX ?? (e.clientX - rect.left);
-            const y = e.offsetY ?? (e.clientY - rect.top);
-
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
+            
+            // CRÍTICO: Evita que la pantalla se mueva al arrastrar el lápiz
+            if (e.cancelable) e.preventDefault(); 
+            
+            const pos = getPointerPos(e);
+            ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
-            [lastX, lastY] = [x, y];
         }
 
-        function stopDrawing() {
-            isDrawing = false;
+        function stopDrawing(e) {
+            if (isDrawing) {
+                 if (e.cancelable) e.preventDefault();
+                 isDrawing = false;
+                 ctx.closePath();
+            }
         }
 
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            isDrawing = true;
-            lastX = touch.clientX - rect.left;
-            lastY = touch.clientY - rect.top;
-        }
+        // --- Eventos del Ratón ---
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
 
-        function handleTouchMove(e) {
-            e.preventDefault();
-            if (!isDrawing) return;
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            lastX = x;
-            lastY = y;
-        }
+        // --- Eventos Táctiles (Lápiz Óptico / Dedo) ---
+        // { passive: false } es obligatorio para que funcione e.preventDefault()
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        // --- FIN DE MODIFICACIÓN DE FIRMA ---
 
         function clearSignature() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -893,3 +912,4 @@ here<!DOCTYPE html>
     </script>
 </body>
 </html>
+
