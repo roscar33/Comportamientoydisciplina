@@ -852,31 +852,19 @@
     const canvasExcusa = document.getElementById('signaturePadExcusa');
     const ctxExcusa = canvasExcusa.getContext('2d');
 
-    let firmandoExcusa = false, ex = 0, ey = 0;
-    let excusaTieneTrazo = false;       // ¿dibujó algo?
-    let firmaExcusaDataURL = null;      // copia de seguridad de la firma
-
-    function ajustarCanvasExcusa(redibujar = true) {
+    // Ajuste inicial del canvas de excusa (SIN volver a redimensionar en cada resize para no borrar la firma)
+    function ajustarCanvasExcusa() {
       const w = canvasExcusa.getBoundingClientRect().width || 500;
-      const h = 220;
-
       canvasExcusa.width = w;
-      canvasExcusa.height = h;
-      ctxExcusa.clearRect(0, 0, w, h);
-
-      if (redibujar && firmaExcusaDataURL) {
-        const img = new Image();
-        img.onload = () => {
-          ctxExcusa.drawImage(img, 0, 0, w, h);
-        };
-        img.src = firmaExcusaDataURL;
-      }
+      canvasExcusa.height = 220;
+      ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
     }
+    ajustarCanvasExcusa();
+    // IMPORTANTE: NO volvemos a llamar a ajustarCanvasExcusa en 'resize' para no borrar la firma
+    // window.addEventListener('resize', ajustarCanvasExcusa);  // <- NO
 
-    // Inicial
-    ajustarCanvasExcusa(false);
-    // Si la pantalla cambia de tamaño, redibujamos la firma guardada
-    window.addEventListener('resize', () => ajustarCanvasExcusa(true));
+    let firmandoExcusa = false, ex = 0, ey = 0;
+    let excusaTieneTrazo = false; // para saber si realmente firmaron
 
     function getPosExcusa(e) {
       const rect = canvasExcusa.getBoundingClientRect();
@@ -910,16 +898,12 @@
       ctxExcusa.lineTo(p.x, p.y);
       ctxExcusa.stroke();
       ex = p.x; ey = p.y;
-      excusaTieneTrazo = true;
+      excusaTieneTrazo = true; // ya dibujó algo
     }
 
     function stopExcusa(e) {
       e && e.preventDefault();
       firmandoExcusa = false;
-      // Guardamos una copia de la firma cada vez que termina un trazo
-      if (excusaTieneTrazo) {
-        firmaExcusaDataURL = canvasExcusa.toDataURL("image/png");
-      }
     }
 
     canvasExcusa.addEventListener("mousedown", startExcusa);
@@ -933,7 +917,6 @@
     document.getElementById('btnLimpiarFirmaExcusa').addEventListener('click', () => {
       ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
       excusaTieneTrazo = false;
-      firmaExcusaDataURL = null;
     });
 
     // Buscar nombre según documento y mostrar formulario
@@ -962,7 +945,6 @@
           }
         });
 
-        // estudiante ficticio de pruebas
         if (!nombre && docEst === "15271403") {
           nombre = "OSCAR BARRIENTOS";
         }
@@ -1036,13 +1018,14 @@
         return;
       }
 
-      // Verificar que haya firma guardada
-      if (!firmaExcusaDataURL || !excusaTieneTrazo) {
+      // Verificar que realmente haya firma en el canvas
+      if (!excusaTieneTrazo) {
         alert("Por favor dibuje la firma del acudiente antes de enviar la excusa.");
         return;
       }
 
       try {
+        const firmaData = canvasExcusa.toDataURL("image/png");
         const fechaEnvio = new Date().toISOString();
 
         await addDoc(colExcusas, {
@@ -1050,19 +1033,18 @@
           fechaInasistencia: fechaIna,
           motivoTipo,
           motivoDetalle,
-          firmaAcudiente: firmaExcusaDataURL,
+          firmaAcudiente: firmaData,
           fechaEnvio
         });
 
         alert(
-          "Recuerde que es responsabilidad del estudiante ponerse al día con las actividades delegadas durante su ausencia.\n\n" +
+          "Recuerde que es obligación del estudiante ponerse al día con las actividades delegadas durante su ausencia.\n\n" +
           "Solamente se le reconocerán las notas por los trabajos correspondientes a la jornada en la que no asistió si presenta la excusa."
         );
 
         formExcusa.reset();
         ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
         excusaTieneTrazo = false;
-        firmaExcusaDataURL = null;
         fechaInasistencia.valueAsDate = new Date();
 
       } catch (err) {
