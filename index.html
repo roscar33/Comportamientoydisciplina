@@ -2,15 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Portal del acudiente - I.E. de María</title>
+  <title>Seguimiento disciplinario - Docente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- jsPDF + autotable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
-      --primary: #16a34a;       /* un poco más oscuro que el del docente */
-      --primary-dark: #15803d;
+      --primary: #22c55e;
+      --primary-dark: #16a34a;
       --accent: #0ea5e9;
-      --bg: #d9f99d;
+      --bg: #bbf7d0;
       --card-bg: #ffffff;
       --border: #cbd5e1;
       --text-main: #0f172a;
@@ -24,7 +28,7 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #86efac, #f9fafb 55%);
+      background: radial-gradient(circle at top, #bbf7d0, #f9fafb 55%);
       min-height: 100vh;
       padding: 16px;
       color: var(--text-main);
@@ -34,7 +38,7 @@
 
     .app-shell {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1200px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -62,7 +66,7 @@
       height: 80px;
       border-radius: 12px;
       overflow: hidden;
-      border: 2px solid #16a34a55;
+      border: 2px solid #22c55e55;
       background: white;
       flex-shrink: 0;
     }
@@ -155,43 +159,17 @@
       margin-bottom: 12px;
     }
 
-    .tabs {
-      display: inline-flex;
-      border-radius: 999px;
-      padding: 3px;
-      background: #ecfdf3;
-      border: 1px solid #bbf7d0;
-      margin-bottom: 12px;
-      gap: 3px;
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px 14px;
     }
-
-    .tab-button {
-      border: none;
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      background: transparent;
-      color: #166534;
-      transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
-      white-space: nowrap;
-    }
-
-    .tab-button.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #ecfdf5;
-      box-shadow: 0 8px 18px rgba(22,163,74,0.35);
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
 
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     label {
@@ -227,12 +205,12 @@
     input:focus,
     textarea:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 1px rgba(22,163,74,0.35);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.35);
       background: #ffffff;
     }
 
     textarea {
-      min-height: 70px;
+      min-height: 80px;
       resize: vertical;
     }
 
@@ -262,7 +240,7 @@
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: #ecfdf5;
-      box-shadow: 0 10px 20px rgba(22,163,74,0.35);
+      box-shadow: 0 10px 20px rgba(34,197,94,0.35);
     }
 
     .btn-secondary {
@@ -277,9 +255,15 @@
       box-shadow: 0 10px 20px rgba(248,113,113,0.35);
     }
 
-    .btn-disabled {
-      opacity: 0.5;
-      cursor: default;
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+    }
+
+    .btn-muted {
+      background: #e2e8f0;
+      color: #0f172a;
       box-shadow: none;
     }
 
@@ -299,63 +283,68 @@
       border-radius: 999px;
     }
 
-    .obs-card {
+    .student-section {
       border-radius: var(--radius-md);
       border: 1px solid #e2e8f0;
       background: #f9fafb;
       padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .student-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 8px;
     }
 
-    .obs-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: #0f172a;
-      font-weight: 500;
-    }
-
-    .obs-body {
-      font-size: 12px;
-      color: #0f172a;
-      display: grid;
-      grid-template-columns: minmax(0,1fr);
-      gap: 4px;
-    }
-
-    .obs-label {
+    .student-title {
+      font-size: 13px;
       font-weight: 600;
       color: #022c22;
     }
 
-    .badge-pendiente,
-    .badge-firmado {
-      display: inline-flex;
-      padding: 3px 9px;
-      border-radius: 999px;
+    .student-meta {
       font-size: 11px;
-      font-weight: 500;
+      color: var(--text-muted);
     }
 
-    .badge-pendiente {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
     }
 
-    .badge-firmado {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #4ade80;
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 6px 6px;
+      vertical-align: top;
     }
 
-    .signature-panel {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed #cbd5e1;
-      display: none;
+    th {
+      background: #16a34a;
+      color: #ecfdf5;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    tr:nth-child(even) td {
+      background: #f1f5f9;
+    }
+
+    .signature-preview {
+      max-width: 110px;
+      max-height: 40px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .info-text {
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     canvas.signature-pad {
@@ -370,49 +359,11 @@
       touch-action: none;
     }
 
-    .info-text {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .motivo-group {
-      border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      background: #f9fafb;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
-    .motivo-opcion {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-
-    .motivo-opcion textarea {
-      margin-top: 4px;
-      font-size: 12px;
-      min-height: 50px;
-    }
-
-    .quote-banner {
-      margin-top: 16px;
-      padding: 12px 16px;
-      border-radius: 16px;
-      background: linear-gradient(135deg,#16a34a,#15803d);
-      color: #ecfdf5;
-      font-size: 13px;
-      font-weight: 600;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(22,163,74,0.4);
-    }
-
     @media (max-width: 600px) {
       body { padding: 10px; }
       .card { padding: 16px 14px 14px; }
       canvas.signature-pad { height: 200px; }
+      th, td { font-size: 11px; }
     }
   </style>
 </head>
@@ -422,12 +373,13 @@
     <header class="top-bar">
       <div class="brand">
         <div class="brand-logo">
+          <!-- escudo.png debe estar en la misma carpeta -->
           <img src="escudo.png" alt="Escudo Institución Educativa de María">
         </div>
         <div class="brand-text">
           <div class="brand-title">Institución Educativa de María</div>
           <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
-          <div class="brand-meta">Docente: Oscar Barrientos</div>
+          <div class="brand-meta">Seguimiento comportamental y disciplinario</div>
         </div>
       </div>
       <div id="connStatus" class="connection-status offline">
@@ -435,147 +387,108 @@
       </div>
     </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- REGISTRO DEL DOCENTE -->
     <section class="card">
-      <div class="card-title">Portal del acudiente</div>
+      <div class="card-title">Registro del docente</div>
       <div class="card-subtitle">
-        Consulte las observaciones registradas para su hijo(a) y envíe excusas por inasistencia
-        de forma rápida y segura.
+        Diligencie los campos y registre la firma del estudiante / docente. Los registros se
+        guardan en Firebase y se agrupan por estudiante.
       </div>
 
-      <!-- Menú / Tabs -->
-      <div class="tabs">
-        <button class="tab-button active" data-tab="observaciones">Consultar observaciones</button>
-        <button class="tab-button" data-tab="excusa">Enviar excusa por inasistencia</button>
-      </div>
+      <form id="formRegistro">
+        <input type="hidden" id="editId" />
 
-      <!-- TAB: OBSERVACIONES -->
-      <div id="tab-observaciones" class="tab-content active">
-        <form id="formBuscarObs">
+        <div class="form-grid">
           <div class="form-group">
-            <label for="docObs">Documento del estudiante</label>
-            <input type="text" id="docObs" required placeholder="Ej: 123456789" />
-            <div class="field-hint">Digite el número de documento del estudiante para ver las observaciones registradas.</div>
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required />
           </div>
-          <div class="button-row">
-            <button type="submit" class="btn-primary">Buscar observaciones</button>
-          </div>
-        </form>
 
-        <div id="observacionesResumen" class="info-text" style="margin-top:10px;"></div>
-        <div id="listaObservaciones" class="records-list"></div>
-
-        <!-- Panel para firma del acudiente -->
-        <div id="panelFirmaObs" class="signature-panel">
           <div class="form-group">
-            <label>Firma del acudiente</label>
-            <div class="field-hint">
-              Seleccione primero "Firmar esta anotación" en la observación que desea firmar.
-              Luego dibuje su firma aquí y presione "Enviar firma".
-            </div>
+            <label for="documentoEstudiante">Documento del estudiante</label>
+            <input type="text" id="documentoEstudiante" required placeholder="Ej: 123456789" />
           </div>
-          <div class="info-text" id="firmaInfo">Ninguna observación seleccionada.</div>
-          <canvas id="signaturePadAcudiente" class="signature-pad"></canvas>
-          <div class="button-row">
-            <button type="button" class="btn-danger" id="btnLimpiarFirmaAcudiente">Limpiar firma</button>
-            <button type="button" class="btn-primary btn-disabled" id="btnEnviarFirmaAcudiente" disabled>Enviar firma</button>
+
+          <div class="form-group">
+            <label for="nombreEstudiante">Nombre del estudiante</label>
+            <input type="text" id="nombreEstudiante" required placeholder="Nombre completo" />
           </div>
         </div>
-      </div>
 
-      <!-- TAB: EXCUSA -->
-      <div id="tab-excusa" class="tab-content">
-        <!-- Paso 1: documento -->
-        <form id="formIdentExcusa">
-          <div class="form-group">
-            <label for="docExcusa">Documento del estudiante</label>
-            <input type="text" id="docExcusa" required placeholder="Ej: 123456789" />
-            <div class="field-hint">Digite el documento del estudiante y pulse “Continuar”.</div>
-          </div>
+        <div class="form-group">
+          <label for="comportamiento">Descripción del comportamiento</label>
+          <textarea id="comportamiento" required placeholder="Explique brevemente la situación presentada..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="descargos">Descargos (versión del estudiante)</label>
+          <textarea id="descargos" required placeholder="Registre lo manifestado por el estudiante..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="procedimiento">Procedimiento / acciones a seguir</label>
+          <textarea id="procedimiento" required placeholder="Compromisos, acuerdos, remisiones, etc."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Firma estudiante / docente</label>
+          <div class="field-hint">Dibuje aquí la firma correspondiente antes de guardar el registro.</div>
+          <canvas id="signaturePad" class="signature-pad"></canvas>
           <div class="button-row">
-            <button type="submit" class="btn-primary">Continuar</button>
+            <button type="button" class="btn-danger" id="btnLimpiarFirma">Limpiar firma</button>
           </div>
-        </form>
+        </div>
 
-        <div id="excusaResumen" class="info-text" style="margin-top:8px;"></div>
-
-        <!-- Paso 2: formulario excusa -->
-        <form id="formExcusa" style="display:none; margin-top:10px;">
-          <div class="form-group">
-            <label for="fechaInasistencia">Fecha de la inasistencia</label>
-            <input type="date" id="fechaInasistencia" required />
-          </div>
-
-          <div class="form-group">
-            <label>Motivo de la inasistencia</label>
-            <div class="field-hint">
-              Escoja una opción y explique brevemente la situación en el cuadro de texto.
-              <strong>Todos los motivos requieren explicación escrita.</strong>
-            </div>
-          </div>
-
-          <div class="motivo-group">
-            <div class="motivo-opcion">
-              <input type="radio" name="motivoTipo" id="motivoEnfermedad" value="Enfermedad" />
-              <div>
-                <label for="motivoEnfermedad"><strong>Enfermedad</strong></label>
-                <textarea id="motivoEnfermedadTexto" placeholder="Especifique aquí la razón de la inasistencia (enfermedad)..."></textarea>
-              </div>
-            </div>
-
-            <div class="motivo-opcion">
-              <input type="radio" name="motivoTipo" id="motivoCita" value="Cita médica" />
-              <div>
-                <label for="motivoCita"><strong>Cita médica</strong></label>
-                <textarea id="motivoCitaTexto" placeholder="Especifique aquí la razón de la inasistencia (cita médica)..."></textarea>
-              </div>
-            </div>
-
-            <div class="motivo-opcion">
-              <input type="radio" name="motivoTipo" id="motivoCalamidad" value="Calamidad" />
-              <div>
-                <label for="motivoCalamidad"><strong>Calamidad</strong></label>
-                <textarea id="motivoCalamidadTexto" placeholder="Especifique aquí la razón de la inasistencia (calamidad)..."></textarea>
-              </div>
-            </div>
-
-            <div class="motivo-opcion">
-              <input type="radio" name="motivoTipo" id="motivoOtro" value="Otro" />
-              <div>
-                <label for="motivoOtro"><strong>Otro</strong></label>
-                <textarea id="motivoOtroTexto" placeholder="Especifique aquí la razón de la inasistencia (obligatorio si escoge 'Otro')"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Firma del acudiente</label>
-            <div class="field-hint">Dibuje aquí la firma del acudiente antes de enviar la excusa.</div>
-          </div>
-          <canvas id="signaturePadExcusa" class="signature-pad"></canvas>
-          <div class="button-row">
-            <button type="button" class="btn-danger" id="btnLimpiarFirmaExcusa">Limpiar firma</button>
-            <button type="submit" class="btn-secondary">Enviar excusa</button>
-          </div>
-        </form>
-      </div>
+        <div class="button-row">
+          <button type="submit" class="btn-primary" id="btnGuardar">Guardar registro</button>
+          <button type="button" class="btn-muted" id="btnCancelarEdicion" style="display:none;">Cancelar edición</button>
+        </div>
+      </form>
     </section>
 
-    <!-- FRASE FINAL -->
-    <footer class="quote-banner">
-      “Familia y escuela caminamos juntos: al colaborar y comunicarnos,
-      construimos el mejor camino para el bienestar y aprendizaje de nuestros hijos.”
-    </footer>
+    <!-- REGISTROS POR ESTUDIANTE -->
+    <section class="card">
+      <div class="card-title">Registros comportamentales por estudiante</div>
+      <div class="card-subtitle">
+        Visualice todos los registros realizados y descargue el historial de cada estudiante en PDF.
+      </div>
+
+      <div class="form-group">
+        <label for="buscarRegistros">Buscar por nombre o documento</label>
+        <input type="text" id="buscarRegistros" placeholder="Escriba parte del nombre o documento..." />
+      </div>
+
+      <div id="registrosContainer" class="records-list"></div>
+    </section>
+
+    <!-- CONTROL Y SEGUIMIENTO DE AUSENTISMO -->
+    <section class="card">
+      <div class="card-title">Control y seguimiento de ausentismo escolar</div>
+      <div class="card-subtitle">
+        Excusas enviadas por los acudientes a través del portal del acudiente. Se agrupan por estudiante.
+      </div>
+
+      <div class="form-group">
+        <label for="buscarExcusas">Buscar por nombre o documento</label>
+        <input type="text" id="buscarExcusas" placeholder="Escriba parte del nombre o documento..." />
+      </div>
+
+      <div id="excusasContainer" class="records-list"></div>
+      <div class="info-text">
+        Nota: las excusas se leen desde la colección <strong>excusasInasistencia</strong> de Firebase.
+      </div>
+    </section>
   </div>
 
-  <!-- FIREBASE + LÓGICA -->
+  <!-- LÓGICA FIREBASE Y APLICATIVO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, updateDoc, getDocs,
-      doc, query, where
+      getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
+      getDocs, query, where
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
+    // ---------- CONFIG FIREBASE ----------
     const firebaseConfig = {
       apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
       authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
@@ -590,470 +503,686 @@
     const colRegistros = collection(db, "registrosComportamentales");
     const colExcusas   = collection(db, "excusasInasistencia");
 
+    // ---------- ESTADO CONEXIÓN ----------
     const connStatus = document.getElementById('connStatus');
-    function updateConn() {
+    function actualizarConexion() {
       if (navigator.onLine) {
         connStatus.className = "connection-status online";
         connStatus.innerHTML = '<span class="connection-dot"></span><span>Online - Conectado</span>';
       } else {
         connStatus.className = "connection-status offline";
-        connStatus.innerHTML = '<span class="connection-dot"></span><span>Offline (requiere internet)</span>';
+        connStatus.innerHTML = '<span class="connection-dot"></span><span>Offline (solo lectura)</span>';
       }
     }
-    window.addEventListener('online', updateConn);
-    window.addEventListener('offline', updateConn);
-    updateConn();
+    window.addEventListener('online', actualizarConexion);
+    window.addEventListener('offline', actualizarConexion);
+    actualizarConexion();
 
-    // TABS
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = {
-      observaciones: document.getElementById('tab-observaciones'),
-      excusa: document.getElementById('tab-excusa')
-    };
+    // ---------- ESTADO LOCAL ----------
+    let registros = [];
+    let excusas = [];
+    let studentNamesByDoc = {}; // documento -> nombre
+    const escudoImg = new Image();
+    escudoImg.src = "escudo.png";
 
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        tabButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        Object.keys(tabContents).forEach(key => {
-          tabContents[key].classList.toggle('active', key === tab);
-        });
-      });
-    });
-
+    // ---------- UTILIDADES ----------
     function escapeHTML(s) {
       if (!s) return "";
       return String(s)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
     }
 
-    // ---------- OBSERVACIONES ----------
-    const formBuscarObs = document.getElementById('formBuscarObs');
-    const docObsInput = document.getElementById('docObs');
-    const listaObservaciones = document.getElementById('listaObservaciones');
-    const obsResumen = document.getElementById('observacionesResumen');
-    const panelFirmaObs = document.getElementById('panelFirmaObs');
+    function agruparPor(arr, claveFn) {
+      const res = {};
+      arr.forEach(item => {
+        const key = claveFn(item);
+        if (!res[key]) res[key] = [];
+        res[key].push(item);
+      });
+      return res;
+    }
 
-    let observacionesActuales = [];
-    let obsSeleccionadaId = null;
-
-    formBuscarObs.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para consultar.");
-        return;
-      }
-
-      const docEst = docObsInput.value.trim();
-      if (!docEst) {
-        alert("Digite el documento del estudiante.");
-        return;
-      }
-
+    // ---------- CARGA DE REGISTROS ----------
+    async function cargarRegistros() {
       try {
-        const q = query(colRegistros, where("documentoEstudiante", "==", docEst));
-        const snap = await getDocs(q);
-        observacionesActuales = [];
-        snap.forEach(d => observacionesActuales.push({ firebaseId: d.id, ...d.data() }));
-
-        obsSeleccionadaId = null;
-        firmaInfo.textContent = "Ninguna observación seleccionada.";
-        btnEnviarFirmaAcudiente.disabled = true;
-        btnEnviarFirmaAcudiente.classList.add("btn-disabled");
-
-        if (observacionesActuales.length === 0) {
-          listaObservaciones.innerHTML = '<div class="info-text" style="margin-top:8px;">No se encontraron observaciones para este estudiante.</div>';
-          obsResumen.textContent = "";
-          panelFirmaObs.style.display = "none";
-          return;
-        }
-
-        panelFirmaObs.style.display = "block";
-
-        observacionesActuales.sort((a,b) => (b.fecha || "").localeCompare(a.fecha || ""));
-        const nombre = observacionesActuales[0].nombreEstudiante || "";
-        obsResumen.textContent = `Estudiante: ${nombre} · Total de observaciones: ${observacionesActuales.length}`;
-
-        let html = "";
-        observacionesActuales.forEach(r => {
-          html += '<div class="obs-card">';
-          html += '  <div class="obs-header">';
-          html += '    <span>Fecha: ' + escapeHTML(r.fecha || "") + '</span>';
-          if (r.firmaAcudiente) {
-            html += '    <span class="badge-firmado">Firmada por acudiente</span>';
-          } else {
-            html += '    <span class="badge-pendiente">Firma del acudiente pendiente</span>';
-          }
-          html += '  </div>';
-          html += '  <div class="obs-body">';
-          html += '    <div><span class="obs-label">Comportamiento: </span>' + escapeHTML(r.comportamiento || "") + '</div>';
-          html += '    <div><span class="obs-label">Descargos: </span>' + escapeHTML(r.descargos || "") + '</div>';
-          html += '    <div><span class="obs-label">Procedimiento: </span>' + escapeHTML(r.procedimiento || "") + '</div>';
-          html += '  </div>';
-          html += '  <div class="button-row" style="margin-top:8px;">';
-          if (!r.firmaAcudiente) {
-            html += '    <button type="button" class="btn-primary btn-firmar" data-id="' + r.firebaseId + '" data-fecha="' + escapeHTML(r.fecha || "") + '">Firmar esta anotación</button>';
-          } else {
-            html += '    <button type="button" class="btn-secondary btn-firmar-seleccionar" data-id="' + r.firebaseId + '" data-fecha="' + escapeHTML(r.fecha || "") + '">Ver esta anotación</button>';
-          }
-          html += '  </div>';
-          html += '</div>';
-        });
-
-        listaObservaciones.innerHTML = html;
-
-        document.querySelectorAll('.btn-firmar').forEach(btn => {
-          btn.addEventListener('click', () => {
-            obsSeleccionadaId = btn.dataset.id;
-            const fecha = btn.dataset.fecha || "";
-            firmaInfo.textContent = fecha
-              ? `Firmando la observación del día ${fecha}.`
-              : "Observación seleccionada para firmar.";
-            btnEnviarFirmaAcudiente.disabled = false;
-            btnEnviarFirmaAcudiente.classList.remove("btn-disabled");
-            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-          });
-        });
-
-        document.querySelectorAll('.btn-firmar-seleccionar').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const fecha = btn.dataset.fecha || "";
-            firmaInfo.textContent = fecha
-              ? `La observación del día ${fecha} ya fue firmada por el acudiente.`
-              : "Esta observación ya cuenta con firma del acudiente.";
-            obsSeleccionadaId = null;
-            btnEnviarFirmaAcudiente.disabled = true;
-            btnEnviarFirmaAcudiente.classList.add("btn-disabled");
-          });
-        });
-
-      } catch (err) {
-        console.error(err);
-        alert("Error al consultar observaciones.");
-      }
-    });
-
-    // FIRMA ACUDIENTE (OBSERVACIONES)
-    const firmaCanvas = document.getElementById('signaturePadAcudiente');
-    const firmaCtx = firmaCanvas.getContext('2d');
-    const firmaInfo = document.getElementById('firmaInfo');
-    const btnLimpiarFirmaAcudiente = document.getElementById('btnLimpiarFirmaAcudiente');
-    const btnEnviarFirmaAcudiente = document.getElementById('btnEnviarFirmaAcudiente');
-
-    function ajustarCanvasFirmaObs() {
-      const w = firmaCanvas.getBoundingClientRect().width || 500;
-      firmaCanvas.width = w;
-      firmaCanvas.height = 220;
-      firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-    }
-    ajustarCanvasFirmaObs();
-
-    let firmando = false, fx = 0, fy = 0;
-    function getPosFirma(e) {
-      const rect = firmaCanvas.getBoundingClientRect();
-      let x, y;
-      if (e.touches && e.touches[0]) {
-        x = e.touches[0].clientX - rect.left;
-        y = e.touches[0].clientY - rect.top;
-      } else {
-        x = e.offsetX ?? (e.clientX - rect.left);
-        y = e.offsetY ?? (e.clientY - rect.top);
-      }
-      return { x, y };
-    }
-    function startFirma(e) {
-      e.preventDefault();
-      firmando = true;
-      const p = getPosFirma(e);
-      fx = p.x; fy = p.y;
-    }
-    function drawFirma(e) {
-      if (!firmando) return;
-      e.preventDefault();
-      const p = getPosFirma(e);
-      firmaCtx.strokeStyle = "#0f172a";
-      firmaCtx.lineWidth = 2.2;
-      firmaCtx.lineCap = "round";
-      firmaCtx.beginPath();
-      firmaCtx.moveTo(fx, fy);
-      firmaCtx.lineTo(p.x, p.y);
-      firmaCtx.stroke();
-      fx = p.x; fy = p.y;
-    }
-    function stopFirma(e) { e && e.preventDefault(); firmando = false; }
-
-    firmaCanvas.addEventListener("mousedown", startFirma);
-    firmaCanvas.addEventListener("mousemove", drawFirma);
-    firmaCanvas.addEventListener("mouseup", stopFirma);
-    firmaCanvas.addEventListener("mouseout", stopFirma);
-    firmaCanvas.addEventListener("touchstart", startFirma, { passive:false });
-    firmaCanvas.addEventListener("touchmove", drawFirma, { passive:false });
-    firmaCanvas.addEventListener("touchend", stopFirma, { passive:false });
-
-    btnLimpiarFirmaAcudiente.addEventListener('click', () => {
-      firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-    });
-
-    btnEnviarFirmaAcudiente.addEventListener('click', async () => {
-      if (btnEnviarFirmaAcudiente.disabled) return;
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para enviar la firma.");
-        return;
-      }
-      if (!obsSeleccionadaId) {
-        alert("Primero seleccione una observación con el botón 'Firmar esta anotación'.");
-        return;
-      }
-
-      try {
-        const firmaData = firmaCanvas.toDataURL("image/png");
-        const hoy = new Date().toLocaleDateString("es-CO");
-        await updateDoc(doc(db, "registrosComportamentales", obsSeleccionadaId), {
-          firmaAcudiente: firmaData,
-          fechaFirmaAcudiente: hoy
-        });
-        alert("Firma enviada correctamente.");
-        firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-        firmaInfo.textContent = "Ninguna observación seleccionada.";
-        obsSeleccionadaId = null;
-        btnEnviarFirmaAcudiente.disabled = true;
-        btnEnviarFirmaAcudiente.classList.add("btn-disabled");
-
-        if (docObsInput.value.trim()) {
-          formBuscarObs.dispatchEvent(new Event("submit"));
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Error al enviar la firma. Intente nuevamente.");
-      }
-    });
-
-    // ---------- EXCUSA ----------
-    const formIdentExcusa = document.getElementById('formIdentExcusa');
-    const formExcusa = document.getElementById('formExcusa');
-    const docExcusa = document.getElementById('docExcusa');
-    const fechaInasistencia = document.getElementById('fechaInasistencia');
-    const excusaResumen = document.getElementById('excusaResumen');
-
-    const motivoEnfermedad = document.getElementById('motivoEnfermedad');
-    const motivoCita = document.getElementById('motivoCita');
-    const motivoCalamidad = document.getElementById('motivoCalamidad');
-    const motivoOtro = document.getElementById('motivoOtro');
-
-    const motivoEnfermedadTexto = document.getElementById('motivoEnfermedadTexto');
-    const motivoCitaTexto = document.getElementById('motivoCitaTexto');
-    const motivoCalamidadTexto = document.getElementById('motivoCalamidadTexto');
-    const motivoOtroTexto = document.getElementById('motivoOtroTexto');
-
-    const canvasExcusa = document.getElementById('signaturePadExcusa');
-    const ctxExcusa = canvasExcusa.getContext('2d');
-
-    // Ajuste inicial del canvas de excusa (SIN volver a redimensionar en cada resize para no borrar la firma)
-    function ajustarCanvasExcusa() {
-      const w = canvasExcusa.getBoundingClientRect().width || 500;
-      canvasExcusa.width = w;
-      canvasExcusa.height = 220;
-      ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
-    }
-    ajustarCanvasExcusa();
-    // IMPORTANTE: NO volvemos a llamar a ajustarCanvasExcusa en 'resize' para no borrar la firma
-    // window.addEventListener('resize', ajustarCanvasExcusa);  // <- NO
-
-    let firmandoExcusa = false, ex = 0, ey = 0;
-    let excusaTieneTrazo = false; // para saber si realmente firmaron
-
-    function getPosExcusa(e) {
-      const rect = canvasExcusa.getBoundingClientRect();
-      let x, y;
-      if (e.touches && e.touches[0]) {
-        x = e.touches[0].clientX - rect.left;
-        y = e.touches[0].clientY - rect.top;
-      } else {
-        x = e.offsetX ?? (e.clientX - rect.left);
-        y = e.offsetY ?? (e.clientY - rect.top);
-      }
-      return { x, y };
-    }
-
-    function startExcusa(e) {
-      e.preventDefault();
-      firmandoExcusa = true;
-      const p = getPosExcusa(e);
-      ex = p.x; ey = p.y;
-    }
-
-    function drawExcusa(e) {
-      if (!firmandoExcusa) return;
-      e.preventDefault();
-      const p = getPosExcusa(e);
-      ctxExcusa.strokeStyle = "#0f172a";
-      ctxExcusa.lineWidth = 2.2;
-      ctxExcusa.lineCap = "round";
-      ctxExcusa.beginPath();
-      ctxExcusa.moveTo(ex, ey);
-      ctxExcusa.lineTo(p.x, p.y);
-      ctxExcusa.stroke();
-      ex = p.x; ey = p.y;
-      excusaTieneTrazo = true; // ya dibujó algo
-    }
-
-    function stopExcusa(e) {
-      e && e.preventDefault();
-      firmandoExcusa = false;
-    }
-
-    canvasExcusa.addEventListener("mousedown", startExcusa);
-    canvasExcusa.addEventListener("mousemove", drawExcusa);
-    canvasExcusa.addEventListener("mouseup", stopExcusa);
-    canvasExcusa.addEventListener("mouseout", stopExcusa);
-    canvasExcusa.addEventListener("touchstart", startExcusa, { passive:false });
-    canvasExcusa.addEventListener("touchmove", drawExcusa, { passive:false });
-    canvasExcusa.addEventListener("touchend", stopExcusa, { passive:false });
-
-    document.getElementById('btnLimpiarFirmaExcusa').addEventListener('click', () => {
-      ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
-      excusaTieneTrazo = false;
-    });
-
-    // Buscar nombre según documento y mostrar formulario
-    formIdentExcusa.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para continuar.");
-        return;
-      }
-
-      const docEst = docExcusa.value.trim();
-      if (!docEst) {
-        alert("Digite el documento del estudiante.");
-        return;
-      }
-
-      try {
-        let nombre = "";
-
-        const q = query(colRegistros, where("documentoEstudiante", "==", docEst));
-        const snap = await getDocs(q);
+        const snap = await getDocs(colRegistros);
+        registros = [];
+        studentNamesByDoc = {};
         snap.forEach(d => {
           const data = d.data();
-          if (!nombre && data.nombreEstudiante) {
-            nombre = data.nombreEstudiante;
+          const r = {
+            firebaseId: d.id,
+            id: data.id || Date.now(),
+            fecha: data.fecha || "",
+            documentoEstudiante: data.documentoEstudiante || "",
+            nombreEstudiante: data.nombreEstudiante || "",
+            comportamiento: data.comportamiento || "",
+            descargos: data.descargos || "",
+            procedimiento: data.procedimiento || "",
+            firma: data.firma || data.firmaEstudianteDocente || "",
+            firmaAcudiente: data.firmaAcudiente || "",
+            fechaFirmaAcudiente: data.fechaFirmaAcudiente || ""
+          };
+          registros.push(r);
+          if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
+            studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
           }
         });
-
-        if (!nombre && docEst === "15271403") {
-          nombre = "OSCAR BARRIENTOS";
-        }
-
-        if (nombre) {
-          excusaResumen.textContent = "Estudiante: " + nombre;
-        } else {
-          excusaResumen.textContent = "Estudiante aún no registrado en el sistema. La excusa se asociará al documento.";
-        }
-
-        formExcusa.style.display = "block";
-        fechaInasistencia.valueAsDate = new Date();
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-
+        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
+        renderRegistros();
+        renderExcusas(); // para tener nombres actualizados
       } catch (err) {
-        console.error(err);
-        alert("No fue posible verificar el estudiante. Intente nuevamente.");
+        console.error("Error cargando registros:", err);
+        registros = JSON.parse(localStorage.getItem("registrosComportamentales") || "[]");
+        registros.forEach(r => {
+          if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
+            studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
+          }
+        });
+        renderRegistros();
       }
+    }
+
+    // ---------- CARGA DE EXCUSAS ----------
+    async function cargarExcusas() {
+      try {
+        const snap = await getDocs(colExcusas);
+        excusas = [];
+        snap.forEach(d => {
+          const data = d.data();
+          excusas.push({
+            firebaseId: d.id,
+            documentoEstudiante: data.documentoEstudiante || "",
+            fechaInasistencia: data.fechaInasistencia || "",
+            motivoTipo: data.motivoTipo || "",
+            motivoDetalle: data.motivoDetalle || "",
+            firmaAcudiente: data.firmaAcudiente || "",
+            fechaEnvio: data.fechaEnvio || ""
+          });
+        });
+        localStorage.setItem("excusasInasistencia", JSON.stringify(excusas));
+        renderExcusas();
+      } catch (err) {
+        console.error("Error cargando excusas:", err);
+        excusas = JSON.parse(localStorage.getItem("excusasInasistencia") || "[]");
+        renderExcusas();
+      }
+    }
+
+    // ---------- RENDER REGISTROS ----------
+    const registrosContainer = document.getElementById('registrosContainer');
+    const buscarRegistrosInput = document.getElementById('buscarRegistros');
+
+    function renderRegistros() {
+      let datos = registros.slice();
+      const term = (buscarRegistrosInput.value || "").toLowerCase().trim();
+      if (term) {
+        datos = datos.filter(r =>
+          (r.nombreEstudiante || "").toLowerCase().includes(term) ||
+          (r.documentoEstudiante || "").toLowerCase().includes(term)
+        );
+      }
+
+      if (!datos.length) {
+        registrosContainer.innerHTML = '<div class="info-text">No hay registros para mostrar.</div>';
+        return;
+      }
+
+      const agrupados = agruparPor(datos, r => r.documentoEstudiante || "Sin documento");
+      const docs = Object.keys(agrupados).sort();
+
+      let html = "";
+      docs.forEach(docEst => {
+        const lista = agrupados[docEst];
+        const nombre = lista[0].nombreEstudiante || studentNamesByDoc[docEst] || "Sin nombre";
+        html += '<div class="student-section">';
+        html += '  <div class="student-header">';
+        html += '    <div>';
+        html += '      <div class="student-title">Estudiante: ' + escapeHTML(nombre) + '</div>';
+        html += '      <div class="student-meta">Documento: ' + escapeHTML(docEst) + ' · Registros: ' + lista.length + '</div>';
+        html += '    </div>';
+        html += '    <div class="button-row">';
+        html += '      <button type="button" class="btn-secondary btn-small" onclick="downloadRegistroPDF(\'' +
+          docEst.replace(/'/g, "\\'") + '\')">Descargar PDF de seguimiento</button>';
+        html += '    </div>';
+        html += '  </div>';
+
+        html += '  <div class="table-wrapper">';
+        html += '    <table>';
+        html += '      <thead><tr>';
+        html += '        <th>Fecha</th>';
+        html += '        <th>Comportamiento</th>';
+        html += '        <th>Descargos</th>';
+        html += '        <th>Procedimiento</th>';
+        html += '        <th>Firma estudiante/docente</th>';
+        html += '        <th>Firma acudiente</th>';
+        html += '        <th>Acciones</th>';
+        html += '      </tr></thead>';
+        html += '      <tbody>';
+
+        lista.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
+        lista.forEach(r => {
+          html += '      <tr>';
+          html += '        <td>' + escapeHTML(r.fecha || "") + '</td>';
+          html += '        <td>' + escapeHTML(r.comportamiento || "") + '</td>';
+          html += '        <td>' + escapeHTML(r.descargos || "") + '</td>';
+          html += '        <td>' + escapeHTML(r.procedimiento || "") + '</td>';
+          html += '        <td>';
+          if (r.firma) {
+            html += '<img class="signature-preview" src="' + r.firma + '" alt="Firma estudiante/docente">';
+          } else {
+            html += '<span class="info-text">Sin firma</span>';
+          }
+          html += '        </td>';
+          html += '        <td>';
+          if (r.firmaAcudiente) {
+            html += '<img class="signature-preview" src="' + r.firmaAcudiente + '" alt="Firma acudiente">';
+          } else {
+            html += '<span class="info-text">Pendiente</span>';
+          }
+          html += '        </td>';
+          html += '        <td>';
+          html += '          <button type="button" class="btn-muted btn-small" onclick="editRecord(\'' + r.firebaseId + '\')">Editar</button> ';
+          html += '          <button type="button" class="btn-danger btn-small" onclick="deleteRecord(\'' + r.firebaseId + '\')">Eliminar</button>';
+          html += '        </td>';
+          html += '      </tr>';
+        });
+
+        html += '      </tbody>';
+        html += '    </table>';
+        html += '  </div>';
+        html += '</div>';
+      });
+
+      registrosContainer.innerHTML = html;
+    }
+
+    buscarRegistrosInput.addEventListener('input', renderRegistros);
+
+    // ---------- RENDER EXCUSAS ----------
+    const excusasContainer = document.getElementById('excusasContainer');
+    const buscarExcusasInput = document.getElementById('buscarExcusas');
+
+    function renderExcusas() {
+      let datos = excusas.slice();
+      const term = (buscarExcusasInput.value || "").toLowerCase().trim();
+      if (term) {
+        datos = datos.filter(e =>
+          (e.documentoEstudiante || "").toLowerCase().includes(term) ||
+          (studentNamesByDoc[e.documentoEstudiante] || "").toLowerCase().includes(term)
+        );
+      }
+
+      if (!datos.length) {
+        excusasContainer.innerHTML = '<div class="info-text">No hay excusas para mostrar.</div>';
+        return;
+      }
+
+      const agrupados = agruparPor(datos, e => e.documentoEstudiante || "Sin documento");
+      const docs = Object.keys(agrupados).sort();
+
+      let html = "";
+      docs.forEach(docEst => {
+        const lista = agrupados[docEst];
+        const nombre = studentNamesByDoc[docEst] || "Sin nombre registrado";
+        html += '<div class="student-section">';
+        html += '  <div class="student-header">';
+        html += '    <div>';
+        html += '      <div class="student-title">Estudiante: ' + escapeHTML(nombre) + '</div>';
+        html += '      <div class="student-meta">Documento: ' + escapeHTML(docEst) + ' · Excusas: ' + lista.length + '</div>';
+        html += '    </div>';
+        html += '    <div class="button-row">';
+        html += '      <button type="button" class="btn-secondary btn-small" onclick="downloadExcusasPDF(\'' +
+          docEst.replace(/'/g, "\\'") + '\')">Descargar PDF de excusas</button>';
+        html += '    </div>';
+        html += '  </div>';
+
+        html += '  <div class="table-wrapper">';
+        html += '    <table>';
+        html += '      <thead><tr>';
+        html += '        <th>Fecha de inasistencia</th>';
+        html += '        <th>Motivo</th>';
+        html += '        <th>Descripción</th>';
+        html += '        <th>Firma acudiente</th>';
+        html += '      </tr></thead>';
+        html += '      <tbody>';
+
+        lista.sort((a,b) => (a.fechaInasistencia || "").localeCompare(b.fechaInasistencia || ""));
+        lista.forEach(e => {
+          html += '      <tr>';
+          html += '        <td>' + escapeHTML(e.fechaInasistencia || "") + '</td>';
+          html += '        <td>' + escapeHTML(e.motivoTipo || "") + '</td>';
+          html += '        <td>' + escapeHTML(e.motivoDetalle || "") + '</td>';
+          html += '        <td>';
+          if (e.firmaAcudiente) {
+            html += '<img class="signature-preview" src="' + e.firmaAcudiente + '" alt="Firma acudiente">';
+          } else {
+            html += '<span class="info-text">Sin firma</span>';
+          }
+          html += '        </td>';
+          html += '      </tr>';
+        });
+
+        html += '      </tbody>';
+        html += '    </table>';
+        html += '  </div>';
+        html += '</div>';
+      });
+
+      excusasContainer.innerHTML = html;
+    }
+
+    buscarExcusasInput.addEventListener('input', renderExcusas);
+
+    // ---------- FIRMA REGISTRO DOCENTE ----------
+    const signaturePad = document.getElementById('signaturePad');
+    const sigCtx = signaturePad.getContext('2d');
+    const btnLimpiarFirma = document.getElementById('btnLimpiarFirma');
+
+    function ajustarCanvasFirma() {
+      const w = signaturePad.getBoundingClientRect().width || 600;
+      signaturePad.width = w;
+      signaturePad.height = 220;
+      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+    }
+    ajustarCanvasFirma();
+    window.addEventListener('resize', ajustarCanvasFirma);
+
+    let dibujando = false, sx = 0, sy = 0;
+    function getPosFirma(e) {
+      const rect = signaturePad.getBoundingClientRect();
+      let x, y;
+      if (e.touches && e.touches[0]) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else {
+        x = e.offsetX ?? (e.clientX - rect.left);
+        y = e.offsetY ?? (e.clientY - rect.top);
+      }
+      return { x, y };
+    }
+    function startDraw(e) {
+      e.preventDefault();
+      dibujando = true;
+      const p = getPosFirma(e);
+      sx = p.x; sy = p.y;
+    }
+    function draw(e) {
+      if (!dibujando) return;
+      e.preventDefault();
+      const p = getPosFirma(e);
+      sigCtx.strokeStyle = "#0f172a";
+      sigCtx.lineWidth = 2.2;
+      sigCtx.lineCap = "round";
+      sigCtx.beginPath();
+      sigCtx.moveTo(sx, sy);
+      sigCtx.lineTo(p.x, p.y);
+      sigCtx.stroke();
+      sx = p.x; sy = p.y;
+    }
+    function stopDraw(e) {
+      e && e.preventDefault();
+      dibujando = false;
+    }
+
+    signaturePad.addEventListener("mousedown", startDraw);
+    signaturePad.addEventListener("mousemove", draw);
+    signaturePad.addEventListener("mouseup", stopDraw);
+    signaturePad.addEventListener("mouseout", stopDraw);
+    signaturePad.addEventListener("touchstart", startDraw, { passive:false });
+    signaturePad.addEventListener("touchmove", draw, { passive:false });
+    signaturePad.addEventListener("touchend", stopDraw, { passive:false });
+
+    btnLimpiarFirma.addEventListener('click', () => {
+      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
     });
 
-    formExcusa.addEventListener('submit', async (e) => {
+    // ---------- CRUD REGISTROS ----------
+    const formRegistro = document.getElementById('formRegistro');
+    const editIdInput = document.getElementById('editId');
+    const btnGuardar = document.getElementById('btnGuardar');
+    const btnCancelarEdicion = document.getElementById('btnCancelarEdicion');
+    const fechaInput = document.getElementById('fecha');
+    const docInput = document.getElementById('documentoEstudiante');
+    const nombreInput = document.getElementById('nombreEstudiante');
+    const compInput = document.getElementById('comportamiento');
+    const descInput = document.getElementById('descargos');
+    const procInput = document.getElementById('procedimiento');
+
+    fechaInput.valueAsDate = new Date();
+
+    formRegistro.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para enviar la excusa.");
+        alert("Se necesita conexión a internet para guardar el registro.");
         return;
       }
 
-      const docEst = docExcusa.value.trim();
-      const fechaIna = fechaInasistencia.value;
+      const registro = {
+        fecha: fechaInput.value,
+        documentoEstudiante: docInput.value.trim(),
+        nombreEstudiante: nombreInput.value.trim(),
+        comportamiento: compInput.value.trim(),
+        descargos: descInput.value.trim(),
+        procedimiento: procInput.value.trim(),
+        firma: signaturePad.toDataURL("image/png")
+      };
 
-      if (!docEst || !fechaIna) {
-        alert("Complete el documento del estudiante y la fecha de inasistencia.");
-        return;
-      }
-
-      let motivoTipo = null;
-      let motivoDetalle = "";
-
-      if (motivoEnfermedad.checked) {
-        motivoTipo = "Enfermedad";
-        motivoDetalle = motivoEnfermedadTexto.value.trim();
-        if (!motivoDetalle) {
-          alert("Por favor explique brevemente la situación de enfermedad.");
-          return;
-        }
-      } else if (motivoCita.checked) {
-        motivoTipo = "Cita médica";
-        motivoDetalle = motivoCitaTexto.value.trim();
-        if (!motivoDetalle) {
-          alert("Por favor explique brevemente la cita médica.");
-          return;
-        }
-      } else if (motivoCalamidad.checked) {
-        motivoTipo = "Calamidad";
-        motivoDetalle = motivoCalamidadTexto.value.trim();
-        if (!motivoDetalle) {
-          alert("Por favor explique brevemente la calamidad.");
-          return;
-        }
-      } else if (motivoOtro.checked) {
-        motivoTipo = "Otro";
-        motivoDetalle = motivoOtroTexto.value.trim();
-        if (!motivoDetalle) {
-          alert("Explique el motivo en el cuadro de texto de 'Otro'.");
-          return;
-        }
-      }
-
-      if (!motivoTipo) {
-        alert("Seleccione un motivo de la inasistencia.");
-        return;
-      }
-
-      // Verificar que realmente haya firma en el canvas
-      if (!excusaTieneTrazo) {
-        alert("Por favor dibuje la firma del acudiente antes de enviar la excusa.");
+      if (!registro.fecha || !registro.documentoEstudiante || !registro.nombreEstudiante) {
+        alert("Complete todos los campos obligatorios.");
         return;
       }
 
       try {
-        const firmaData = canvasExcusa.toDataURL("image/png");
-        const fechaEnvio = new Date().toISOString();
+        if (editIdInput.value) {
+          // actualizar
+          const firebaseId = editIdInput.value;
+          await updateDoc(doc(db, "registrosComportamentales", firebaseId), registro);
+          const idx = registros.findIndex(r => r.firebaseId === firebaseId);
+          if (idx !== -1) {
+            registros[idx] = { ...registros[idx], ...registro };
+          }
+          alert("Registro actualizado correctamente.");
+        } else {
+          // nuevo
+          registro.id = Date.now();
+          const ref = await addDoc(colRegistros, registro);
+          registros.push({ ...registro, firebaseId: ref.id });
+          alert("Registro guardado correctamente.");
+        }
 
-        await addDoc(colExcusas, {
-          documentoEstudiante: docEst,
-          fechaInasistencia: fechaIna,
-          motivoTipo,
-          motivoDetalle,
-          firmaAcudiente: firmaData,
-          fechaEnvio
-        });
+        if (registro.documentoEstudiante && registro.nombreEstudiante) {
+          studentNamesByDoc[registro.documentoEstudiante] = registro.nombreEstudiante;
+        }
 
-        alert(
-          "Recuerde que es obligación del estudiante ponerse al día con las actividades delegadas durante su ausencia.\n\n" +
-          "Solamente se le reconocerán las notas por los trabajos correspondientes a la jornada en la que no asistió si presenta la excusa."
-        );
-
-        formExcusa.reset();
-        ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
-        excusaTieneTrazo = false;
-        fechaInasistencia.valueAsDate = new Date();
-
+        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
+        formRegistro.reset();
+        fechaInput.valueAsDate = new Date();
+        sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+        editIdInput.value = "";
+        btnGuardar.textContent = "Guardar registro";
+        btnCancelarEdicion.style.display = "none";
+        renderRegistros();
+        renderExcusas(); // por si es un nuevo estudiante
       } catch (err) {
-        console.error(err);
-        alert("Error al enviar la excusa. Intente nuevamente.");
+        console.error("Error al guardar:", err);
+        alert("Error al guardar el registro.");
       }
     });
 
-    fechaInasistencia.valueAsDate = new Date();
+    function cargarRegistroEnFormulario(firebaseId) {
+      const r = registros.find(x => x.firebaseId === firebaseId);
+      if (!r) return;
+      fechaInput.value = r.fecha || "";
+      docInput.value = r.documentoEstudiante || "";
+      nombreInput.value = r.nombreEstudiante || "";
+      compInput.value = r.comportamiento || "";
+      descInput.value = r.descargos || "";
+      procInput.value = r.procedimiento || "";
+      editIdInput.value = firebaseId;
+      btnGuardar.textContent = "Actualizar registro";
+      btnCancelarEdicion.style.display = "inline-flex";
+
+      // mostrar firma almacenada (si existe)
+      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+      if (r.firma) {
+        const img = new Image();
+        img.onload = () => {
+          sigCtx.drawImage(img, 0, 0, signaturePad.width, signaturePad.height);
+        };
+        img.src = r.firma;
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    btnCancelarEdicion.addEventListener('click', () => {
+      formRegistro.reset();
+      fechaInput.valueAsDate = new Date();
+      editIdInput.value = "";
+      btnGuardar.textContent = "Guardar registro";
+      btnCancelarEdicion.style.display = "none";
+      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+    });
+
+    async function eliminarRegistro(firebaseId) {
+      if (!confirm("¿Está seguro de eliminar este registro?")) return;
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para eliminar.");
+        return;
+      }
+      try {
+        await deleteDoc(doc(db, "registrosComportamentales", firebaseId));
+        registros = registros.filter(r => r.firebaseId !== firebaseId);
+        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
+        renderRegistros();
+      } catch (err) {
+        console.error("Error al eliminar:", err);
+        alert("Error al eliminar el registro.");
+      }
+    }
+
+    // Exponer funciones a window para los botones inline
+    window.editRecord = cargarRegistroEnFormulario;
+    window.deleteRecord = eliminarRegistro;
+
+    // ---------- PDF REGISTROS ----------
+    window.downloadRegistroPDF = function (docEst) {
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+      const lista = registros.filter(r => (r.documentoEstudiante || "") === docEst);
+      if (!lista.length) {
+        alert("No hay registros para este estudiante.");
+        return;
+      }
+
+      const nombre = lista[0].nombreEstudiante || studentNamesByDoc[docEst] || "";
+
+      // Encabezado con escudo
+      if (escudoImg.complete) {
+        try {
+          pdf.addImage(escudoImg, 'PNG', 10, 8, 18, 22);
+        } catch (e) {
+          console.error("No se pudo agregar el escudo al PDF:", e);
+        }
+      }
+
+      pdf.setFontSize(16);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('INSTITUCIÓN EDUCATIVA DE MARÍA', 148, 15, { align: 'center' });
+      pdf.setFontSize(12);
+      pdf.text('Sede Rural Santa Juana (Primaria)', 148, 21, { align: 'center' });
+      pdf.text('Seguimiento comportamental y disciplinario – 2026', 148, 27, { align: 'center' });
+
+      pdf.setFontSize(11);
+      const lineaEst = 'Estudiante: ' + (nombre || '________________') +
+        '   Documento: ' + (docEst || '__________');
+      pdf.text(lineaEst, 148, 34, { align: 'center' });
+
+      const body = lista.map(r => [
+        r.fecha || '',
+        r.comportamiento || '',
+        r.descargos || '',
+        r.procedimiento || '',
+        '', // firma estudiante/docente
+        ''  // firma acudiente
+      ]);
+
+      pdf.autoTable({
+        startY: 38,
+        head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma estudiante/docente', 'Firma acudiente']],
+        body,
+        theme: 'grid',
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          overflow: 'linebreak',
+          valign: 'top'
+        },
+        headStyles: {
+          fillColor: [22, 163, 74],
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        columnStyles: {
+          0: { cellWidth: 22 },
+          1: { cellWidth: 55 },
+          2: { cellWidth: 55 },
+          3: { cellWidth: 55 },
+          4: { cellWidth: 35 },
+          5: { cellWidth: 35 }
+        },
+        didDrawCell: function (data) {
+          const idx = data.row.index;
+          if (data.section === 'body') {
+            const r = lista[idx];
+            // Firma estudiante/docente
+            if (data.column.index === 4 && r.firma) {
+              try {
+                pdf.addImage(r.firma, 'PNG',
+                  data.cell.x + 2,
+                  data.cell.y + 2,
+                  data.cell.width - 4,
+                  data.cell.height - 4
+                );
+              } catch (e) {
+                console.error("Error agregando firma estudiante/docente:", e);
+              }
+            }
+            // Firma acudiente
+            if (data.column.index === 5 && r.firmaAcudiente) {
+              try {
+                pdf.addImage(r.firmaAcudiente, 'PNG',
+                  data.cell.x + 2,
+                  data.cell.y + 2,
+                  data.cell.width - 4,
+                  data.cell.height - 4
+                );
+              } catch (e) {
+                console.error("Error agregando firma acudiente:", e);
+              }
+            }
+          }
+        }
+      });
+
+      const nombreArchivo = 'Seguimiento_' +
+        (nombre || 'Estudiante').replace(/\s+/g, '_') +
+        '_' + (docEst || '') + '.pdf';
+      pdf.save(nombreArchivo);
+    };
+
+    // ---------- PDF EXCUSAS ----------
+    window.downloadExcusasPDF = function (docEst) {
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+      const lista = excusas.filter(e => (e.documentoEstudiante || "") === docEst);
+      if (!lista.length) {
+        alert("No hay excusas para este estudiante.");
+        return;
+      }
+
+      const nombre = studentNamesByDoc[docEst] || "";
+
+      // Encabezado con escudo
+      if (escudoImg.complete) {
+        try {
+          pdf.addImage(escudoImg, 'PNG', 10, 8, 18, 22);
+        } catch (e) {
+          console.error("No se pudo agregar el escudo al PDF:", e);
+        }
+      }
+
+      pdf.setFontSize(16);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('INSTITUCIÓN EDUCATIVA DE MARÍA', 148, 15, { align: 'center' });
+      pdf.setFontSize(12);
+      pdf.text('Sede Rural Santa Juana (Primaria)', 148, 21, { align: 'center' });
+      pdf.text('Control y seguimiento de ausentismo escolar', 148, 27, { align: 'center' });
+
+      pdf.setFontSize(11);
+      const lineaEst = 'Estudiante: ' + (nombre || '________________') +
+        '   Documento: ' + (docEst || '__________');
+      pdf.text(lineaEst, 148, 34, { align: 'center' });
+
+      const body = lista.map(e => [
+        e.fechaInasistencia || '',
+        e.motivoTipo || '',
+        e.motivoDetalle || '',
+        '' // firma acudiente
+      ]);
+
+      pdf.autoTable({
+        startY: 38,
+        head: [['Fecha de inasistencia', 'Motivo', 'Descripción', 'Firma acudiente']],
+        body,
+        theme: 'grid',
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          overflow: 'linebreak',
+          valign: 'top'
+        },
+        headStyles: {
+          fillColor: [22, 163, 74],
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 110 },
+          3: { cellWidth: 40 }
+        },
+        didDrawCell: function (data) {
+          const idx = data.row.index;
+          if (data.section === 'body' && data.column.index === 3) {
+            const e = lista[idx];
+            if (e && e.firmaAcudiente) {
+              try {
+                pdf.addImage(e.firmaAcudiente, 'PNG',
+                  data.cell.x + 2,
+                  data.cell.y + 2,
+                  data.cell.width - 4,
+                  data.cell.height - 4
+                );
+              } catch (err) {
+                console.error("Error agregando firma acudiente:", err);
+              }
+            }
+          }
+        }
+      });
+
+      const nombreArchivo = 'Excusas_' +
+        (nombre || 'Estudiante').replace(/\s+/g, '_') +
+        '_' + (docEst || '') + '.pdf';
+      pdf.save(nombreArchivo);
+    };
+
+    // ---------- CARGA INICIAL ----------
+    if (navigator.onLine) {
+      cargarRegistros();
+      cargarExcusas();
+    } else {
+      registros = JSON.parse(localStorage.getItem("registrosComportamentales") || "[]");
+      excusas = JSON.parse(localStorage.getItem("excusasInasistencia") || "[]");
+      registros.forEach(r => {
+        if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
+          studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
+        }
+      });
+      renderRegistros();
+      renderExcusas();
+    }
   </script>
 </body>
 </html>
