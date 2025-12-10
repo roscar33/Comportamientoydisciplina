@@ -2,19 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Registro Comportamental - Docente</title>
+  <title>Portal del acudiente - I.E. de María</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- jsPDF + AutoTable para descargar PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
-      --primary: #22c55e;
+      --primary: #16a34a;       /* un poco más oscuro que el del docente */
       --primary-dark: #15803d;
       --accent: #0ea5e9;
-      --bg: #e8f5e9;
+      --bg: #d9f99d;
       --card-bg: #ffffff;
       --border: #cbd5e1;
       --text-main: #0f172a;
@@ -28,7 +24,7 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #bbf7d0, #f9fafb 55%);
+      background: radial-gradient(circle at top, #86efac, #f9fafb 55%);
       min-height: 100vh;
       padding: 16px;
       color: var(--text-main);
@@ -66,7 +62,7 @@
       height: 80px;
       border-radius: 12px;
       overflow: hidden;
-      border: 2px solid #22c55e55;
+      border: 2px solid #16a34a55;
       background: white;
       flex-shrink: 0;
     }
@@ -80,19 +76,24 @@
     .brand-text {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
     }
 
     .brand-title {
       font-size: 18px;
       font-weight: 700;
-      letter-spacing: 0.02em;
       color: #064e3b;
     }
 
     .brand-subtitle {
       font-size: 12px;
       color: var(--text-muted);
+    }
+
+    .brand-meta {
+      font-size: 11px;
+      color: #0f172a;
+      font-weight: 500;
     }
 
     .connection-status {
@@ -124,16 +125,8 @@
       background: currentColor;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-      gap: 18px;
-      align-items: flex-start;
-    }
-
     @media (max-width: 900px) {
       body { padding: 10px; }
-      .layout { grid-template-columns: minmax(0, 1fr); }
       .top-bar {
         flex-direction: column;
         align-items: flex-start;
@@ -149,49 +142,56 @@
       box-shadow: var(--shadow-soft);
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 8px;
-    }
-
     .card-title {
       font-size: 16px;
       font-weight: 600;
       color: #064e3b;
+      margin-bottom: 4px;
     }
 
     .card-subtitle {
       font-size: 12px;
       color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
-    .pill {
-      font-size: 11px;
-      padding: 3px 10px;
+    .tabs {
+      display: inline-flex;
       border-radius: 999px;
+      padding: 3px;
       background: #ecfdf3;
-      color: #15803d;
       border: 1px solid #bbf7d0;
+      margin-bottom: 12px;
+      gap: 3px;
+    }
+
+    .tab-button {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: #166534;
+      transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
       white-space: nowrap;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+    .tab-button.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #ecfdf5;
+      box-shadow: 0 8px 18px rgba(22,163,74,0.35);
     }
 
-    @media (max-width: 700px) {
-      .form-grid { grid-template-columns: minmax(0, 1fr); }
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      margin-bottom: 10px;
     }
 
     label {
@@ -227,7 +227,7 @@
     input:focus,
     textarea:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.35);
+      box-shadow: 0 0 0 1px rgba(22,163,74,0.35);
       background: #ffffff;
     }
 
@@ -236,35 +236,11 @@
       resize: vertical;
     }
 
-    .signature-block {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .signature-label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    canvas {
-      border-radius: 14px;
-      border: 1px dashed #cbd5e1;
-      background: #ffffff;
-      width: 100%;
-      height: 240px;
-      display: block;
-      cursor: crosshair;
-    }
-
     .button-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 6px;
     }
 
     button {
@@ -301,23 +277,15 @@
       box-shadow: 0 10px 20px rgba(248,113,113,0.35);
     }
 
-    .records-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+    .btn-disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
     }
-
-    .search-input {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .search-input input { width: 100%; }
 
     .records-list {
-      max-height: 70vh;
+      margin-top: 10px;
+      max-height: 60vh;
       overflow-y: auto;
       padding-right: 4px;
       scrollbar-width: thin;
@@ -331,67 +299,35 @@
       border-radius: 999px;
     }
 
-    .student-card {
-      background: #f9fafb;
+    .obs-card {
       border-radius: var(--radius-md);
       border: 1px solid #e2e8f0;
-      margin-bottom: 12px;
-      padding: 10px 10px 8px;
+      background: #f9fafb;
+      padding: 10px;
+      margin-bottom: 8px;
     }
 
-    .student-card-header {
+    .obs-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
       gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #0f172a;
+      font-weight: 500;
     }
 
-    .student-name {
-      font-size: 14px;
+    .obs-body {
+      font-size: 12px;
+      color: #0f172a;
+      display: grid;
+      grid-template-columns: minmax(0,1fr);
+      gap: 4px;
+    }
+
+    .obs-label {
       font-weight: 600;
       color: #022c22;
-    }
-
-    .student-doc {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    th, td {
-      border: 1px solid #e2e8f0;
-      padding: 6px 6px;
-      vertical-align: top;
-      text-align: left;
-    }
-
-    th {
-      background: #ecfdf3;
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: #166534;
-    }
-
-    tbody tr:nth-child(even) { background: #f9fafb; }
-    tbody tr:nth-child(odd) { background: #ffffff; }
-
-    .signature-cell { text-align: center; }
-
-    .signature-cell img {
-      max-width: 140px;
-      max-height: 60px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
     }
 
     .badge-pendiente,
@@ -415,70 +351,83 @@
       border: 1px solid #4ade80;
     }
 
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      align-items: stretch;
+    .signature-panel {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+      display: none;
     }
 
-    .btn-small {
-      padding: 5px 10px;
-      font-size: 11px;
-      border-radius: 999px;
-      justify-content: center;
-    }
-
-    .btn-edit {
-      background: #e0f2fe;
-      color: #075985;
-      border: 1px solid #bae6fd;
-    }
-
-    .btn-delete {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
-
-    .btn-pdf {
-      background: #f97316;
-      color: #fff7ed;
-      border: 1px solid #fdba74;
-      box-shadow: 0 8px 18px rgba(249,115,22,0.35);
-      font-size: 11px;
-      padding: 6px 11px;
-    }
-
-    .no-records {
-      text-align: center;
-      padding: 16px 8px;
-      font-size: 13px;
-      color: var(--text-muted);
-      border-radius: var(--radius-md);
+    canvas.signature-pad {
+      border-radius: 14px;
       border: 1px dashed #cbd5e1;
+      background: #ffffff;
+      width: 100%;
+      height: 220px;
+      display: block;
+      cursor: crosshair;
+      margin-top: 6px;
+      touch-action: none;
+    }
+
+    .info-text {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .motivo-group {
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
       background: #f9fafb;
-      margin-top: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .motivo-opcion {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .motivo-opcion textarea {
+      margin-top: 4px;
+      font-size: 12px;
+      min-height: 50px;
+    }
+
+    .quote-banner {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg,#16a34a,#15803d);
+      color: #ecfdf5;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(22,163,74,0.4);
     }
 
     @media (max-width: 600px) {
       body { padding: 10px; }
       .card { padding: 16px 14px 14px; }
-      canvas { height: 220px; }
+      canvas.signature-pad { height: 200px; }
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
+    <!-- ENCABEZADO -->
     <header class="top-bar">
       <div class="brand">
-        <!-- Asegúrate de tener escudo.png en la misma carpeta -->
         <div class="brand-logo">
           <img src="escudo.png" alt="Escudo Institución Educativa de María">
         </div>
         <div class="brand-text">
           <div class="brand-title">Institución Educativa de María</div>
-          <div class="brand-subtitle">Sede Rural Santa Juana · Seguimiento comportamental 2026</div>
+          <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
+          <div class="brand-meta">Docente: Oscar Barrientos</div>
         </div>
       </div>
       <div id="connStatus" class="connection-status offline">
@@ -486,102 +435,145 @@
       </div>
     </header>
 
-    <main class="layout">
-      <!-- Columna izquierda: formulario -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Registro del docente</div>
-            <div class="card-subtitle">Diligencie los campos y la firma del estudiante / docente.</div>
-          </div>
-          <div class="pill">Uso interno del docente</div>
-        </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="card">
+      <div class="card-title">Portal del acudiente</div>
+      <div class="card-subtitle">
+        Consulte las observaciones registradas para su hijo(a) y envíe excusas por inasistencia
+        de forma rápida y segura.
+      </div>
 
-        <form id="registroForm">
-          <input type="hidden" id="firebaseId" />
+      <!-- Menú / Tabs -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="observaciones">Consultar observaciones</button>
+        <button class="tab-button" data-tab="excusa">Enviar excusa por inasistencia</button>
+      </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="fecha">Fecha</label>
-              <input type="date" id="fecha" required />
-            </div>
-
-            <div class="form-group">
-              <label for="documentoEstudiante">Documento del estudiante</label>
-              <input type="text" id="documentoEstudiante" required placeholder="Ej: 123456789" />
-            </div>
-
-            <div class="form-group">
-              <label for="nombreEstudiante">Nombre del estudiante</label>
-              <input type="text" id="nombreEstudiante" required placeholder="Nombre completo" />
-            </div>
-
-            <div class="form-group"></div>
-          </div>
-
-          <div class="form-group" style="margin-top:10px;">
-            <label for="comportamiento">Descripción del comportamiento</label>
-            <textarea id="comportamiento" required placeholder="Explique brevemente la situación presentada..."></textarea>
-          </div>
-
+      <!-- TAB: OBSERVACIONES -->
+      <div id="tab-observaciones" class="tab-content active">
+        <form id="formBuscarObs">
           <div class="form-group">
-            <label for="descargos">Descargos (versión del estudiante)</label>
-            <textarea id="descargos" required placeholder="Registre lo manifestado por el estudiante..."></textarea>
+            <label for="docObs">Documento del estudiante</label>
+            <input type="text" id="docObs" required placeholder="Ej: 123456789" />
+            <div class="field-hint">Digite el número de documento del estudiante para ver las observaciones registradas.</div>
           </div>
-
-          <div class="form-group">
-            <label for="procedimiento">Procedimiento / acciones a seguir</label>
-            <textarea id="procedimiento" required placeholder="Compromisos, acuerdos, remisiones, etc."></textarea>
-          </div>
-
-          <div class="signature-block">
-            <div class="signature-label-row">
-              <span>Firma estudiante / docente</span>
-              <span class="field-hint">Use el dedo o el cursor para firmar</span>
-            </div>
-            <canvas id="signaturePad"></canvas>
-            <div class="button-row">
-              <button type="button" class="btn-danger" id="btnLimpiarFirma">Limpiar firma</button>
-            </div>
-          </div>
-
-          <div class="button-row" style="margin-top:14px;">
-            <button type="submit" class="btn-primary" id="submitBtn">Guardar registro</button>
-            <button type="button" class="btn-secondary" id="cancelBtn" style="display:none;">Cancelar edición</button>
+          <div class="button-row">
+            <button type="submit" class="btn-primary">Buscar observaciones</button>
           </div>
         </form>
-      </section>
 
-      <!-- Columna derecha: registros -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Registros por estudiante</div>
-            <div class="card-subtitle">Visualice anotaciones, firmas y descargue en PDF.</div>
+        <div id="observacionesResumen" class="info-text" style="margin-top:10px;"></div>
+        <div id="listaObservaciones" class="records-list"></div>
+
+        <!-- Panel para firma del acudiente -->
+        <div id="panelFirmaObs" class="signature-panel">
+          <div class="form-group">
+            <label>Firma del acudiente</label>
+            <div class="field-hint">
+              Seleccione primero "Firmar esta anotación" en la observación que desea firmar.
+              Luego dibuje su firma aquí y presione "Enviar firma".
+            </div>
+          </div>
+          <div class="info-text" id="firmaInfo">Ninguna observación seleccionada.</div>
+          <canvas id="signaturePadAcudiente" class="signature-pad"></canvas>
+          <div class="button-row">
+            <button type="button" class="btn-danger" id="btnLimpiarFirmaAcudiente">Limpiar firma</button>
+            <button type="button" class="btn-primary btn-disabled" id="btnEnviarFirmaAcudiente" disabled>Enviar firma</button>
           </div>
         </div>
+      </div>
 
-        <div class="records-header-row">
-          <div class="search-input">
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Buscar por nombre del estudiante..."
-            />
+      <!-- TAB: EXCUSA -->
+      <div id="tab-excusa" class="tab-content">
+        <!-- Paso 1: documento -->
+        <form id="formIdentExcusa">
+          <div class="form-group">
+            <label for="docExcusa">Documento del estudiante</label>
+            <input type="text" id="docExcusa" required placeholder="Ej: 123456789" />
+            <div class="field-hint">Digite el documento del estudiante y pulse “Continuar”.</div>
           </div>
-          <span class="pill">Actualización en tiempo real</span>
-        </div>
+          <div class="button-row">
+            <button type="submit" class="btn-primary">Continuar</button>
+          </div>
+        </form>
 
-        <div id="recordsList" class="records-list"></div>
-      </section>
-    </main>
+        <div id="excusaResumen" class="info-text" style="margin-top:8px;"></div>
+
+        <!-- Paso 2: formulario excusa -->
+        <form id="formExcusa" style="display:none; margin-top:10px;">
+          <div class="form-group">
+            <label for="fechaInasistencia">Fecha de la inasistencia</label>
+            <input type="date" id="fechaInasistencia" required />
+          </div>
+
+          <div class="form-group">
+            <label>Motivo de la inasistencia</label>
+            <div class="field-hint">
+              Escoja una opción y explique brevemente la situación en el cuadro de texto.
+              <strong>Todos los motivos requieren explicación escrita.</strong>
+            </div>
+          </div>
+
+          <div class="motivo-group">
+            <div class="motivo-opcion">
+              <input type="radio" name="motivoTipo" id="motivoEnfermedad" value="Enfermedad" />
+              <div>
+                <label for="motivoEnfermedad"><strong>Enfermedad</strong></label>
+                <textarea id="motivoEnfermedadTexto" placeholder="Especifique aquí la razón de la inasistencia (enfermedad)..."></textarea>
+              </div>
+            </div>
+
+            <div class="motivo-opcion">
+              <input type="radio" name="motivoTipo" id="motivoCita" value="Cita médica" />
+              <div>
+                <label for="motivoCita"><strong>Cita médica</strong></label>
+                <textarea id="motivoCitaTexto" placeholder="Especifique aquí la razón de la inasistencia (cita médica)..."></textarea>
+              </div>
+            </div>
+
+            <div class="motivo-opcion">
+              <input type="radio" name="motivoTipo" id="motivoCalamidad" value="Calamidad" />
+              <div>
+                <label for="motivoCalamidad"><strong>Calamidad</strong></label>
+                <textarea id="motivoCalamidadTexto" placeholder="Especifique aquí la razón de la inasistencia (calamidad)..."></textarea>
+              </div>
+            </div>
+
+            <div class="motivo-opcion">
+              <input type="radio" name="motivoTipo" id="motivoOtro" value="Otro" />
+              <div>
+                <label for="motivoOtro"><strong>Otro</strong></label>
+                <textarea id="motivoOtroTexto" placeholder="Especifique aquí la razón de la inasistencia (obligatorio si escoge 'Otro')"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Firma del acudiente</label>
+            <div class="field-hint">Dibuje aquí la firma del acudiente antes de enviar la excusa.</div>
+          </div>
+          <canvas id="signaturePadExcusa" class="signature-pad"></canvas>
+          <div class="button-row">
+            <button type="button" class="btn-danger" id="btnLimpiarFirmaExcusa">Limpiar firma</button>
+            <button type="submit" class="btn-secondary">Enviar excusa</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- FRASE FINAL -->
+    <footer class="quote-banner">
+      “Familia y escuela caminamos juntos: al colaborar y comunicarnos,
+      construimos el mejor camino para el bienestar y aprendizaje de nuestros hijos.”
+    </footer>
   </div>
 
+  <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, updateDoc, deleteDoc,
-      doc, onSnapshot
+      getFirestore, collection, addDoc, updateDoc, getDocs,
+      doc, query, where
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -595,7 +587,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const registrosCol = collection(db, "registrosComportamentales");
+    const colRegistros = collection(db, "registrosComportamentales");
+    const colExcusas   = collection(db, "excusasInasistencia");
 
     const connStatus = document.getElementById('connStatus');
     function updateConn() {
@@ -611,21 +604,157 @@
     window.addEventListener('offline', updateConn);
     updateConn();
 
-    const canvas = document.getElementById('signaturePad');
-    const ctx = canvas.getContext('2d');
+    // TABS
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = {
+      observaciones: document.getElementById('tab-observaciones'),
+      excusa: document.getElementById('tab-excusa')
+    };
 
-    function ajustarCanvas() {
-      const w = canvas.getBoundingClientRect().width || 500;
-      canvas.width = w;
-      canvas.height = 240;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        Object.keys(tabContents).forEach(key => {
+          tabContents[key].classList.toggle('active', key === tab);
+        });
+      });
+    });
+
+    function escapeHTML(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
-    ajustarCanvas();
-    window.addEventListener('resize', ajustarCanvas);
 
-    let isDrawing = false, lastX = 0, lastY = 0;
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
+    // ---------- OBSERVACIONES ----------
+    const formBuscarObs = document.getElementById('formBuscarObs');
+    const docObsInput = document.getElementById('docObs');
+    const listaObservaciones = document.getElementById('listaObservaciones');
+    const obsResumen = document.getElementById('observacionesResumen');
+    const panelFirmaObs = document.getElementById('panelFirmaObs');
+
+    let observacionesActuales = [];
+    let obsSeleccionadaId = null;
+
+    formBuscarObs.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para consultar.");
+        return;
+      }
+
+      const docEst = docObsInput.value.trim();
+      if (!docEst) {
+        alert("Digite el documento del estudiante.");
+        return;
+      }
+
+      try {
+        const q = query(colRegistros, where("documentoEstudiante", "==", docEst));
+        const snap = await getDocs(q);
+        observacionesActuales = [];
+        snap.forEach(d => observacionesActuales.push({ firebaseId: d.id, ...d.data() }));
+
+        obsSeleccionadaId = null;
+        firmaInfo.textContent = "Ninguna observación seleccionada.";
+        btnEnviarFirmaAcudiente.disabled = true;
+        btnEnviarFirmaAcudiente.classList.add("btn-disabled");
+
+        if (observacionesActuales.length === 0) {
+          listaObservaciones.innerHTML = '<div class="info-text" style="margin-top:8px;">No se encontraron observaciones para este estudiante.</div>';
+          obsResumen.textContent = "";
+          panelFirmaObs.style.display = "none";
+          return;
+        }
+
+        panelFirmaObs.style.display = "block";
+
+        observacionesActuales.sort((a,b) => (b.fecha || "").localeCompare(a.fecha || ""));
+        const nombre = observacionesActuales[0].nombreEstudiante || "";
+        obsResumen.textContent = `Estudiante: ${nombre} · Total de observaciones: ${observacionesActuales.length}`;
+
+        let html = "";
+        observacionesActuales.forEach(r => {
+          html += '<div class="obs-card">';
+          html += '  <div class="obs-header">';
+          html += '    <span>Fecha: ' + escapeHTML(r.fecha || "") + '</span>';
+          if (r.firmaAcudiente) {
+            html += '    <span class="badge-firmado">Firmada por acudiente</span>';
+          } else {
+            html += '    <span class="badge-pendiente">Firma del acudiente pendiente</span>';
+          }
+          html += '  </div>';
+          html += '  <div class="obs-body">';
+          html += '    <div><span class="obs-label">Comportamiento: </span>' + escapeHTML(r.comportamiento || "") + '</div>';
+          html += '    <div><span class="obs-label">Descargos: </span>' + escapeHTML(r.descargos || "") + '</div>';
+          html += '    <div><span class="obs-label">Procedimiento: </span>' + escapeHTML(r.procedimiento || "") + '</div>';
+          html += '  </div>';
+          html += '  <div class="button-row" style="margin-top:8px;">';
+          if (!r.firmaAcudiente) {
+            html += '    <button type="button" class="btn-primary btn-firmar" data-id="' + r.firebaseId + '" data-fecha="' + escapeHTML(r.fecha || "") + '">Firmar esta anotación</button>';
+          } else {
+            html += '    <button type="button" class="btn-secondary btn-firmar-seleccionar" data-id="' + r.firebaseId + '" data-fecha="' + escapeHTML(r.fecha || "") + '">Ver esta anotación</button>';
+          }
+          html += '  </div>';
+          html += '</div>';
+        });
+
+        listaObservaciones.innerHTML = html;
+
+        document.querySelectorAll('.btn-firmar').forEach(btn => {
+          btn.addEventListener('click', () => {
+            obsSeleccionadaId = btn.dataset.id;
+            const fecha = btn.dataset.fecha || "";
+            firmaInfo.textContent = fecha
+              ? `Firmando la observación del día ${fecha}.`
+              : "Observación seleccionada para firmar.";
+            btnEnviarFirmaAcudiente.disabled = false;
+            btnEnviarFirmaAcudiente.classList.remove("btn-disabled");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+          });
+        });
+
+        document.querySelectorAll('.btn-firmar-seleccionar').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const fecha = btn.dataset.fecha || "";
+            firmaInfo.textContent = fecha
+              ? `La observación del día ${fecha} ya fue firmada por el acudiente.`
+              : "Esta observación ya cuenta con firma del acudiente.";
+            obsSeleccionadaId = null;
+            btnEnviarFirmaAcudiente.disabled = true;
+            btnEnviarFirmaAcudiente.classList.add("btn-disabled");
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al consultar observaciones.");
+      }
+    });
+
+    // FIRMA ACUDIENTE (OBSERVACIONES)
+    const firmaCanvas = document.getElementById('signaturePadAcudiente');
+    const firmaCtx = firmaCanvas.getContext('2d');
+    const firmaInfo = document.getElementById('firmaInfo');
+    const btnLimpiarFirmaAcudiente = document.getElementById('btnLimpiarFirmaAcudiente');
+    const btnEnviarFirmaAcudiente = document.getElementById('btnEnviarFirmaAcudiente');
+
+    function ajustarCanvasFirmaObs() {
+      const w = firmaCanvas.getBoundingClientRect().width || 500;
+      firmaCanvas.width = w;
+      firmaCanvas.height = 220;
+      firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+    }
+    ajustarCanvasFirmaObs();
+
+    let firmando = false, fx = 0, fy = 0;
+    function getPosFirma(e) {
+      const rect = firmaCanvas.getBoundingClientRect();
       let x, y;
       if (e.touches && e.touches[0]) {
         x = e.touches[0].clientX - rect.left;
@@ -636,435 +765,313 @@
       }
       return { x, y };
     }
-    function startDrawing(e) {
+    function startFirma(e) {
       e.preventDefault();
-      isDrawing = true;
-      const p = getPos(e);
-      lastX = p.x;
-      lastY = p.y;
+      firmando = true;
+      const p = getPosFirma(e);
+      fx = p.x; fy = p.y;
     }
-    function draw(e) {
-      if (!isDrawing) return;
+    function drawFirma(e) {
+      if (!firmando) return;
       e.preventDefault();
-      const p = getPos(e);
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 2.2;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      lastX = p.x;
-      lastY = p.y;
+      const p = getPosFirma(e);
+      firmaCtx.strokeStyle = "#0f172a";
+      firmaCtx.lineWidth = 2.2;
+      firmaCtx.lineCap = "round";
+      firmaCtx.beginPath();
+      firmaCtx.moveTo(fx, fy);
+      firmaCtx.lineTo(p.x, p.y);
+      firmaCtx.stroke();
+      fx = p.x; fy = p.y;
     }
-    function stopDrawing(e) {
-      e && e.preventDefault();
-      isDrawing = false;
-    }
+    function stopFirma(e) { e && e.preventDefault(); firmando = false; }
 
-    canvas.addEventListener("mousedown", startDrawing);
-    canvas.addEventListener("mousemove", draw);
-    canvas.addEventListener("mouseup", stopDrawing);
-    canvas.addEventListener("mouseout", stopDrawing);
-    canvas.addEventListener("touchstart", startDrawing, { passive:false });
-    canvas.addEventListener("touchmove", draw, { passive:false });
-    canvas.addEventListener("touchend", stopDrawing, { passive:false });
+    firmaCanvas.addEventListener("mousedown", startFirma);
+    firmaCanvas.addEventListener("mousemove", drawFirma);
+    firmaCanvas.addEventListener("mouseup", stopFirma);
+    firmaCanvas.addEventListener("mouseout", stopFirma);
+    firmaCanvas.addEventListener("touchstart", startFirma, { passive:false });
+    firmaCanvas.addEventListener("touchmove", drawFirma, { passive:false });
+    firmaCanvas.addEventListener("touchend", stopFirma, { passive:false });
 
-    function clearSignature() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    document.getElementById('btnLimpiarFirma').addEventListener('click', clearSignature);
-
-    const registroForm = document.getElementById('registroForm');
-    const firebaseIdInput = document.getElementById('firebaseId');
-    const submitBtn = document.getElementById('submitBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const recordsList = document.getElementById('recordsList');
-    const searchInput = document.getElementById('searchInput');
-
-    let registros = [];
-
-    function escapeHTML(s) {
-      if (!s) return "";
-      return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function agruparPorEstudiante(lista) {
-      const g = {};
-      lista.forEach(r => {
-        const nombre = r.nombreEstudiante || "Sin nombre";
-        if (!g[nombre]) g[nombre] = [];
-        g[nombre].push(r);
-      });
-      return g;
-    }
-
-    function mostrarRegistros(lista) {
-      if (!lista || lista.length === 0) {
-        recordsList.innerHTML = '<div class="no-records">No hay registros almacenados.</div>';
-        return;
-      }
-
-      const grouped = agruparPorEstudiante(lista);
-      let html = "";
-
-      Object.keys(grouped).sort().forEach(nombre => {
-        const rs = grouped[nombre];
-        const docRef = rs[0]?.documentoEstudiante || "";
-        html += '<article class="student-card">';
-        html += ' <header class="student-card-header">';
-        html += '   <div>';
-        html += '     <div class="student-name">' + escapeHTML(nombre) + '</div>';
-        html += '     <div class="student-doc">Documento: ' + escapeHTML(docRef) + '</div>';
-        html += '   </div>';
-        html += '   <button type="button" class="btn-small btn-pdf" data-student="' + escapeHTML(nombre) + '">Descargar PDF</button>';
-        html += ' </header>';
-        html += '  <table>';
-        html += '    <thead><tr>';
-        html += '      <th>Fecha</th>';
-        html += '      <th>Comportamiento</th>';
-        html += '      <th>Descargos</th>';
-        html += '      <th>Procedimiento</th>';
-        html += '      <th>Firma estudiante</th>';
-        html += '      <th>Firma acudiente</th>';
-        html += '      <th>Acciones</th>';
-        html += '    </tr></thead>';
-        html += '    <tbody>';
-
-        rs.forEach(r => {
-          html += '<tr>';
-          html += '<td>' + escapeHTML(r.fecha || "") + '</td>';
-          html += '<td>' + escapeHTML(r.comportamiento || "") + '</td>';
-          html += '<td>' + escapeHTML(r.descargos || "") + '</td>';
-          html += '<td>' + escapeHTML(r.procedimiento || "") + '</td>';
-
-          html += '<td class="signature-cell">';
-          if (r.firma) html += '<img src="' + r.firma + '" alt="Firma estudiante">';
-          else html += '<span class="badge-pendiente">Sin firma</span>';
-          html += '</td>';
-
-          html += '<td class="signature-cell">';
-          if (r.firmaAcudiente) {
-            html += '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">';
-            html += '<img src="' + r.firmaAcudiente + '" alt="Firma acudiente">';
-            if (r.fechaFirmaAcudiente) {
-              html += '<span style="font-size:10px;color:#64748b;">' +
-                      escapeHTML(r.fechaFirmaAcudiente) + '</span>';
-            }
-            html += '<span class="badge-firmado">Firmado</span>';
-            html += '</div>';
-          } else {
-            html += '<span class="badge-pendiente">Pendiente</span>';
-          }
-          html += '</td>';
-
-          html += '<td>';
-          html += '  <div class="action-buttons">';
-          html += '    <button class="btn-small btn-edit" onclick="editRecord(\'' + r.firebaseId + '\')">Editar</button>';
-          html += '    <button class="btn-small btn-delete" onclick="deleteRecord(\'' + r.firebaseId + '\')">Eliminar</button>';
-          html += '  </div>';
-          html += '</td>';
-
-          html += '</tr>';
-        });
-
-        html += '    </tbody>';
-        html += '   </table>';
-        html += '</article>';
-      });
-
-      recordsList.innerHTML = html;
-
-      // Conectar botones PDF
-      document.querySelectorAll('.btn-pdf').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const nombre = btn.getAttribute('data-student');
-          downloadStudentPDF(nombre);
-        });
-      });
-    }
-
-    function filtrarYMostrar() {
-      const term = (searchInput.value || "").toLowerCase();
-      if (!term) {
-        mostrarRegistros(registros);
-      } else {
-        mostrarRegistros(
-          registros.filter(r => (r.nombreEstudiante || "").toLowerCase().includes(term))
-        );
-      }
-    }
-    searchInput.addEventListener('input', filtrarYMostrar);
-
-    onSnapshot(registrosCol, snapshot => {
-      registros = snapshot.docs.map(d => ({
-        firebaseId: d.id,
-        ...d.data()
-      }));
-      filtrarYMostrar();
+    btnLimpiarFirmaAcudiente.addEventListener('click', () => {
+      firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
     });
 
-    registroForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    btnEnviarFirmaAcudiente.addEventListener('click', async () => {
+      if (btnEnviarFirmaAcudiente.disabled) return;
       if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para guardar.");
+        alert("Se necesita conexión a internet para enviar la firma.");
         return;
       }
-
-      const id = firebaseIdInput.value || null;
-      const baseData = {
-        fecha: document.getElementById('fecha').value,
-        nombreEstudiante: document.getElementById('nombreEstudiante').value,
-        documentoEstudiante: document.getElementById('documentoEstudiante').value,
-        comportamiento: document.getElementById('comportamiento').value,
-        descargos: document.getElementById('descargos').value,
-        procedimiento: document.getElementById('procedimiento').value,
-        firma: canvas.toDataURL("image/png")
-      };
+      if (!obsSeleccionadaId) {
+        alert("Primero seleccione una observación con el botón 'Firmar esta anotación'.");
+        return;
+      }
 
       try {
-        if (id) {
-          const existente = registros.find(r => r.firebaseId === id) || {};
-          const data = {
-            ...baseData,
-            firmaAcudiente: existente.firmaAcudiente ?? null,
-            fechaFirmaAcudiente: existente.fechaFirmaAcudiente ?? null
-          };
-          await updateDoc(doc(db, "registrosComportamentales", id), data);
-          alert("Registro actualizado.");
-        } else {
-          const data = {
-            ...baseData,
-            firmaAcudiente: null,
-            fechaFirmaAcudiente: null
-          };
-          await addDoc(registrosCol, data);
-          alert("Registro creado.");
+        const firmaData = firmaCanvas.toDataURL("image/png");
+        const hoy = new Date().toLocaleDateString("es-CO");
+        await updateDoc(doc(db, "registrosComportamentales", obsSeleccionadaId), {
+          firmaAcudiente: firmaData,
+          fechaFirmaAcudiente: hoy
+        });
+        alert("Firma enviada correctamente.");
+        firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+        firmaInfo.textContent = "Ninguna observación seleccionada.";
+        obsSeleccionadaId = null;
+        btnEnviarFirmaAcudiente.disabled = true;
+        btnEnviarFirmaAcudiente.classList.add("btn-disabled");
+
+        if (docObsInput.value.trim()) {
+          formBuscarObs.dispatchEvent(new Event("submit"));
         }
-        limpiarFormulario();
       } catch (err) {
         console.error(err);
-        alert("Error al guardar. Revisa la consola del navegador.");
+        alert("Error al enviar la firma. Intente nuevamente.");
       }
     });
 
-    function limpiarFormulario() {
-      registroForm.reset();
-      firebaseIdInput.value = "";
-      submitBtn.textContent = "Guardar registro";
-      cancelBtn.style.display = "none";
-      clearSignature();
-      document.getElementById('fecha').valueAsDate = new Date();
-    }
-    cancelBtn.addEventListener('click', limpiarFormulario);
+    // ---------- EXCUSA ----------
+    const formIdentExcusa = document.getElementById('formIdentExcusa');
+    const formExcusa = document.getElementById('formExcusa');
+    const docExcusa = document.getElementById('docExcusa');
+    const fechaInasistencia = document.getElementById('fechaInasistencia');
+    const excusaResumen = document.getElementById('excusaResumen');
 
-    window.editRecord = function(id) {
-      const r = registros.find(x => x.firebaseId === id);
-      if (!r) return;
-      firebaseIdInput.value = r.firebaseId;
-      document.getElementById('fecha').value = r.fecha || "";
-      document.getElementById('nombreEstudiante').value = r.nombreEstudiante || "";
-      document.getElementById('documentoEstudiante').value = r.documentoEstudiante || "";
-      document.getElementById('comportamiento').value = r.comportamiento || "";
-      document.getElementById('descargos').value = r.descargos || "";
-      document.getElementById('procedimiento').value = r.procedimiento || "";
-      clearSignature();
-      if (r.firma) {
+    const motivoEnfermedad = document.getElementById('motivoEnfermedad');
+    const motivoCita = document.getElementById('motivoCita');
+    const motivoCalamidad = document.getElementById('motivoCalamidad');
+    const motivoOtro = document.getElementById('motivoOtro');
+
+    const motivoEnfermedadTexto = document.getElementById('motivoEnfermedadTexto');
+    const motivoCitaTexto = document.getElementById('motivoCitaTexto');
+    const motivoCalamidadTexto = document.getElementById('motivoCalamidadTexto');
+    const motivoOtroTexto = document.getElementById('motivoOtroTexto');
+
+    const canvasExcusa = document.getElementById('signaturePadExcusa');
+    const ctxExcusa = canvasExcusa.getContext('2d');
+
+    let firmandoExcusa = false, ex = 0, ey = 0;
+    let excusaTieneTrazo = false;       // ¿dibujó algo?
+    let firmaExcusaDataURL = null;      // copia de seguridad de la firma
+
+    function ajustarCanvasExcusa(redibujar = true) {
+      const w = canvasExcusa.getBoundingClientRect().width || 500;
+      const h = 220;
+
+      canvasExcusa.width = w;
+      canvasExcusa.height = h;
+      ctxExcusa.clearRect(0, 0, w, h);
+
+      if (redibujar && firmaExcusaDataURL) {
         const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        img.src = r.firma;
+        img.onload = () => {
+          ctxExcusa.drawImage(img, 0, 0, w, h);
+        };
+        img.src = firmaExcusaDataURL;
       }
-      submitBtn.textContent = "Actualizar registro";
-      cancelBtn.style.display = "inline-flex";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    window.deleteRecord = async function(id) {
-      if (!confirm("¿Eliminar este registro?")) return;
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para eliminar.");
-        return;
-      }
-      try {
-        await deleteDoc(doc(db, "registrosComportamentales", id));
-        alert("Registro eliminado.");
-      } catch (err) {
-        console.error(err);
-        alert("Error al eliminar.");
-      }
-    };
-
-    // ========= PDF PREMIUM con escudo y membrete =========
-    async function downloadStudentPDF(nombreEstudiante) {
-      const registrosEstudiante = registros
-        .filter(r => (r.nombreEstudiante || "") === nombreEstudiante);
-
-      if (!registrosEstudiante.length) {
-        alert("No hay registros para este estudiante.");
-        return;
-      }
-
-      const jsPDF = window.jspdf.jsPDF;
-      const pdf = new jsPDF("landscape", "mm", "a4");
-
-      // Cargar escudo como DataURL (intenta URL pública y luego archivo local)
-      async function loadImageDataURL(urls) {
-        for (const url of urls) {
-          try {
-            const img = await new Promise((res, rej) => {
-              const i = new Image();
-              i.crossOrigin = "anonymous";
-              i.onload = () => res(i);
-              i.onerror = rej;
-              i.src = url;
-            });
-            const c = document.createElement("canvas");
-            c.width = img.naturalWidth;
-            c.height = img.naturalHeight;
-            const ictx = c.getContext("2d");
-            ictx.drawImage(img, 0, 0);
-            return c.toDataURL("image/png");
-          } catch (e) {}
-        }
-        return null;
-      }
-
-      const escudoDataURL = await loadImageDataURL([
-        "https://roscar33.github.io/Comportamientoydisciplina/escudo.png",
-        "escudo.png"
-      ]);
-
-      const hoy = new Date();
-      const fechaStr = hoy.toLocaleDateString("es-CO");
-      const documento = registrosEstudiante[0]?.documentoEstudiante || "—";
-      const anioLectivo = "2026";
-      const titulo1 = "INSTITUCIÓN EDUCATIVA DE MARÍA";
-      const titulo2 = "Sede Rural Santa Juana";
-      const subtitulo = "Seguimiento comportamental y disciplinario";
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const marginLeft = 12;
-      const headerTop = 10;
-
-      // Usamos autoTable solo para enganchar didDrawPage (cabecera/pie en todas las páginas)
-      pdf.autoTable({
-        body: [],
-        startY: 9999,
-        didDrawPage: function () {
-          // Escudo
-          if (escudoDataURL) {
-            pdf.addImage(escudoDataURL, "PNG", marginLeft, headerTop, 24, 24);
-          }
-
-          // Membrete textual
-          pdf.setTextColor(10, 36, 16);
-          pdf.setFont("helvetica", "bold");
-          pdf.setFontSize(14);
-          pdf.text(titulo1, marginLeft + 30, headerTop + 8);
-
-          pdf.setFont("helvetica", "normal");
-          pdf.setFontSize(11);
-          pdf.text(titulo2, marginLeft + 30, headerTop + 15);
-
-          pdf.setTextColor(0);
-          pdf.setFontSize(10);
-          pdf.text(subtitulo + " – " + anioLectivo, marginLeft + 30, headerTop + 22);
-
-          // Caja de datos a la derecha
-          const boxW = 80, boxH = 22;
-          const boxX = pageWidth - boxW - marginLeft;
-          const boxY = headerTop + 4;
-          pdf.setDrawColor(34, 197, 94);
-          pdf.setFillColor(236, 253, 245);
-          pdf.roundedRect(boxX, boxY, boxW, boxH, 2, 2, "FD");
-          pdf.setTextColor(22, 101, 52);
-          pdf.setFontSize(10);
-          pdf.setFont("helvetica", "bold");
-          pdf.text("Fecha: " + fechaStr, boxX + 4, boxY + 7);
-          pdf.setFont("helvetica", "normal");
-          pdf.text("Documento: " + documento, boxX + 4, boxY + 13);
-          pdf.text("Estudiante: " + nombreEstudiante, boxX + 4, boxY + 19);
-
-          // Barra separadora
-          pdf.setDrawColor(34, 197, 94);
-          pdf.setLineWidth(0.8);
-          pdf.line(marginLeft, headerTop + 30, pageWidth - marginLeft, headerTop + 30);
-
-          // Pie de página
-          const pageStr = "Página " + pdf.internal.getNumberOfPages();
-          pdf.setFontSize(9);
-          pdf.setTextColor(100);
-          pdf.text(pageStr, pageWidth - marginLeft, pageHeight - 8, { align: "right" });
-          pdf.text("I.E. de María – Sistema de seguimiento comportamental", marginLeft, pageHeight - 8);
-        }
-      });
-
-      // Tabla con los registros
-      const tableStartY = headerTop + 34;
-
-      const tableData = registrosEstudiante.map(r => ([
-        r.fecha || "",
-        r.comportamiento || "",
-        r.descargos || "",
-        r.procedimiento || "",
-        "", // firma estudiante
-        ""  // firma acudiente
-      ]));
-
-      pdf.autoTable({
-        startY: tableStartY,
-        head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma estudiante', 'Firma acudiente']],
-        body: tableData,
-        theme: 'grid',
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          overflow: 'linebreak',
-          valign: 'top'
-        },
-        headStyles: {
-          fillColor: [34, 197, 94],
-          textColor: 255,
-          fontStyle: 'bold',
-          halign: 'center'
-        },
-        columnStyles: {
-          0: { cellWidth: 22 },
-          1: { cellWidth: 66 },
-          2: { cellWidth: 66 },
-          3: { cellWidth: 66 },
-          4: { cellWidth: 36 },
-          5: { cellWidth: 36 }
-        },
-        didDrawCell: function (data) {
-          if (data.section === 'body' && (data.column.index === 4 || data.column.index === 5)) {
-            const reg = registrosEstudiante[data.row.index];
-            const imgData = (data.column.index === 4) ? reg.firma : reg.firmaAcudiente;
-            if (imgData) {
-              try {
-                const w = 32, h = 14;
-                pdf.addImage(imgData, "PNG", data.cell.x + 2, data.cell.y + 2, w, h);
-              } catch (e) {
-                console.error("Error al agregar firma al PDF:", e);
-              }
-            }
-          }
-        }
-      });
-
-      pdf.save("Registro_" + nombreEstudiante.replace(/\s+/g, "_") + ".pdf");
     }
 
-    // para usar en consola si quieres
-    window.downloadStudentPDF = downloadStudentPDF;
+    // Inicial
+    ajustarCanvasExcusa(false);
+    // Si la pantalla cambia de tamaño, redibujamos la firma guardada
+    window.addEventListener('resize', () => ajustarCanvasExcusa(true));
 
-    document.getElementById('fecha').valueAsDate = new Date();
+    function getPosExcusa(e) {
+      const rect = canvasExcusa.getBoundingClientRect();
+      let x, y;
+      if (e.touches && e.touches[0]) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else {
+        x = e.offsetX ?? (e.clientX - rect.left);
+        y = e.offsetY ?? (e.clientY - rect.top);
+      }
+      return { x, y };
+    }
+
+    function startExcusa(e) {
+      e.preventDefault();
+      firmandoExcusa = true;
+      const p = getPosExcusa(e);
+      ex = p.x; ey = p.y;
+    }
+
+    function drawExcusa(e) {
+      if (!firmandoExcusa) return;
+      e.preventDefault();
+      const p = getPosExcusa(e);
+      ctxExcusa.strokeStyle = "#0f172a";
+      ctxExcusa.lineWidth = 2.2;
+      ctxExcusa.lineCap = "round";
+      ctxExcusa.beginPath();
+      ctxExcusa.moveTo(ex, ey);
+      ctxExcusa.lineTo(p.x, p.y);
+      ctxExcusa.stroke();
+      ex = p.x; ey = p.y;
+      excusaTieneTrazo = true;
+    }
+
+    function stopExcusa(e) {
+      e && e.preventDefault();
+      firmandoExcusa = false;
+      // Guardamos una copia de la firma cada vez que termina un trazo
+      if (excusaTieneTrazo) {
+        firmaExcusaDataURL = canvasExcusa.toDataURL("image/png");
+      }
+    }
+
+    canvasExcusa.addEventListener("mousedown", startExcusa);
+    canvasExcusa.addEventListener("mousemove", drawExcusa);
+    canvasExcusa.addEventListener("mouseup", stopExcusa);
+    canvasExcusa.addEventListener("mouseout", stopExcusa);
+    canvasExcusa.addEventListener("touchstart", startExcusa, { passive:false });
+    canvasExcusa.addEventListener("touchmove", drawExcusa, { passive:false });
+    canvasExcusa.addEventListener("touchend", stopExcusa, { passive:false });
+
+    document.getElementById('btnLimpiarFirmaExcusa').addEventListener('click', () => {
+      ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
+      excusaTieneTrazo = false;
+      firmaExcusaDataURL = null;
+    });
+
+    // Buscar nombre según documento y mostrar formulario
+    formIdentExcusa.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para continuar.");
+        return;
+      }
+
+      const docEst = docExcusa.value.trim();
+      if (!docEst) {
+        alert("Digite el documento del estudiante.");
+        return;
+      }
+
+      try {
+        let nombre = "";
+
+        const q = query(colRegistros, where("documentoEstudiante", "==", docEst));
+        const snap = await getDocs(q);
+        snap.forEach(d => {
+          const data = d.data();
+          if (!nombre && data.nombreEstudiante) {
+            nombre = data.nombreEstudiante;
+          }
+        });
+
+        // estudiante ficticio de pruebas
+        if (!nombre && docEst === "15271403") {
+          nombre = "OSCAR BARRIENTOS";
+        }
+
+        if (nombre) {
+          excusaResumen.textContent = "Estudiante: " + nombre;
+        } else {
+          excusaResumen.textContent = "Estudiante aún no registrado en el sistema. La excusa se asociará al documento.";
+        }
+
+        formExcusa.style.display = "block";
+        fechaInasistencia.valueAsDate = new Date();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+
+      } catch (err) {
+        console.error(err);
+        alert("No fue posible verificar el estudiante. Intente nuevamente.");
+      }
+    });
+
+    formExcusa.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para enviar la excusa.");
+        return;
+      }
+
+      const docEst = docExcusa.value.trim();
+      const fechaIna = fechaInasistencia.value;
+
+      if (!docEst || !fechaIna) {
+        alert("Complete el documento del estudiante y la fecha de inasistencia.");
+        return;
+      }
+
+      let motivoTipo = null;
+      let motivoDetalle = "";
+
+      if (motivoEnfermedad.checked) {
+        motivoTipo = "Enfermedad";
+        motivoDetalle = motivoEnfermedadTexto.value.trim();
+        if (!motivoDetalle) {
+          alert("Por favor explique brevemente la situación de enfermedad.");
+          return;
+        }
+      } else if (motivoCita.checked) {
+        motivoTipo = "Cita médica";
+        motivoDetalle = motivoCitaTexto.value.trim();
+        if (!motivoDetalle) {
+          alert("Por favor explique brevemente la cita médica.");
+          return;
+        }
+      } else if (motivoCalamidad.checked) {
+        motivoTipo = "Calamidad";
+        motivoDetalle = motivoCalamidadTexto.value.trim();
+        if (!motivoDetalle) {
+          alert("Por favor explique brevemente la calamidad.");
+          return;
+        }
+      } else if (motivoOtro.checked) {
+        motivoTipo = "Otro";
+        motivoDetalle = motivoOtroTexto.value.trim();
+        if (!motivoDetalle) {
+          alert("Explique el motivo en el cuadro de texto de 'Otro'.");
+          return;
+        }
+      }
+
+      if (!motivoTipo) {
+        alert("Seleccione un motivo de la inasistencia.");
+        return;
+      }
+
+      // Verificar que haya firma guardada
+      if (!firmaExcusaDataURL || !excusaTieneTrazo) {
+        alert("Por favor dibuje la firma del acudiente antes de enviar la excusa.");
+        return;
+      }
+
+      try {
+        const fechaEnvio = new Date().toISOString();
+
+        await addDoc(colExcusas, {
+          documentoEstudiante: docEst,
+          fechaInasistencia: fechaIna,
+          motivoTipo,
+          motivoDetalle,
+          firmaAcudiente: firmaExcusaDataURL,
+          fechaEnvio
+        });
+
+        alert(
+          "Recuerde que es responsabilidad del estudiante ponerse al día con las actividades delegadas durante su ausencia.\n\n" +
+          "Solamente se le reconocerán las notas por los trabajos correspondientes a la jornada en la que no asistió si presenta la excusa."
+        );
+
+        formExcusa.reset();
+        ctxExcusa.clearRect(0, 0, canvasExcusa.width, canvasExcusa.height);
+        excusaTieneTrazo = false;
+        firmaExcusaDataURL = null;
+        fechaInasistencia.valueAsDate = new Date();
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al enviar la excusa. Intente nuevamente.");
+      }
+    });
+
+    fechaInasistencia.valueAsDate = new Date();
   </script>
 </body>
 </html>
