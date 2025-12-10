@@ -1,915 +1,882 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registro Comportamental - I.E DE MARÍA</title>
+  <meta charset="UTF-8" />
+  <title>Registro Comportamental - Docente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- PWA: color de la barra del navegador -->
-    <meta name="theme-color" content="#4CAF50" />
+  <style>
+    :root {
+      --primary: #22c55e;
+      --primary-dark: #15803d;
+      --accent: #0ea5e9;
+      --bg: #e8f5e9;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 10px 30px rgba(15,23,42,0.12);
+    }
 
-    <!-- PWA: manifest (DEBE existir en la misma carpeta que este index.html) -->
-    <link rel="manifest" href="manifest.json" />
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- PWA: iconos (carpeta icons/ en la raíz del repo) -->
-    <link rel="icon" type="image/png" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #bbf7d0, #f9fafb 55%);
+      min-height: 100vh;
+      padding: 16px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+    }
 
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
 
-        body {
-            background-color: #90EE90;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .container {
-            max-width: 900px; /* un poco más compacto para móvil */
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid #22c55e33;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-        .header h1 {
-            color: #2c5f2d;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
 
-        .header h2 {
-            color: #4a7c4e;
-            font-size: 18px;
-        }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #064e3b;
+    }
 
-        .connection-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
 
-        .status-online {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .connection-status {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        .status-offline {
-            background-color: #FF9800;
-            color: white;
-        }
+    .connection-status.online {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #4ade80;
+    }
 
-        .status-syncing {
-            background-color: #2196F3;
-            color: white;
-        }
+    .connection-status.offline {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
 
-        .form-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
 
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
-        }
+    @media (max-width: 900px) {
+      body { padding: 10px; }
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
 
-        input[type="date"],
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-soft);
+    }
 
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
 
-        /* --- MODIFICACIÓN: touch-action: none es vital para lápiz óptico --- */
-        .signature-pad {
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            cursor: crosshair;
-            background-color: white;
-            width: 100%;     /* responsive */
-            max-width: 100%; /* no se sale del contenedor */
-            height: 200px;   /* altura fija cómoda */
-            touch-action: none; /* CRÍTICO: Bloquea el scroll del navegador en este elemento */
-        }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #064e3b;
+    }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
 
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
+    .pill {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      white-space: nowrap;
+    }
 
-        .btn-primary {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
 
-        .btn-primary:hover {
-            background-color: #45a049;
-        }
+    @media (max-width: 700px) {
+      .form-grid { grid-template-columns: minmax(0, 1fr); }
+    }
 
-        .btn-secondary {
-            background-color: #008CBA;
-            color: white;
-        }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-        .btn-secondary:hover {
-            background-color: #007399;
-        }
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
+    }
 
-        .btn-danger {
-            background-color: #f44336;
-            color: white;
-        }
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
 
-        .btn-danger:hover {
-            background-color: #da190b;
-        }
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f9fafb;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: border 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
 
-        .btn-print {
-            background-color: #FF9800;
-            color: white;
-        }
+    input::placeholder,
+    textarea::placeholder {
+      color: #94a3b8;
+    }
 
-        .btn-print:hover {
-            background-color: #F57C00;
-        }
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.35);
+      background: #ffffff;
+    }
 
-        .btn-edit {
-            background-color: #9C27B0;
-            color: white;
-            padding: 8px 16px;
-            font-size: 12px;
-        }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
 
-        .btn-edit:hover {
-            background-color: #7B1FA2;
-        }
+    .signature-block {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-            padding: 8px 16px;
-            font-size: 12px;
-        }
+    .signature-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
 
-        .btn-delete:hover {
-            background-color: #da190b;
-        }
+    canvas {
+      border-radius: 14px;
+      border: 1px dashed #cbd5e1;
+      background: #ffffff;
+      width: 100%;
+      height: 240px;
+      display: block;
+      cursor: crosshair;
+    }
 
-        .search-section {
-            margin: 30px 0;
-            padding: 20px;
-            background-color: #e8f5e9;
-            border-radius: 5px;
-        }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-        .search-input {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
-        }
+    button {
+      border: none;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      white-space: nowrap;
+    }
 
-        .records-section {
-            margin-top: 30px;
-        }
+    button:active { transform: scale(0.97); }
 
-        .student-section {
-            margin-bottom: 40px;
-            padding: 20px;
-            background-color: #fff;
-            border: 2px solid #4CAF50;
-            border-radius: 8px;
-            overflow-x: auto; /* scroll horizontal si la tabla es muy ancha */
-        }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #ecfdf5;
+      box-shadow: 0 10px 20px rgba(22,163,74,0.35);
+    }
 
-        .student-header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .btn-secondary {
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      color: #e0f2fe;
+      box-shadow: 0 10px 20px rgba(56,189,248,0.35);
+    }
 
-        .student-header h3 {
-            margin: 0;
-        }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fee2e2;
+      box-shadow: 0 10px 20px rgba(248,113,113,0.35);
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+    .records-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
-        table th {
-            background-color: #2c5f2d;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
+    .search-input {
+      flex: 1;
+      min-width: 0;
+    }
 
-        table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-            font-size: 13px;
-        }
+    .search-input input { width: 100%; }
 
-        table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+    .records-list {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #ffffff;
+    }
 
-        .signature-cell img {
-            max-width: 150px;
-            max-height: 60px;
-            border: 1px solid #ccc;
-        }
+    .records-list::-webkit-scrollbar { width: 6px; }
+    .records-list::-webkit-scrollbar-track { background: #ffffff; }
+    .records-list::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
 
-        .no-records {
-            text-align: center;
-            padding: 20px;
-            color: #999;
-            font-style: italic;
-        }
+    .student-card {
+      background: #f9fafb;
+      border-radius: var(--radius-md);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+      padding: 10px 10px 8px;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
+    .student-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
 
-        @media print {
-            body {
-                background-color: white;
-            }
-            .form-section, .search-section, .button-group, .btn-print, .btn-edit, .btn-delete, .action-buttons, .connection-status {
-                display: none !important;
-            }
-            .student-section {
-                page-break-after: always;
-            }
-        }
+    .student-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #022c22;
+    }
 
-        /* Ajustes extra para pantallas pequeñas */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
+    .student-doc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
 
-            .container {
-                padding: 15px;
-            }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 4px;
+    }
 
-            .form-section,
-            .search-section,
-            .student-section {
-                padding: 15px;
-            }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 6px 6px;
+      vertical-align: top;
+      text-align: left;
+    }
 
-            table th,
-            table td {
-                font-size: 12px;
-                padding: 6px;
-            }
+    th {
+      background: #ecfdf3;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #166534;
+    }
 
-            .connection-status {
-                left: 50%;
-                right: auto;
-                transform: translateX(-50%);
-            }
-        }
-    </style>
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody tr:nth-child(odd) { background: #ffffff; }
+
+    .signature-cell { text-align: center; }
+
+    .signature-cell img {
+      max-width: 140px;
+      max-height: 60px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+    }
+
+    .badge-pendiente,
+    .badge-firmado {
+      display: inline-flex;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-pendiente {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-firmado {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #4ade80;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      justify-content: center;
+    }
+
+    .btn-edit {
+      background: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .no-records {
+      text-align: center;
+      padding: 16px 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-radius: var(--radius-md);
+      border: 1px dashed #cbd5e1;
+      background: #f9fafb;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .card { padding: 16px 14px 14px; }
+      canvas { height: 220px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Indicador de estado de conexión -->
-    <div id="connectionStatus" class="connection-status status-offline">
-        Offline
-    </div>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand">
+        <!-- guarda tu escudo como escudo.png en la misma carpeta -->
+        <div class="brand-logo">
+          <img src="escudo.png" alt="Escudo Institución Educativa de María">
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Institución Educativa de María</div>
+          <div class="brand-subtitle">Sede Rural Santa Juana · Seguimiento comportamental 2026</div>
+        </div>
+      </div>
+      <div id="connStatus" class="connection-status offline">
+        <span class="connection-dot"></span><span>Offline</span>
+      </div>
+    </header>
 
-    <div class="container">
-        <div class="header">
-            <h1>I.E DE MARÍA, SEDE RURAL SANTA JUANA</h1>
-            <h2>Seguimiento comportamental y disciplinario 2026</h2>
+    <main class="layout">
+      <!-- Columna izquierda: formulario -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Registro del docente</div>
+            <div class="card-subtitle">Diligencie los campos y la firma del estudiante / docente.</div>
+          </div>
+          <div class="pill">Uso interno del docente</div>
         </div>
 
-        <!-- Formulario de Registro -->
-        <div class="form-section">
-            <h3 style="margin-bottom: 20px; color: #2c5f2d;">Nuevo Registro</h3>
-            <form id="registroForm">
-                <input type="hidden" id="editId" />
+        <form id="registroForm">
+          <input type="hidden" id="firebaseId" />
 
-                <div class="form-group">
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" required />
-                </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="fecha">Fecha</label>
+              <input type="date" id="fecha" required />
+            </div>
 
-                <div class="form-group">
-                    <label for="nombreEstudiante">Nombre del estudiante:</label>
-                    <input type="text" id="nombreEstudiante" required />
-                </div>
+            <div class="form-group">
+              <label for="documentoEstudiante">Documento del estudiante</label>
+              <input type="text" id="documentoEstudiante" required placeholder="Ej: 123456789" />
+            </div>
 
-                <div class="form-group">
-                    <label for="comportamiento">Comportamiento:</label>
-                    <textarea id="comportamiento" required></textarea>
-                </div>
+            <div class="form-group">
+              <label for="nombreEstudiante">Nombre del estudiante</label>
+              <input type="text" id="nombreEstudiante" required placeholder="Nombre completo" />
+            </div>
 
-                <div class="form-group">
-                    <label for="descargos">Descargos:</label>
-                    <textarea id="descargos" required></textarea>
-                </div>
+            <div class="form-group"></div>
+          </div>
 
-                <div class="form-group">
-                    <label for="procedimiento">Procedimiento:</label>
-                    <textarea id="procedimiento" required></textarea>
-                </div>
+          <div class="form-group" style="margin-top:10px;">
+            <label for="comportamiento">Descripción del comportamiento</label>
+            <textarea id="comportamiento" required placeholder="Explique brevemente la situación presentada..."></textarea>
+          </div>
 
-                <div class="form-group">
-                    <label>Firma:</label>
-                    <!-- sin width fijo, solo height -->
-                    <canvas id="signaturePad" class="signature-pad" height="200"></canvas>
-                    <div class="button-group">
-                        <button type="button" class="btn-danger" onclick="clearSignature()">Limpiar Firma</button>
-                    </div>
-                </div>
+          <div class="form-group">
+            <label for="descargos">Descargos (versión del estudiante)</label>
+            <textarea id="descargos" required placeholder="Registre lo manifestado por el estudiante..."></textarea>
+          </div>
 
-                <div class="button-group" style="margin-top: 20px;">
-                    <button type="submit" class="btn-primary" id="submitBtn">Guardar Registro</button>
-                    <button type="button" class="btn-secondary" id="cancelBtn" onclick="cancelEdit()" style="display: none;">Cancelar</button>
-                </div>
-            </form>
+          <div class="form-group">
+            <label for="procedimiento">Procedimiento / acciones a seguir</label>
+            <textarea id="procedimiento" required placeholder="Compromisos, acuerdos, remisiones, etc."></textarea>
+          </div>
+
+          <div class="signature-block">
+            <div class="signature-label-row">
+              <span>Firma estudiante / docente</span>
+              <span class="field-hint">Use el dedo o el cursor para firmar</span>
+            </div>
+            <canvas id="signaturePad"></canvas>
+            <div class="button-row">
+              <button type="button" class="btn-danger" id="btnLimpiarFirma">Limpiar firma</button>
+            </div>
+          </div>
+
+          <div class="button-row" style="margin-top:14px;">
+            <button type="submit" class="btn-primary" id="submitBtn">Guardar registro</button>
+            <button type="button" class="btn-secondary" id="cancelBtn" style="display:none;">Cancelar edición</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Columna derecha: registros -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Registros por estudiante</div>
+            <div class="card-subtitle">Visualice anotaciones y el estado de firma del acudiente.</div>
+          </div>
         </div>
 
-        <!-- Sección de Búsqueda -->
-        <div class="search-section">
-            <h3 style="margin-bottom: 15px; color: #2c5f2d;">Buscar Estudiante</h3>
-            <input type="text" id="searchInput" class="search-input" placeholder="Escribe el nombre del estudiante para ver todos sus registros..." />
+        <div class="records-header-row">
+          <div class="search-input">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Buscar por nombre del estudiante..."
+            />
+          </div>
+          <span class="pill">Actualización en tiempo real</span>
         </div>
 
-        <!-- Sección de Registros -->
-        <div class="records-section" id="recordsSection">
-            <h3 style="margin-bottom: 20px; color: #2c5f2d;">Registros por Estudiante</h3>
-            <div id="recordsList"></div>
-        </div>
-    </div>
+        <div id="recordsList" class="records-list"></div>
+      </section>
+    </main>
+  </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, updateDoc, deleteDoc,
+      doc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
-            authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-            projectId: "diariodeprocesos-6f78d",
-            storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
-            messagingSenderId: "487922338632",
-            appId: "1:487922338632:web:47fc48c23dbea064b0817d"
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+      authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+      projectId: "diariodeprocesos-6f78d",
+      storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
+      messagingSenderId: "487922338632",
+      appId: "1:487922338632:web:47fc48c23dbea064b0817d"
+    };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const registrosCol = collection(db, "registrosComportamentales");
 
-        // Variables globales Firebase
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc;
-        window.doc = doc;
-        window.getDocs = getDocs;
-        window.onSnapshot = onSnapshot;
+    const connStatus = document.getElementById('connStatus');
+    function updateConn() {
+      if (navigator.onLine) {
+        connStatus.className = "connection-status online";
+        connStatus.innerHTML = '<span class="connection-dot"></span><span>Online - Conectado</span>';
+      } else {
+        connStatus.className = "connection-status offline";
+        connStatus.innerHTML = '<span class="connection-dot"></span><span>Offline (requiere internet)</span>';
+      }
+    }
+    window.addEventListener('online', updateConn);
+    window.addEventListener('offline', updateConn);
+    updateConn();
 
-        // Estado de conexión
-        let isOnline = navigator.onLine;
-        updateConnectionStatus();
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
 
-        window.addEventListener('online', () => {
-            isOnline = true;
-            updateConnectionStatus();
-            syncOfflineData();
+    function ajustarCanvas() {
+      const w = canvas.getBoundingClientRect().width || 500;
+      canvas.width = w;
+      canvas.height = 240;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    ajustarCanvas();
+    window.addEventListener('resize', ajustarCanvas);
+
+    let isDrawing = false, lastX = 0, lastY = 0;
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      let x, y;
+      if (e.touches && e.touches[0]) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else {
+        x = e.offsetX ?? (e.clientX - rect.left);
+        y = e.offsetY ?? (e.clientY - rect.top);
+      }
+      return { x, y };
+    }
+    function startDrawing(e) {
+      e.preventDefault();
+      isDrawing = true;
+      const p = getPos(e);
+      lastX = p.x;
+      lastY = p.y;
+    }
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const p = getPos(e);
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      lastX = p.x;
+      lastY = p.y;
+    }
+    function stopDrawing(e) {
+      e && e.preventDefault();
+      isDrawing = false;
+    }
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseout", stopDrawing);
+    canvas.addEventListener("touchstart", startDrawing, { passive:false });
+    canvas.addEventListener("touchmove", draw, { passive:false });
+    canvas.addEventListener("touchend", stopDrawing, { passive:false });
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    document.getElementById('btnLimpiarFirma').addEventListener('click', clearSignature);
+
+    const registroForm = document.getElementById('registroForm');
+    const firebaseIdInput = document.getElementById('firebaseId');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const recordsList = document.getElementById('recordsList');
+    const searchInput = document.getElementById('searchInput');
+
+    let registros = [];
+
+    function escapeHTML(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function agruparPorEstudiante(lista) {
+      const g = {};
+      lista.forEach(r => {
+        const nombre = r.nombreEstudiante || "Sin nombre";
+        if (!g[nombre]) g[nombre] = [];
+        g[nombre].push(r);
+      });
+      return g;
+    }
+
+    function mostrarRegistros(lista) {
+      if (!lista || lista.length === 0) {
+        recordsList.innerHTML = '<div class="no-records">No hay registros almacenados.</div>';
+        return;
+      }
+
+      const grouped = agruparPorEstudiante(lista);
+      let html = "";
+      Object.keys(grouped).sort().forEach(nombre => {
+        const rs = grouped[nombre];
+        const docRef = rs[0]?.documentoEstudiante || "";
+        html += '<article class="student-card">';
+        html += ' <header class="student-card-header">';
+        html += '   <div>';
+        html += '     <div class="student-name">' + escapeHTML(nombre) + '</div>';
+        html += '     <div class="student-doc">Documento: ' + escapeHTML(docRef) + '</div>';
+        html += '   </div>';
+        html += ' </header>';
+        html += '  <table>';
+        html += '    <thead><tr>';
+        html += '      <th>Fecha</th>';
+        html += '      <th>Comportamiento</th>';
+        html += '      <th>Descargos</th>';
+        html += '      <th>Procedimiento</th>';
+        html += '      <th>Firma estudiante</th>';
+        html += '      <th>Firma acudiente</th>';
+        html += '      <th>Acciones</th>';
+        html += '    </tr></thead>';
+        html += '    <tbody>';
+
+        rs.forEach(r => {
+          html += '<tr>';
+          html += '<td>' + escapeHTML(r.fecha || "") + '</td>';
+          html += '<td>' + escapeHTML(r.comportamiento || "") + '</td>';
+          html += '<td>' + escapeHTML(r.descargos || "") + '</td>';
+          html += '<td>' + escapeHTML(r.procedimiento || "") + '</td>';
+
+          html += '<td class="signature-cell">';
+          if (r.firma) html += '<img src="' + r.firma + '" alt="Firma estudiante">';
+          else html += '<span class="badge-pendiente">Sin firma</span>';
+          html += '</td>';
+
+          html += '<td class="signature-cell">';
+          if (r.firmaAcudiente) {
+            html += '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">';
+            html += '<img src="' + r.firmaAcudiente + '" alt="Firma acudiente">';
+            if (r.fechaFirmaAcudiente) {
+              html += '<span style="font-size:10px;color:#64748b;">' +
+                      escapeHTML(r.fechaFirmaAcudiente) + '</span>';
+            }
+            html += '<span class="badge-firmado">Firmado</span>';
+            html += '</div>';
+          } else {
+            html += '<span class="badge-pendiente">Pendiente</span>';
+          }
+          html += '</td>';
+
+          html += '<td>';
+          html += '  <div class="action-buttons">';
+          html += '    <button class="btn-small btn-edit" onclick="editRecord(\'' + r.firebaseId + '\')">Editar</button>';
+          html += '    <button class="btn-small btn-delete" onclick="deleteRecord(\'' + r.firebaseId + '\')">Eliminar</button>';
+          html += '  </div>';
+          html += '</td>';
+
+          html += '</tr>';
         });
 
-        window.addEventListener('offline', () => {
-            isOnline = false;
-            updateConnectionStatus();
-        });
+        html += '    </tbody>';
+        html += '   </table>';
+        html += '</article>';
+      });
 
-        function updateConnectionStatus() {
-            const statusDiv = document.getElementById('connectionStatus');
-            if (isOnline) {
-                statusDiv.textContent = 'Online - Conectado a Firebase';
-                statusDiv.className = 'connection-status status-online';
-            } else {
-                statusDiv.textContent = 'Offline - Guardando localmente';
-                statusDiv.className = 'connection-status status-offline';
-            }
-        }
+      recordsList.innerHTML = html;
+    }
 
-        async function syncOfflineData() {
-            const statusDiv = document.getElementById('connectionStatus');
-            statusDiv.textContent = 'Sincronizando...';
-            statusDiv.className = 'connection-status status-syncing';
+    function filtrarYMostrar() {
+      const term = (searchInput.value || "").toLowerCase();
+      if (!term) {
+        mostrarRegistros(registros);
+      } else {
+        mostrarRegistros(
+          registros.filter(r => (r.nombreEstudiante || "").toLowerCase().includes(term))
+        );
+      }
+    }
+    searchInput.addEventListener('input', filtrarYMostrar);
 
-            try {
-                const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
+    onSnapshot(registrosCol, snapshot => {
+      registros = snapshot.docs.map(d => ({
+        firebaseId: d.id,
+        ...d.data()
+      }));
+      filtrarYMostrar();
+    });
 
-                for (const operation of offlineQueue) {
-                    if (operation.type === 'add') {
-                        await addDoc(collection(db, 'registrosComportamentales'), operation.data);
-                    } else if (operation.type === 'update') {
-                        await updateDoc(doc(db, 'registrosComportamentales', operation.docId), operation.data);
-                    } else if (operation.type === 'delete') {
-                        await deleteDoc(doc(db, 'registrosComportamentales', operation.docId));
-                    }
-                }
+    registroForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para guardar.");
+        return;
+      }
 
-                localStorage.setItem('offlineQueue', JSON.stringify([]));
+      const id = firebaseIdInput.value || null;
+      const baseData = {
+        fecha: document.getElementById('fecha').value,
+        nombreEstudiante: document.getElementById('nombreEstudiante').value,
+        documentoEstudiante: document.getElementById('documentoEstudiante').value,
+        comportamiento: document.getElementById('comportamiento').value,
+        descargos: document.getElementById('descargos').value,
+        procedimiento: document.getElementById('procedimiento').value,
+        firma: canvas.toDataURL("image/png")
+      };
 
-                await loadFromFirebase();
-
-                updateConnectionStatus();
-                alert('Datos sincronizados exitosamente con Firebase');
-            } catch (error) {
-                console.error('Error al sincronizar:', error);
-                updateConnectionStatus();
-            }
-        }
-
-        async function loadFromFirebase() {
-            try {
-                const querySnapshot = await getDocs(collection(db, 'registrosComportamentales'));
-                const registrosFirebase = [];
-
-                querySnapshot.forEach((docSnap) => {
-                    registrosFirebase.push({
-                        firebaseId: docSnap.id,
-                        ...docSnap.data()
-                    });
-                });
-
-                localStorage.setItem('registrosComportamentales', JSON.stringify(registrosFirebase));
-                window.registros = registrosFirebase;
-                window.displayRecordsByStudent(registrosFirebase);
-            } catch (error) {
-                console.error('Error al cargar desde Firebase:', error);
-                window.registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
-                window.displayRecordsByStudent(window.registros);
-            }
-        }
-
-        onSnapshot(collection(db, 'registrosComportamentales'), () => {
-            if (isOnline) {
-                loadFromFirebase();
-            }
-        });
-
-        if (isOnline) {
-            loadFromFirebase();
+      try {
+        if (id) {
+          // conservar firmaAcudiente si ya existía
+          const existente = registros.find(r => r.firebaseId === id) || {};
+          const data = {
+            ...baseData,
+            firmaAcudiente: existente.firmaAcudiente ?? null,
+            fechaFirmaAcudiente: existente.fechaFirmaAcudiente ?? null
+          };
+          await updateDoc(doc(db, "registrosComportamentales", id), data);
+          alert("Registro actualizado.");
         } else {
-            window.registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
-            window.displayRecordsByStudent(window.registros);
+          const data = {
+            ...baseData,
+            firmaAcudiente: null,
+            fechaFirmaAcudiente: null
+          };
+          await addDoc(registrosCol, data);
+          alert("Registro creado.");
         }
+        limpiarFormulario();
+      } catch (err) {
+        console.error(err);
+        alert("Error al guardar. Revisa la consola del navegador.");
+      }
+    });
 
-        window.isOnline = () => isOnline;
-        window.syncOfflineData = syncOfflineData;
-    </script>
+    function limpiarFormulario() {
+      registroForm.reset();
+      firebaseIdInput.value = "";
+      submitBtn.textContent = "Guardar registro";
+      cancelBtn.style.display = "none";
+      clearSignature();
+      document.getElementById('fecha').valueAsDate = new Date();
+    }
+    cancelBtn.addEventListener('click', limpiarFormulario);
 
-    <script>
-        // --- INICIO DE MODIFICACIÓN: LÓGICA DE FIRMA MEJORADA PARA LÁPIZ ÓPTICO ---
-        const canvas = document.getElementById('signaturePad');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
+    window.editRecord = function(id) {
+      const r = registros.find(x => x.firebaseId === id);
+      if (!r) return;
+      firebaseIdInput.value = r.firebaseId;
+      document.getElementById('fecha').value = r.fecha || "";
+      document.getElementById('nombreEstudiante').value = r.nombreEstudiante || "";
+      document.getElementById('documentoEstudiante').value = r.documentoEstudiante || "";
+      document.getElementById('comportamiento').value = r.comportamiento || "";
+      document.getElementById('descargos').value = r.descargos || "";
+      document.getElementById('procedimiento').value = r.procedimiento || "";
+      clearSignature();
+      if (r.firma) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        img.src = r.firma;
+      }
+      submitBtn.textContent = "Actualizar registro";
+      cancelBtn.style.display = "inline-flex";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
-        // Función para ajustar el tamaño del canvas al tamaño real de pantalla
-        // Esto evita que el puntero se dibuje en un lugar diferente a donde tocas
-        function initCanvasSize() {
-             // Solo si las dimensiones difieren, ajustamos. 
-             // Ojo: cambiar el tamaño borra el canvas, así que lo hacemos al inicio.
-             if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
-                 canvas.width = canvas.offsetWidth;
-                 canvas.height = canvas.offsetHeight;
-             }
-        }
-        
-        // Ejecutamos ajuste al cargar
-        window.addEventListener('load', initCanvasSize);
+    window.deleteRecord = async function(id) {
+      if (!confirm("¿Eliminar este registro?")) return;
+      if (!navigator.onLine) {
+        alert("Se necesita conexión a internet para eliminar.");
+        return;
+      }
+      try {
+        await deleteDoc(doc(db, "registrosComportamentales", id));
+        alert("Registro eliminado.");
+      } catch (err) {
+        console.error(err);
+        alert("Error al eliminar.");
+      }
+    };
 
-        // Función unificada para obtener coordenadas (Ratón o Táctil)
-        function getPointerPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            let clientX, clientY;
-            
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        function startDrawing(e) {
-            // Evitamos scroll si es un toque
-            if (e.cancelable) e.preventDefault(); 
-            
-            isDrawing = true;
-            ctx.beginPath();
-            
-            const pos = getPointerPos(e);
-            ctx.moveTo(pos.x, pos.y);
-
-            // Configuración del trazo
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#000';
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            
-            // CRÍTICO: Evita que la pantalla se mueva al arrastrar el lápiz
-            if (e.cancelable) e.preventDefault(); 
-            
-            const pos = getPointerPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-        }
-
-        function stopDrawing(e) {
-            if (isDrawing) {
-                 if (e.cancelable) e.preventDefault();
-                 isDrawing = false;
-                 ctx.closePath();
-            }
-        }
-
-        // --- Eventos del Ratón ---
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseleave', stopDrawing);
-
-        // --- Eventos Táctiles (Lápiz Óptico / Dedo) ---
-        // { passive: false } es obligatorio para que funcione e.preventDefault()
-        canvas.addEventListener('touchstart', startDrawing, { passive: false });
-        canvas.addEventListener('touchmove', draw, { passive: false });
-        canvas.addEventListener('touchend', stopDrawing);
-        
-        // --- FIN DE MODIFICACIÓN DE FIRMA ---
-
-        function clearSignature() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        let registros = JSON.parse(localStorage.getItem('registrosComportamentales')) || [];
-
-        document.getElementById('registroForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const editId = document.getElementById('editId').value;
-            const registro = {
-                id: editId ? parseInt(editId) : Date.now(),
-                fecha: document.getElementById('fecha').value,
-                nombreEstudiante: document.getElementById('nombreEstudiante').value,
-                comportamiento: document.getElementById('comportamiento').value,
-                descargos: document.getElementById('descargos').value,
-                procedimiento: document.getElementById('procedimiento').value,
-                firma: canvas.toDataURL()
-            };
-
-            try {
-                if (window.isOnline()) {
-                    if (editId) {
-                        const index = registros.findIndex(r => r.id === parseInt(editId));
-                        if (index !== -1) {
-                            const firebaseId = registros[index].firebaseId;
-                            if (firebaseId) {
-                                await window.updateDoc(window.doc(window.db, 'registrosComportamentales', firebaseId), registro);
-                            }
-                            registros[index] = { ...registro, firebaseId };
-                        }
-                        alert('Registro actualizado exitosamente en Firebase');
-                    } else {
-                        const docRef = await window.addDoc(window.collection(window.db, 'registrosComportamentales'), registro);
-                        registro.firebaseId = docRef.id;
-                        registros.push(registro);
-                        alert('Registro guardado exitosamente en Firebase');
-                    }
-                } else {
-                    const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-
-                    if (editId) {
-                        const index = registros.findIndex(r => r.id === parseInt(editId));
-                        if (index !== -1) {
-                            registros[index] = registro;
-                            offlineQueue.push({
-                                type: 'update',
-                                docId: registros[index].firebaseId,
-                                data: registro
-                            });
-                        }
-                        alert('Registro actualizado localmente. Se sincronizará cuando haya conexión.');
-                    } else {
-                        registros.push(registro);
-                        offlineQueue.push({
-                            type: 'add',
-                            data: registro
-                        });
-                        alert('Registro guardado localmente. Se sincronizará cuando haya conexión.');
-                    }
-
-                    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-                }
-
-                localStorage.setItem('registrosComportamentales', JSON.stringify(registros));
-
-                this.reset();
-                document.getElementById('editId').value = '';
-                document.getElementById('submitBtn').textContent = 'Guardar Registro';
-                document.getElementById('cancelBtn').style.display = 'none';
-                clearSignature();
-                displayRecordsByStudent(registros);
-            } catch (error) {
-                console.error('Error al guardar:', error);
-                alert('Error al guardar el registro. Intenta nuevamente.');
-            }
-        });
-
-        function cancelEdit() {
-            document.getElementById('registroForm').reset();
-            document.getElementById('editId').value = '';
-            document.getElementById('submitBtn').textContent = 'Guardar Registro';
-            document.getElementById('cancelBtn').style.display = 'none';
-            clearSignature();
-        }
-
-        async function deleteRecord(id) {
-            if (confirm('¿Está seguro de que desea eliminar este registro?')) {
-                try {
-                    const index = registros.findIndex(r => r.id === id);
-                    if (index === -1) return;
-
-                    if (window.isOnline()) {
-                        const firebaseId = registros[index].firebaseId;
-                        if (firebaseId) {
-                            await window.deleteDoc(window.doc(window.db, 'registrosComportamentales', firebaseId));
-                        }
-                        alert('Registro eliminado exitosamente de Firebase');
-                    } else {
-                        const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue')) || [];
-                        offlineQueue.push({
-                            type: 'delete',
-                            docId: registros[index].firebaseId
-                        });
-                        localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
-                        alert('Registro eliminado localmente. Se sincronizará cuando haya conexión.');
-                    }
-
-                    registros = registros.filter(r => r.id !== id);
-                    localStorage.setItem('registrosComportamentales', JSON.stringify(registros));
-                    displayRecordsByStudent(registros);
-                } catch (error) {
-                    console.error('Error al eliminar:', error);
-                    alert('Error al eliminar el registro. Intenta nuevamente.');
-                }
-            }
-        }
-
-        function groupByStudent(records) {
-            const grouped = {};
-            records.forEach(registro => {
-                const nombre = registro.nombreEstudiante;
-                if (!grouped[nombre]) {
-                    grouped[nombre] = [];
-                }
-                grouped[nombre].push(registro);
-            });
-            return grouped;
-        }
-
-        function displayRecordsByStudent(recordsToShow) {
-            const recordsList = document.getElementById('recordsList');
-
-            if (!recordsToShow || recordsToShow.length === 0) {
-                recordsList.innerHTML = '<div class="no-records">No hay registros disponibles</div>';
-                return;
-            }
-
-            const grouped = groupByStudent(recordsToShow);
-            let html = '';
-
-            Object.keys(grouped).sort().forEach(nombreEstudiante => {
-                const registrosEstudiante = grouped[nombreEstudiante];
-
-                html += '<div class="student-section">';
-                html += '<div class="student-header">';
-                html += '<h3>Estudiante: ' + nombreEstudiante + '</h3>';
-                html += '<button class="btn-print" onclick="downloadStudentPDF(\'' + nombreEstudiante.replace(/'/g, "\\'") + '\')">Descargar PDF</button>';
-                html += '</div>';
-                html += '<table>';
-                html += '<thead>';
-                html += '<tr>';
-                html += '<th style="width: 10%;">Fecha</th>';
-                html += '<th style="width: 20%;">Comportamiento</th>';
-                html += '<th style="width: 20%;">Descargos</th>';
-                html += '<th style="width: 20%;">Procedimiento</th>';
-                html += '<th style="width: 15%;">Firma</th>';
-                html += '<th style="width: 15%;">Acciones</th>';
-                html += '</tr>';
-                html += '</thead>';
-                html += '<tbody>';
-
-                registrosEstudiante.forEach(registro => {
-                    html += '<tr>';
-                    html += '<td>' + registro.fecha + '</td>';
-                    html += '<td>' + registro.comportamiento + '</td>';
-                    html += '<td>' + registro.descargos + '</td>';
-                    html += '<td>' + registro.procedimiento + '</td>';
-                    html += '<td class="signature-cell"><img src="' + registro.firma + '" alt="Firma"></td>';
-                    html += '<td class="action-buttons">';
-                    html += '<button class="btn-edit" onclick="editRecord(' + registro.id + ')">Editar</button>';
-                    html += '<button class="btn-delete" onclick="deleteRecord(' + registro.id + ')">Eliminar</button>';
-                    html += '</td>';
-                    html += '</tr>';
-                });
-
-                html += '</tbody>';
-                html += '</table>';
-                html += '</div>';
-            });
-
-            recordsList.innerHTML = html;
-        }
-
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            if (searchTerm === '') {
-                displayRecordsByStudent(registros);
-            } else {
-                const filteredRecords = registros.filter(registro =>
-                    registro.nombreEstudiante.toLowerCase().includes(searchTerm)
-                );
-                displayRecordsByStudent(filteredRecords);
-            }
-        });
-
-        function downloadStudentPDF(nombreEstudiante) {
-            const jsPDF = window.jspdf.jsPDF;
-            const pdf = new jsPDF('landscape', 'mm', 'a4');
-
-            const registrosEstudiante = registros.filter(r => r.nombreEstudiante === nombreEstudiante);
-
-            if (registrosEstudiante.length === 0) {
-                alert('No hay registros para este estudiante');
-                return;
-            }
-
-            pdf.setFontSize(16);
-            pdf.setFont(undefined, 'bold');
-            pdf.text('I.E DE MARÍA, SEDE RURAL SANTA JUANA', 148, 15, { align: 'center' });
-            pdf.setFontSize(14);
-            pdf.text('Seguimiento comportamental y disciplinario 2026', 148, 22, { align: 'center' });
-
-            pdf.setFontSize(12);
-            pdf.text('Estudiante: ' + nombreEstudiante, 148, 30, { align: 'center' });
-
-            const tableData = registrosEstudiante.map(registro => {
-                return [
-                    registro.fecha,
-                    registro.comportamiento,
-                    registro.descargos,
-                    registro.procedimiento,
-                    ''
-                ];
-            });
-
-            pdf.autoTable({
-                startY: 35,
-                head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma']],
-                body: tableData,
-                theme: 'grid',
-                styles: {
-                    fontSize: 9,
-                    cellPadding: 3,
-                    overflow: 'linebreak',
-                    valign: 'top'
-                },
-                headStyles: {
-                    fillColor: [44, 95, 45],
-                    textColor: 255,
-                    fontStyle: 'bold',
-                    halign: 'center'
-                },
-                columnStyles: {
-                    0: { cellWidth: 25 },
-                    1: { cellWidth: 60 },
-                    2: { cellWidth: 60 },
-                    3: { cellWidth: 60 },
-                    4: { cellWidth: 40 }
-                },
-                didDrawCell: function(data) {
-                    if (data.column.index === 4 && data.section === 'body') {
-                        const registro = registrosEstudiante[data.row.index];
-                        if (registro && registro.firma) {
-                            try {
-                                pdf.addImage(
-                                    registro.firma,
-                                    'PNG',
-                                    data.cell.x + 2,
-                                    data.cell.y + 2,
-                                    35,
-                                    data.cell.height - 4
-                                );
-                            } catch (e) {
-                                console.error('Error al agregar firma:', e);
-                            }
-                        }
-                    }
-                }
-            });
-
-            pdf.save('Registro_' + nombreEstudiante.replace(/\s+/g, '_') + '.pdf');
-        }
-
-        window.displayRecordsByStudent = displayRecordsByStudent;
-        window.registros = registros;
-
-        document.getElementById('fecha').valueAsDate = new Date();
-    </script>
-
-    <!-- Registro del Service Worker para PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registrado:', reg.scope))
-                    .catch(err => console.error('Error al registrar SW:', err));
-            });
-        }
-    </script>
+    document.getElementById('fecha').valueAsDate = new Date();
+  </script>
 </body>
 </html>
-
