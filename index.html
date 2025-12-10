@@ -5,6 +5,10 @@
   <title>Registro Comportamental - Docente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- jsPDF + AutoTable para descargar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
   <style>
     :root {
       --primary: #22c55e;
@@ -58,18 +62,19 @@
     }
 
     .brand-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 999px;
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
       overflow: hidden;
+      border: 2px solid #22c55e55;
+      background: white;
       flex-shrink: 0;
-      border: 2px solid #22c55e33;
     }
 
     .brand-logo img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
 
     .brand-text {
@@ -436,6 +441,15 @@
       border: 1px solid #fecaca;
     }
 
+    .btn-pdf {
+      background: #f97316;
+      color: #fff7ed;
+      border: 1px solid #fdba74;
+      box-shadow: 0 8px 18px rgba(249,115,22,0.35);
+      font-size: 11px;
+      padding: 6px 11px;
+    }
+
     .no-records {
       text-align: center;
       padding: 16px 8px;
@@ -458,7 +472,7 @@
   <div class="app-shell">
     <header class="top-bar">
       <div class="brand">
-        <!-- guarda tu escudo como escudo.png en la misma carpeta -->
+        <!-- Asegúrate de tener escudo.png en la misma carpeta -->
         <div class="brand-logo">
           <img src="escudo.png" alt="Escudo Institución Educativa de María">
         </div>
@@ -543,7 +557,7 @@
         <div class="card-header">
           <div>
             <div class="card-title">Registros por estudiante</div>
-            <div class="card-subtitle">Visualice anotaciones y el estado de firma del acudiente.</div>
+            <div class="card-subtitle">Visualice anotaciones, firmas y descargue en PDF.</div>
           </div>
         </div>
 
@@ -698,6 +712,7 @@
 
       const grouped = agruparPorEstudiante(lista);
       let html = "";
+
       Object.keys(grouped).sort().forEach(nombre => {
         const rs = grouped[nombre];
         const docRef = rs[0]?.documentoEstudiante || "";
@@ -707,6 +722,7 @@
         html += '     <div class="student-name">' + escapeHTML(nombre) + '</div>';
         html += '     <div class="student-doc">Documento: ' + escapeHTML(docRef) + '</div>';
         html += '   </div>';
+        html += '   <button type="button" class="btn-small btn-pdf" data-student="' + escapeHTML(nombre) + '">Descargar PDF</button>';
         html += ' </header>';
         html += '  <table>';
         html += '    <thead><tr>';
@@ -763,6 +779,14 @@
       });
 
       recordsList.innerHTML = html;
+
+      // Conectar botones PDF
+      document.querySelectorAll('.btn-pdf').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const nombre = btn.getAttribute('data-student');
+          downloadStudentPDF(nombre);
+        });
+      });
     }
 
     function filtrarYMostrar() {
@@ -805,7 +829,6 @@
 
       try {
         if (id) {
-          // conservar firmaAcudiente si ya existía
           const existente = registros.find(r => r.firebaseId === id) || {};
           const data = {
             ...baseData,
@@ -875,6 +898,171 @@
         alert("Error al eliminar.");
       }
     };
+
+    // ========= PDF PREMIUM con escudo y membrete =========
+    async function downloadStudentPDF(nombreEstudiante) {
+      const registrosEstudiante = registros
+        .filter(r => (r.nombreEstudiante || "") === nombreEstudiante);
+
+      if (!registrosEstudiante.length) {
+        alert("No hay registros para este estudiante.");
+        return;
+      }
+
+      const jsPDF = window.jspdf.jsPDF;
+      const pdf = new jsPDF("landscape", "mm", "a4");
+
+      // Cargar escudo como DataURL (intenta URL pública y luego archivo local)
+      async function loadImageDataURL(urls) {
+        for (const url of urls) {
+          try {
+            const img = await new Promise((res, rej) => {
+              const i = new Image();
+              i.crossOrigin = "anonymous";
+              i.onload = () => res(i);
+              i.onerror = rej;
+              i.src = url;
+            });
+            const c = document.createElement("canvas");
+            c.width = img.naturalWidth;
+            c.height = img.naturalHeight;
+            const ictx = c.getContext("2d");
+            ictx.drawImage(img, 0, 0);
+            return c.toDataURL("image/png");
+          } catch (e) {}
+        }
+        return null;
+      }
+
+      const escudoDataURL = await loadImageDataURL([
+        "https://roscar33.github.io/Comportamientoydisciplina/escudo.png",
+        "escudo.png"
+      ]);
+
+      const hoy = new Date();
+      const fechaStr = hoy.toLocaleDateString("es-CO");
+      const documento = registrosEstudiante[0]?.documentoEstudiante || "—";
+      const anioLectivo = "2026";
+      const titulo1 = "INSTITUCIÓN EDUCATIVA DE MARÍA";
+      const titulo2 = "Sede Rural Santa Juana";
+      const subtitulo = "Seguimiento comportamental y disciplinario";
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const marginLeft = 12;
+      const headerTop = 10;
+
+      // Usamos autoTable solo para enganchar didDrawPage (cabecera/pie en todas las páginas)
+      pdf.autoTable({
+        body: [],
+        startY: 9999,
+        didDrawPage: function () {
+          // Escudo
+          if (escudoDataURL) {
+            pdf.addImage(escudoDataURL, "PNG", marginLeft, headerTop, 24, 24);
+          }
+
+          // Membrete textual
+          pdf.setTextColor(10, 36, 16);
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(14);
+          pdf.text(titulo1, marginLeft + 30, headerTop + 8);
+
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(11);
+          pdf.text(titulo2, marginLeft + 30, headerTop + 15);
+
+          pdf.setTextColor(0);
+          pdf.setFontSize(10);
+          pdf.text(subtitulo + " – " + anioLectivo, marginLeft + 30, headerTop + 22);
+
+          // Caja de datos a la derecha
+          const boxW = 80, boxH = 22;
+          const boxX = pageWidth - boxW - marginLeft;
+          const boxY = headerTop + 4;
+          pdf.setDrawColor(34, 197, 94);
+          pdf.setFillColor(236, 253, 245);
+          pdf.roundedRect(boxX, boxY, boxW, boxH, 2, 2, "FD");
+          pdf.setTextColor(22, 101, 52);
+          pdf.setFontSize(10);
+          pdf.setFont("helvetica", "bold");
+          pdf.text("Fecha: " + fechaStr, boxX + 4, boxY + 7);
+          pdf.setFont("helvetica", "normal");
+          pdf.text("Documento: " + documento, boxX + 4, boxY + 13);
+          pdf.text("Estudiante: " + nombreEstudiante, boxX + 4, boxY + 19);
+
+          // Barra separadora
+          pdf.setDrawColor(34, 197, 94);
+          pdf.setLineWidth(0.8);
+          pdf.line(marginLeft, headerTop + 30, pageWidth - marginLeft, headerTop + 30);
+
+          // Pie de página
+          const pageStr = "Página " + pdf.internal.getNumberOfPages();
+          pdf.setFontSize(9);
+          pdf.setTextColor(100);
+          pdf.text(pageStr, pageWidth - marginLeft, pageHeight - 8, { align: "right" });
+          pdf.text("I.E. de María – Sistema de seguimiento comportamental", marginLeft, pageHeight - 8);
+        }
+      });
+
+      // Tabla con los registros
+      const tableStartY = headerTop + 34;
+
+      const tableData = registrosEstudiante.map(r => ([
+        r.fecha || "",
+        r.comportamiento || "",
+        r.descargos || "",
+        r.procedimiento || "",
+        "", // firma estudiante
+        ""  // firma acudiente
+      ]));
+
+      pdf.autoTable({
+        startY: tableStartY,
+        head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma estudiante', 'Firma acudiente']],
+        body: tableData,
+        theme: 'grid',
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          overflow: 'linebreak',
+          valign: 'top'
+        },
+        headStyles: {
+          fillColor: [34, 197, 94],
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        columnStyles: {
+          0: { cellWidth: 22 },
+          1: { cellWidth: 66 },
+          2: { cellWidth: 66 },
+          3: { cellWidth: 66 },
+          4: { cellWidth: 36 },
+          5: { cellWidth: 36 }
+        },
+        didDrawCell: function (data) {
+          if (data.section === 'body' && (data.column.index === 4 || data.column.index === 5)) {
+            const reg = registrosEstudiante[data.row.index];
+            const imgData = (data.column.index === 4) ? reg.firma : reg.firmaAcudiente;
+            if (imgData) {
+              try {
+                const w = 32, h = 14;
+                pdf.addImage(imgData, "PNG", data.cell.x + 2, data.cell.y + 2, w, h);
+              } catch (e) {
+                console.error("Error al agregar firma al PDF:", e);
+              }
+            }
+          }
+        }
+      });
+
+      pdf.save("Registro_" + nombreEstudiante.replace(/\s+/g, "_") + ".pdf");
+    }
+
+    // para usar en consola si quieres
+    window.downloadStudentPDF = downloadStudentPDF;
 
     document.getElementById('fecha').valueAsDate = new Date();
   </script>
