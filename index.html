@@ -5,23 +5,20 @@
   <title>Seguimiento Disciplinario - Docente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- jsPDF + autotable para reportes PDF -->
+  <!-- Librerías para PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
-      /* COLORES TEMA ÁNGEL (Verde Oscuro) */
       --primary: #1b5e20;       
       --primary-light: #2e7d32; 
       --accent: #0288d1;        
       --bg-body: #c8e6c9;       
-      
       --text-main: #0f172a;
       --text-muted: #555;
       --card-bg: #ffffff;
       --border: #dcdcdc;
-      
       --radius-xl: 24px;
       --radius-md: 12px;
       --shadow: 0 4px 15px rgba(27, 94, 32, 0.08);
@@ -60,58 +57,30 @@
     .conn-offline { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
     .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-    /* --- NAVEGACIÓN (TABS) --- */
+    /* TABS */
     .nav-tabs {
-      display: flex;
-      background: #fff;
-      padding: 5px;
-      border-radius: 50px;
-      box-shadow: var(--shadow);
-      margin-bottom: 10px;
+      display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px;
     }
     .nav-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 12px;
-      border-radius: 40px;
-      font-weight: 700;
-      color: #666;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px;
+      font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease;
     }
-    .nav-btn.active {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3);
-    }
+    .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3); }
 
     /* TARJETAS */
     .card {
       background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px;
       box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px;
     }
-    .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
     .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
     .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
-    /* SEPARADOR DE SECCIÓN */
-    .section-divider {
-        margin: 25px 0 15px;
-        padding-bottom: 10px;
-        border-bottom: 2px dashed #e0e0e0;
-        color: #0288d1;
-        font-weight: 700;
-        font-size: 14px;
-        text-transform: uppercase;
-    }
 
     /* FORMULARIO */
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
     @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
     @media (min-width: 900px) { .form-grid.top-row { grid-template-columns: 1fr 1fr 2fr; } }
 
-    .form-group { margin-bottom: 12px; }
+    .form-group { margin-bottom: 12px; position: relative; }
     label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
     input, textarea, select {
       width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc;
@@ -120,32 +89,10 @@
     input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1); }
     textarea { min-height: 100px; resize: vertical; }
 
-    /* ETIQUETAS */
-    .tag-type { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
-    .tag-comp { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
-    .tag-acad { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
-
-    /* ASISTENCIA GRID */
-    .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-    .att-row {
-      display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; transition: background 0.2s;
-    }
-    .att-row:hover { background: #f1f5f9; }
-    .att-name { font-weight: 600; font-size: 14px; color: #334155; }
-    .att-doc { font-size: 11px; color: #64748b; }
-    
-    .att-options { display: flex; gap: 5px; }
-    .att-btn {
-      border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px;
-      border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-    }
-    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; box-shadow: 0 0 5px #86efac; }
-    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; box-shadow: 0 0 5px #fdba74; }
-    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; box-shadow: 0 0 5px #fca5a5; }
-
-    /* CANVAS FIRMA */
-    canvas.signature-pad { width: 100%; height: 180px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; }
+    /* BUSCADOR CON LUPA */
+    .search-wrapper { position: relative; }
+    .search-wrapper input { padding-left: 35px; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.5; }
 
     /* BOTONES */
     .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
@@ -158,33 +105,46 @@
 
     .btn-save { background: var(--primary); color: white; flex: 2; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.3); }
     .btn-clear { background: #d32f2f; color: white; flex: 1; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
-    .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(2, 136, 209, 0.2); }
-    .btn-dark { background: #455a64; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(55, 71, 79, 0.2); }
+    .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; box-shadow: 0 4px 10px rgba(69, 90, 100, 0.3); }
+    .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; }
     .btn-icon { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
     .btn-del { background: #ffebee; color: #c62828; }
     .btn-edit { background: #f1f8e9; color: #33691e; }
     .bg-gray { background: #eee; color: #333; }
 
+    /* SECCIONES OCULTAS (ACORDEÓN) */
+    .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; animation: slideDown 0.3s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
     /* TABLAS */
-    .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid #ddd; }
+    .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid #ddd; margin-top: 15px; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
     th { background: var(--primary); color: white; text-align: left; padding: 12px; font-weight: 600; white-space: nowrap; }
     td { padding: 12px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     .sig-preview { max-width: 80px; height: auto; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
 
-    /* ESTUDIANTE BLOQUE */
-    .student-block { border: 1px solid #e0e0e0; border-radius: var(--radius-md); padding: 0; margin-bottom: 15px; overflow: hidden; }
-    .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .st-name { font-weight: 800; color: var(--text-main); font-size: 14px; }
-    .st-doc { font-size: 12px; color: #666; }
+    /* CANVAS FIRMA */
+    canvas.signature-pad { width: 100%; height: 180px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; }
 
+    /* ASISTENCIA */
+    .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+    .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+    .att-name { font-weight: 600; font-size: 14px; color: #334155; }
+    .att-options { display: flex; gap: 5px; }
+    .att-btn { border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
+    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+    /* ESTUDIANTE BLOQUE HISTORIAL */
+    .student-block { border: 1px solid #e0e0e0; border-radius: var(--radius-md); margin-bottom: 15px; overflow: hidden; }
+    .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+    
     @media(max-width: 600px) {
       .top-bar { flex-direction: column; align-items: flex-start; border-radius: 20px; }
-      .brand-text { align-items: flex-start; }
       .btn-row { flex-direction: column; }
       button { width: 100%; }
-      .card-header-row { flex-direction: column; align-items: flex-start; }
       .att-row { flex-direction: column; align-items: flex-start; gap: 8px; }
       .att-options { width: 100%; justify-content: space-between; }
       .att-btn { flex: 1; text-align: center; }
@@ -195,7 +155,6 @@
 
 <div class="app-shell">
   
-  <!-- ENCABEZADO -->
   <header class="top-bar">
     <div class="brand-logo">
       <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
@@ -210,7 +169,7 @@
     </div>
   </header>
 
-  <!-- MENÚ DE NAVEGACIÓN (TABS) -->
+  <!-- MENÚ TABS -->
   <nav class="nav-tabs">
     <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones y Disciplina</button>
     <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Control de Asistencia</button>
@@ -218,8 +177,6 @@
 
   <!-- VISTA 1: OBSERVACIONES -->
   <div id="view-obs">
-      
-      <!-- TARJETA REGISTRO DOCENTE -->
       <section class="card">
         <h2 class="card-title">📝 Nuevo Registro</h2>
         <p class="card-desc">Observaciones comportamentales y académicas.</p>
@@ -241,11 +198,14 @@
               <input type="date" id="fecha" required>
             </div>
 
+            <!-- BUSCADOR CON LUPA -->
             <div class="form-group">
-              <label>Seleccionar Estudiante</label>
-              <select id="selectEstudiante" required style="font-weight:700; color:#1b5e20;">
-                  <option value="">-- Seleccione un estudiante --</option>
-              </select>
+              <label>Buscar Estudiante</label>
+              <div class="search-wrapper">
+                  <span class="search-icon">🔍</span>
+                  <input list="listaEstudiantes" id="inputEstudiante" placeholder="Escriba nombre del estudiante..." required>
+                  <datalist id="listaEstudiantes"></datalist>
+              </div>
             </div>
           </div>
 
@@ -277,20 +237,20 @@
           <div style="margin-top:10px; display:none;" id="divCancel">
              <button type="button" class="bg-gray btn-icon" style="width:100%" onclick="cancelarEdicion()">Cancelar Edición</button>
           </div>
+
+          <!-- BOTÓN PARA VER HISTORIAL -->
+          <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 Ver Historial de Registros</button>
         </form>
-      </section>
 
-      <!-- TARJETA HISTORIAL -->
-      <section class="card">
-        <h2 class="card-title">📂 Historial de Registros</h2>
-        <p class="card-desc">Consulte el estado de las firmas de los acudientes.</p>
-        
-        <div class="form-group">
-            <input type="text" id="buscador" placeholder="Buscar por nombre o documento..." onkeyup="renderRegistros()">
-        </div>
-
-        <div id="listaRegistros">
-            <div style="text-align:center; padding:20px; color:#888;">Cargando datos...</div>
+        <!-- SECCIÓN OCULTA: HISTORIAL -->
+        <div id="historialObs" class="hidden-section">
+            <h3 style="color:#1b5e20; border-bottom:1px solid #ddd; padding-bottom:5px;">Historial Completo</h3>
+            <div class="form-group">
+                <input type="text" id="buscador" placeholder="🔍 Buscar registro antiguo..." onkeyup="renderRegistros()">
+            </div>
+            <div id="listaRegistros">
+                <div style="text-align:center; padding:20px; color:#888;">Cargando datos...</div>
+            </div>
         </div>
       </section>
   </div>
@@ -298,16 +258,10 @@
   <!-- VISTA 2: ASISTENCIA -->
   <div id="view-asis" style="display:none;">
       
-      <!-- TARJETA CONTROL ASISTENCIA -->
       <section class="card" style="border-left: 5px solid #0288d1;">
-        <div class="card-header-row">
-            <div>
-                <h2 class="card-title" style="color:#0288d1;">Control de Asistencia Diario</h2>
-                <p class="card-desc">Seleccione la fecha y guarde el estado.</p>
-            </div>
-            <div style="text-align:right;">
-                <input type="date" id="fechaAsistencia" style="padding:8px; border-radius:8px; border:1px solid #ccc;" onchange="cargarAsistenciaDelDia()">
-            </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 class="card-title" style="color:#0288d1; margin:0;">Asistencia Diaria</h2>
+            <input type="date" id="fechaAsistencia" style="padding:8px; border-radius:8px; border:1px solid #ccc;" onchange="cargarAsistenciaDelDia()">
         </div>
 
         <div id="attendanceList" class="attendance-grid">
@@ -318,29 +272,24 @@
             <button class="btn-blue" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
         </div>
 
-        <div class="section-divider">Reportes Mensuales</div>
-        <div style="display:flex; gap:10px; align-items:flex-end; background:#f1f9ff; padding:15px; border-radius:12px; border:1px solid #b3e5fc;">
-            <div style="flex:1;">
-                <label style="margin-bottom:5px; color:#0277bd;">Seleccione el Mes</label>
-                <input type="month" id="mesReporte" style="width:100%;">
-            </div>
-            <button class="btn-dark" onclick="descargarReporteMensual()">📊 Descargar Informe (Matriz)</button>
+        <div class="section-divider">Reportes</div>
+        <div style="display:flex; gap:10px; align-items:center; background:#f1f9ff; padding:10px; border-radius:12px;">
+            <input type="month" id="mesReporte" style="flex:1;">
+            <button class="btn-icon bg-gray" onclick="descargarReporteMensual()">📊 Descargar Matriz</button>
         </div>
 
-      </section>
+        <!-- BOTÓN PARA VER EXCUSAS -->
+        <button type="button" class="btn-historial" style="background:#0288d1;" onclick="toggleHistorial('historialExc')">📩 Ver Historial de Excusas</button>
 
-      <!-- TARJETA EXCUSAS -->
-      <section class="card">
-        <div class="card-header-row">
-            <div>
-                <h2 class="card-title">📩 Buzón de Excusas (Padres)</h2>
-                <p class="card-desc">Excusas enviadas por los padres.</p>
+        <!-- SECCIÓN OCULTA: HISTORIAL EXCUSAS -->
+        <div id="historialExc" class="hidden-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="color:#0288d1; margin:0;">Excusas Recibidas</h3>
+                <button class="btn-icon bg-gray" onclick="descargarExcusasPDF()">📄 PDF</button>
             </div>
-            <button class="btn-blue" onclick="descargarExcusasPDF()">📄 Descargar Reporte PDF</button>
-        </div>
-        
-        <div id="listaExcusas">
-            <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
+            <div id="listaExcusas">
+                <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
+            </div>
         </div>
       </section>
   </div>
@@ -354,7 +303,6 @@
     onSnapshot, setDoc, getDoc, query, where, getDocs
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  // CONFIGURACIÓN FIREBASE
   const firebaseConfig = {
     apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
     authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
@@ -376,13 +324,13 @@
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
-  // --- POBLAR SELECT DE ESTUDIANTES ---
-  const selectEst = document.getElementById('selectEstudiante');
+  // Llenar datalist para buscador con lupa
+  const dataList = document.getElementById("listaEstudiantes");
   estudiantesBase.forEach(est => {
       const option = document.createElement("option");
-      option.value = est.doc;
-      option.text = est.nombre;
-      selectEst.appendChild(option);
+      option.value = est.nombre; // Valor visible es el nombre
+      option.setAttribute("data-doc", est.doc); // Guardamos doc como atributo
+      dataList.appendChild(option);
   });
 
   // --- ESTADO ---
@@ -390,7 +338,6 @@
   let allExcusas = [];
   let asistenciaTemp = {};
 
-  // Status Conexión
   const updateStatus = (online) => {
     const el = document.getElementById('connStatus');
     if(online) { el.className='conn-pill conn-online'; el.innerHTML='<div class="dot"></div> Online'; }
@@ -400,7 +347,7 @@
   window.addEventListener('offline', () => updateStatus(false));
   updateStatus(navigator.onLine);
 
-  // --- NAVEGACIÓN TABS ---
+  // --- NAVEGACIÓN ---
   window.switchTab = (tab) => {
       document.getElementById('view-obs').style.display = tab === 'obs' ? 'block' : 'none';
       document.getElementById('view-asis').style.display = tab === 'asis' ? 'block' : 'none';
@@ -409,16 +356,22 @@
       if(tab === 'obs') setTimeout(resizeCanvas, 200);
   };
 
-  // --- INICIALIZAR FECHAS ---
+  // TOGGLE HISTORIAL (Mostrar/Ocultar)
+  window.toggleHistorial = (id) => {
+      const el = document.getElementById(id);
+      if(el.style.display === 'none' || el.style.display === '') {
+          el.style.display = 'block';
+      } else {
+          el.style.display = 'none';
+      }
+  };
+
   document.getElementById('fecha').valueAsDate = new Date();
   document.getElementById('fechaAsistencia').valueAsDate = new Date();
-  
   const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  document.getElementById('mesReporte').value = `${yyyy}-${mm}`;
+  document.getElementById('mesReporte').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-  // --- CONTROL DE ASISTENCIA ---
+  // --- ASISTENCIA ---
   window.renderAsistencia = () => {
       const container = document.getElementById('attendanceList');
       let html = '';
@@ -465,68 +418,50 @@
       const fecha = document.getElementById('fechaAsistencia').value;
       if(!fecha) return alert("Seleccione fecha");
       const dataToSave = {
-          fecha: fecha,
-          timestamp: new Date().toISOString(),
-          detalles: estudiantesBase.map(est => ({
-              doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P'
-          }))
+          fecha: fecha, timestamp: new Date().toISOString(),
+          detalles: estudiantesBase.map(est => ({ doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P' }))
       };
       try {
           await setDoc(doc(db, "controlAsistencia", fecha), dataToSave);
           alert("✅ Asistencia guardada.");
       } catch(e) { alert("Error: " + e.message); }
   };
-
   window.cargarAsistenciaDelDia();
 
-  // --- REPORTE MENSUAL MATRIZ ---
+  // --- REPORTE MENSUAL ---
   window.descargarReporteMensual = async () => {
-      const mesInput = document.getElementById('mesReporte').value; // YYYY-MM
+      const mesInput = document.getElementById('mesReporte').value;
       if(!mesInput) return alert("Seleccione un mes.");
-
       const [year, month] = mesInput.split('-');
       const daysInMonth = new Date(year, month, 0).getDate();
       const startDate = `${mesInput}-01`;
       const endDate = `${mesInput}-${daysInMonth}`;
 
-      const q = query(collection(db, "controlAsistencia"),
-          where("fecha", ">=", startDate),
-          where("fecha", "<=", endDate)
-      );
-
+      const q = query(collection(db, "controlAsistencia"), where("fecha", ">=", startDate), where("fecha", "<=", endDate));
       const querySnapshot = await getDocs(q);
       const asistenciaMes = {}; 
-
       querySnapshot.forEach((doc) => {
           const data = doc.data();
           const dayData = {};
-          if(data.detalles) {
-              data.detalles.forEach(d => dayData[d.doc] = d.estado);
-          }
+          if(data.detalles) data.detalles.forEach(d => dayData[d.doc] = d.estado);
           asistenciaMes[data.fecha] = dayData;
       });
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('l', 'mm', 'a4');
-
-      pdf.setFontSize(14);
-      pdf.setTextColor(27, 94, 32);
+      pdf.setFontSize(14); pdf.setTextColor(27, 94, 32);
       pdf.text(`Control de Asistencia Mensual - ${mesInput}`, 14, 15);
       
       const headRow = ['Estudiante'];
       for(let i=1; i<=daysInMonth; i++) headRow.push(String(i));
-      headRow.push('Fallas');
-      headRow.push('Excusas');
+      headRow.push('Fallas'); headRow.push('Excusas');
 
       const bodyData = estudiantesBase.map(est => {
           const row = [est.nombre];
-          let totalFallas = 0;
-          let totalExcusas = 0;
-
+          let totalFallas = 0; let totalExcusas = 0;
           for(let i=1; i<=daysInMonth; i++) {
               const diaStr = String(i).padStart(2, '0');
               const fechaFull = `${mesInput}-${diaStr}`;
-              
               let estado = ' ';
               if(asistenciaMes[fechaFull]) {
                   const estadoDia = asistenciaMes[fechaFull][est.doc];
@@ -536,16 +471,12 @@
               }
               row.push(estado);
           }
-          row.push(String(totalFallas));
-          row.push(String(totalExcusas));
+          row.push(String(totalFallas)); row.push(String(totalExcusas));
           return row;
       });
 
       pdf.autoTable({
-          startY: 20,
-          head: [headRow],
-          body: bodyData,
-          theme: 'grid',
+          startY: 20, head: [headRow], body: bodyData, theme: 'grid',
           styles: { fontSize: 6, cellPadding: 1, halign: 'center' },
           columnStyles: { 0: { halign: 'left', cellWidth: 40 } },
           headStyles: { fillColor: [27, 94, 32] },
@@ -556,10 +487,8 @@
               }
           }
       });
-
       pdf.save(`Asistencia_Mensual_${mesInput}.pdf`);
   };
-
 
   // --- CANVAS FIRMA ---
   const canvas = document.getElementById('signaturePad');
@@ -580,16 +509,13 @@
       const t = e.touches ? e.touches[0] : e;
       return { x: t.clientX - rect.left, y: t.clientY - rect.top };
   }
-  
   const startDraw = (e) => { e.preventDefault(); isDrawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); };
   const moveDraw = (e) => { e.preventDefault(); if(!isDrawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
   const endDraw = () => { isDrawing=false; };
 
   canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', endDraw);
   canvas.addEventListener('touchstart', startDraw, {passive:false}); canvas.addEventListener('touchmove', moveDraw, {passive:false}); canvas.addEventListener('touchend', endDraw);
-
   document.getElementById('btnLimpiar').onclick = () => ctx.clearRect(0,0,canvas.width,canvas.height);
-
   function isCanvasBlank(c) {
       const context = c.getContext('2d');
       const pixelBuffer = new Uint32Array(context.getImageData(0, 0, c.width, c.height).data.buffer);
@@ -601,9 +527,7 @@
     allRegistros = [];
     snap.forEach(doc => allRegistros.push({id: doc.id, ...doc.data()}));
     renderRegistros();
-    renderExcusas();
   });
-
   onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
     allExcusas = [];
     snap.forEach(doc => allExcusas.push({id: doc.id, ...doc.data()}));
@@ -614,11 +538,7 @@
   window.renderRegistros = () => {
     const container = document.getElementById('listaRegistros');
     const search = document.getElementById('buscador').value.toLowerCase();
-
-    const filtered = allRegistros.filter(r => 
-        (r.nombreEstudiante||'').toLowerCase().includes(search) || 
-        (r.documentoEstudiante||'').includes(search)
-    );
+    const filtered = allRegistros.filter(r => (r.nombreEstudiante||'').toLowerCase().includes(search) || (r.documentoEstudiante||'').includes(search));
 
     if(filtered.length === 0) {
         container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No se encontraron registros.</div>';
@@ -640,55 +560,27 @@
         html += `
         <div class="student-block">
             <div class="student-info-bar">
-                <div>
-                   <div class="st-name">${g.nombre || 'Sin Nombre'}</div>
-                   <div class="st-doc">Doc: ${key} · Registros: ${g.docs.length}</div>
-                </div>
+                <div><div class="st-name">${g.nombre || 'Sin Nombre'}</div><div class="st-doc">Doc: ${key} · Registros: ${g.docs.length}</div></div>
                 <button class="btn-blue" onclick="descargarPDF('${key}')">Descargar PDF</button>
             </div>
             <div class="table-container">
             <table>
-                <thead>
-                    <tr>
-                        <th style="width:90px;">Fecha</th>
-                        <th>Detalle</th>
-                        <th>Firmas</th>
-                        <th style="width:90px;">Acción</th>
-                    </tr>
-                </thead>
+                <thead><tr><th style="width:90px;">Fecha</th><th>Detalle</th><th>Firmas</th><th style="width:90px;">Acción</th></tr></thead>
                 <tbody>
         `;
-
         g.docs.forEach(r => {
             const tipo = r.tipoRegistro || 'Comportamental';
             const claseTipo = tipo === 'Académico' ? 'tag-acad' : 'tag-comp';
-
             html += `
                 <tr>
-                    <td>
-                        <div style="font-size:12px;">${r.fecha}</div>
-                        <span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span>
-                    </td>
-                    <td>
-                        <div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div>
-                        <div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div>
-                    </td>
-                    <td>
-                        <div style="font-size:11px;">
-                             ${r.firmaAcudiente 
-                               ? `<span style="color:green;">✅ Firmado Acudiente</span>`
-                               : `<span style="color:red; font-weight:bold;">⏳ Pendiente</span>`
-                             }
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display:flex; gap:5px;">
-                            <button class="bg-gray btn-icon btn-edit" onclick="editar('${r.id}')">✏️</button>
-                            <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${r.id}', 'registrosComportamentales')">🗑️</button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                    <td><div style="font-size:12px;">${r.fecha}</div><span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span></td>
+                    <td><div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div><div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div></td>
+                    <td><div style="font-size:11px;">${r.firmaAcudiente ? `<span style="color:green;">✅ Firmado Acudiente</span>` : `<span style="color:red; font-weight:bold;">⏳ Pendiente</span>`}</div></td>
+                    <td><div style="display:flex; gap:5px;">
+                        <button class="bg-gray btn-icon btn-edit" onclick="editar('${r.id}')">✏️</button>
+                        <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${r.id}', 'registrosComportamentales')">🗑️</button>
+                    </div></td>
+                </tr>`;
         });
         html += `</tbody></table></div></div>`;
     });
@@ -702,25 +594,13 @@
         container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No hay excusas.</div>';
         return;
     }
-    
     allExcusas.sort((a,b) => (a.fechaEnvio||'') < (b.fechaEnvio||'') ? 1 : -1);
-
     let html = `
     <div class="table-container">
     <table>
-        <thead>
-            <tr>
-                <th>Fecha Falta</th>
-                <th>Estudiante</th>
-                <th>Motivo</th>
-                <th>Detalle</th>
-                <th>Firma Acudiente</th>
-                <th style="width:50px;">Acción</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Fecha Falta</th><th>Estudiante</th><th>Motivo</th><th>Detalle</th><th>Firma Acudiente</th><th style="width:50px;">Acción</th></tr></thead>
         <tbody>
     `;
-
     allExcusas.forEach(e => {
         const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
         let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
@@ -728,34 +608,14 @@
              const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
              if(base) nom = base.nombre;
         }
-        
         html += `
             <tr>
-                <td>${e.fechaInasistencia}</td>
-                <td><b>${nom}</b></td>
-                <td>${e.motivoTipo}</td>
-                <td>${e.motivoDetalle}</td>
-                <td><img src="${e.firmaAcudiente}" class="sig-preview"></td>
-                <td>
-                    <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${e.id}', 'excusasInasistencia')">🗑️</button>
-                </td>
-            </tr>
-        `;
+                <td>${e.fechaInasistencia}</td><td><b>${nom}</b></td><td>${e.motivoTipo}</td><td>${e.motivoDetalle}</td><td><img src="${e.firmaAcudiente}" class="sig-preview"></td>
+                <td><button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${e.id}', 'excusasInasistencia')">🗑️</button></td>
+            </tr>`;
     });
     html += '</tbody></table></div>';
     container.innerHTML = html;
-  };
-
-  // --- FUNCION ELIMINAR GENERAL ---
-  window.eliminarDocumento = async (id, coleccion) => {
-      if(confirm("⚠️ ¿Está seguro de eliminar este registro?\n\nEsta acción no se puede deshacer.")) {
-          try {
-              await deleteDoc(doc(db, coleccion, id));
-              // No es necesario alert, el onSnapshot actualizará la vista
-          } catch(e) {
-              alert("Error al eliminar: " + e.message);
-          }
-      }
   };
 
   // --- CRUD REGISTRO ---
@@ -764,13 +624,19 @@
     e.preventDefault();
     const btn = document.getElementById('btnGuardar');
     const id = document.getElementById('editId').value;
+    const nombreInput = document.getElementById("inputEstudiante").value;
     
-    // Obtener valores del select
-    const select = document.getElementById('selectEstudiante');
-    const docSeleccionado = select.value;
-    const nombreSeleccionado = select.options[select.selectedIndex].text;
+    // Obtener DOC usando el datalist
+    let docSeleccionado = null;
+    const opciones = document.getElementById("listaEstudiantes").options;
+    for (let i = 0; i < opciones.length; i++) {
+        if (opciones[i].value === nombreInput) {
+            docSeleccionado = opciones[i].getAttribute("data-doc");
+            break;
+        }
+    }
 
-    if(!docSeleccionado) { alert("Seleccione un estudiante."); return; }
+    if(!docSeleccionado) { alert("Seleccione un estudiante de la lista válida."); return; }
     if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
 
     btn.disabled = true;
@@ -780,7 +646,7 @@
         tipoRegistro: document.getElementById('tipoRegistro').value,
         fecha: document.getElementById('fecha').value,
         documentoEstudiante: docSeleccionado,
-        nombreEstudiante: nombreSeleccionado,
+        nombreEstudiante: nombreInput,
         comportamiento: document.getElementById('comportamiento').value,
         descargos: document.getElementById('descargos').value,
         procedimiento: document.getElementById('procedimiento').value
@@ -801,24 +667,24 @@
             form.reset();
             ctx.clearRect(0,0,canvas.width,canvas.height);
         }
-    } catch(err) {
-        alert("Error: " + err.message);
-    }
+    } catch(err) { alert("Error: " + err.message); }
     btn.disabled = false;
     btn.innerText = "Guardar registro";
   });
 
+  window.eliminarDocumento = async (id, coleccion) => {
+      if(confirm("⚠️ ¿Está seguro de eliminar este registro?\n\nEsta acción no se puede deshacer.")) {
+          try { await deleteDoc(doc(db, coleccion, id)); } catch(e) { alert("Error al eliminar: " + e.message); }
+      }
+  };
+
   window.editar = (id) => {
     const r = allRegistros.find(x => x.id === id);
     if(!r) return;
-    
     document.getElementById('editId').value = r.id;
     document.getElementById('tipoRegistro').value = r.tipoRegistro || 'Comportamental';
     document.getElementById('fecha').value = r.fecha;
-    
-    // Setear Select
-    document.getElementById('selectEstudiante').value = r.documentoEstudiante;
-    
+    document.getElementById('inputEstudiante').value = r.nombreEstudiante;
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos;
     document.getElementById('procedimiento').value = r.procedimiento;
@@ -840,7 +706,6 @@
   window.descargarPDF = (docId) => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
-    
     const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
     if(!recs.length) return;
     
@@ -851,7 +716,6 @@
     pdf.text("Institución Educativa de María", 14, 12);
     pdf.setFontSize(10);
     pdf.text("Reporte Disciplinario del Estudiante", 14, 20);
-
     pdf.setTextColor(0,0,0);
     pdf.text(`Nombre: ${recs[0].nombreEstudiante}`, 14, 40);
     pdf.text(`Documento: ${docId}`, 14, 46);
@@ -865,19 +729,15 @@
     ]);
 
     pdf.autoTable({
-        startY: 55,
-        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']],
-        body: body,
+        startY: 55, head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']], body: body,
         headStyles: { fillColor: [27, 94, 32] }
     });
-    
     pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
   };
 
   window.descargarExcusasPDF = () => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
-    
     pdf.setFillColor(2, 136, 209);
     pdf.rect(0, 0, 210, 30, 'F');
     pdf.setTextColor(255, 255, 255);
@@ -885,7 +745,6 @@
     pdf.text("Institución Educativa de María", 14, 12);
     pdf.setFontSize(10);
     pdf.text("Control de Ausentismo - Reporte General", 14, 20);
-
     pdf.setTextColor(0,0,0);
     pdf.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 14, 40);
     
@@ -896,24 +755,17 @@
              const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
              if(base) nom = base.nombre;
          }
-
-         return [
-             e.fechaInasistencia,
-             nom,
-             e.motivoTipo,
-             e.motivoDetalle
-         ];
+         return [e.fechaInasistencia, nom, e.motivoTipo, e.motivoDetalle];
     });
 
     pdf.autoTable({
-        startY: 50,
-        head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']],
-        body: body,
+        startY: 50, head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']], body: body,
         headStyles: { fillColor: [2, 136, 209] }
     });
-    
     pdf.save(`Reporte_Excusas.pdf`);
   };
 </script>
 </body>
 </html>
+
+
