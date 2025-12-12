@@ -109,6 +109,839 @@
     /* FORMULARIO */
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
     @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .form-grid.top-row { grid-template-columns: 1fr 1fr 2fr; } }
+
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    input, textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc;
+      background: #fafafa; font-size: 14px; transition: all 0.2s;
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1); }
+    textarea { min-height: 100px; resize: vertical; }
+
+    /* ETIQUETAS */
+    .tag-type { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
+    .tag-comp { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+    .tag-acad { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+
+    /* ASISTENCIA GRID */
+    .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+    .att-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; transition: background 0.2s;
+    }
+    .att-row:hover { background: #f1f5f9; }
+    .att-name { font-weight: 600; font-size: 14px; color: #334155; }
+    .att-doc { font-size: 11px; color: #64748b; }
+    
+    .att-options { display: flex; gap: 5px; }
+    .att-btn {
+      border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px;
+      border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; box-shadow: 0 0 5px #86efac; }
+    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; box-shadow: 0 0 5px #fdba74; }
+    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; box-shadow: 0 0 5px #fca5a5; }
+
+    /* CANVAS FIRMA */
+    canvas.signature-pad { width: 100%; height: 180px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; }
+
+    /* BOTONES */
+    .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+    button {
+      border: none; padding: 12px 20px; border-radius: 30px; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.1s;
+    }
+    button:active { transform: scale(0.98); }
+
+    .btn-save { background: var(--primary); color: white; flex: 2; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.3); }
+    .btn-clear { background: #d32f2f; color: white; flex: 1; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+    .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(2, 136, 209, 0.2); }
+    .btn-dark { background: #455a64; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(55, 71, 79, 0.2); }
+    .btn-icon { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    .btn-del { background: #ffebee; color: #c62828; }
+    .btn-edit { background: #f1f8e9; color: #33691e; }
+    .bg-gray { background: #eee; color: #333; }
+
+    /* TABLAS */
+    .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid #ddd; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+    th { background: var(--primary); color: white; text-align: left; padding: 12px; font-weight: 600; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .sig-preview { max-width: 80px; height: auto; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
+
+    /* ESTUDIANTE BLOQUE */
+    .student-block { border: 1px solid #e0e0e0; border-radius: var(--radius-md); padding: 0; margin-bottom: 15px; overflow: hidden; }
+    .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .st-name { font-weight: 800; color: var(--text-main); font-size: 14px; }
+    .st-doc { font-size: 12px; color: #666; }
+
+    @media(max-width: 600px) {
+      .top-bar { flex-direction: column; align-items: flex-start; border-radius: 20px; }
+      .brand-text { align-items: flex-start; }
+      .btn-row { flex-direction: column; }
+      button { width: 100%; }
+      .card-header-row { flex-direction: column; align-items: flex-start; }
+      .att-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .att-options { width: 100%; justify-content: space-between; }
+      .att-btn { flex: 1; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+  
+  <!-- ENCABEZADO -->
+  <header class="top-bar">
+    <div class="brand-logo">
+      <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">Institución Educativa de María</div>
+      <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
+      <div class="brand-subtitle" style="font-weight:600;">Seguimiento comportamental y disciplinario</div>
+    </div>
+    <div id="connStatus" class="conn-pill conn-offline">
+      <div class="dot"></div> <span>Conectando...</span>
+    </div>
+  </header>
+
+  <!-- MENÚ DE NAVEGACIÓN (TABS) -->
+  <nav class="nav-tabs">
+    <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones y Disciplina</button>
+    <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Control de Asistencia</button>
+  </nav>
+
+  <!-- VISTA 1: OBSERVACIONES -->
+  <div id="view-obs">
+      
+      <!-- TARJETA REGISTRO DOCENTE -->
+      <section class="card">
+        <h2 class="card-title">📝 Nuevo Registro</h2>
+        <p class="card-desc">Observaciones comportamentales y académicas.</p>
+
+        <form id="formRegistro">
+          <input type="hidden" id="editId">
+
+          <div class="form-grid top-row">
+            <div class="form-group">
+                <label style="color:#d84315;">Tipo de registro</label>
+                <select id="tipoRegistro" style="font-weight:bold; color:#d84315;">
+                    <option value="Comportamental">Comportamental</option>
+                    <option value="Académico">Académico</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="fecha" required>
+            </div>
+
+            <div class="form-group">
+              <label>Seleccionar Estudiante</label>
+              <select id="selectEstudiante" required style="font-weight:700; color:#1b5e20;">
+                  <option value="">-- Seleccione un estudiante --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción del comportamiento / Novedad</label>
+            <textarea id="comportamiento" placeholder="Explique la situación presentada..."></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+                <label>Descargos (versión del estudiante)</label>
+                <textarea id="descargos" placeholder="Lo que manifiesta el estudiante..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Procedimiento / acciones a seguir</label>
+                <textarea id="procedimiento" placeholder="Compromisos o sanciones..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Firma estudiante / docente</label>
+            <canvas id="signaturePad" class="signature-pad"></canvas>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-clear" id="btnLimpiar">Limpiar firma</button>
+            <button type="submit" class="btn-save" id="btnGuardar">Guardar registro</button>
+          </div>
+          <div style="margin-top:10px; display:none;" id="divCancel">
+             <button type="button" class="bg-gray btn-icon" style="width:100%" onclick="cancelarEdicion()">Cancelar Edición</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TARJETA HISTORIAL -->
+      <section class="card">
+        <h2 class="card-title">📂 Historial de Registros</h2>
+        <p class="card-desc">Consulte el estado de las firmas de los acudientes.</p>
+        
+        <div class="form-group">
+            <input type="text" id="buscador" placeholder="Buscar por nombre o documento..." onkeyup="renderRegistros()">
+        </div>
+
+        <div id="listaRegistros">
+            <div style="text-align:center; padding:20px; color:#888;">Cargando datos...</div>
+        </div>
+      </section>
+  </div>
+
+  <!-- VISTA 2: ASISTENCIA -->
+  <div id="view-asis" style="display:none;">
+      
+      <!-- TARJETA CONTROL ASISTENCIA -->
+      <section class="card" style="border-left: 5px solid #0288d1;">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title" style="color:#0288d1;">Control de Asistencia Diario</h2>
+                <p class="card-desc">Seleccione la fecha y guarde el estado.</p>
+            </div>
+            <div style="text-align:right;">
+                <input type="date" id="fechaAsistencia" style="padding:8px; border-radius:8px; border:1px solid #ccc;" onchange="cargarAsistenciaDelDia()">
+            </div>
+        </div>
+
+        <div id="attendanceList" class="attendance-grid">
+            <div style="text-align:center; color:#888;">Cargando lista...</div>
+        </div>
+
+        <div class="btn-row" style="margin-top:20px;">
+            <button class="btn-blue" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
+        </div>
+
+        <div class="section-divider">Reportes Mensuales</div>
+        <div style="display:flex; gap:10px; align-items:flex-end; background:#f1f9ff; padding:15px; border-radius:12px; border:1px solid #b3e5fc;">
+            <div style="flex:1;">
+                <label style="margin-bottom:5px; color:#0277bd;">Seleccione el Mes</label>
+                <input type="month" id="mesReporte" style="width:100%;">
+            </div>
+            <button class="btn-dark" onclick="descargarReporteMensual()">📊 Descargar Informe (Matriz)</button>
+        </div>
+
+      </section>
+
+      <!-- TARJETA EXCUSAS -->
+      <section class="card">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title">📩 Buzón de Excusas (Padres)</h2>
+                <p class="card-desc">Excusas enviadas por los padres.</p>
+            </div>
+            <button class="btn-blue" onclick="descargarExcusasPDF()">📄 Descargar Reporte PDF</button>
+        </div>
+        
+        <div id="listaExcusas">
+            <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
+        </div>
+      </section>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, 
+    onSnapshot, setDoc, getDoc, query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  // CONFIGURACIÓN FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+    projectId: "diariodeprocesos-6f78d",
+    storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
+    messagingSenderId: "487922338632",
+    appId: "1:487922338632:web:47fc48c23dbea064b0817d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // --- LISTA DE ESTUDIANTES ---
+  const estudiantesBase = [
+    { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
+    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
+    { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
+    { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
+    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
+  ];
+
+  // --- POBLAR SELECT DE ESTUDIANTES ---
+  const selectEst = document.getElementById('selectEstudiante');
+  estudiantesBase.forEach(est => {
+      const option = document.createElement("option");
+      option.value = est.doc;
+      option.text = est.nombre;
+      selectEst.appendChild(option);
+  });
+
+  // --- ESTADO ---
+  let allRegistros = [];
+  let allExcusas = [];
+  let asistenciaTemp = {};
+
+  // Status Conexión
+  const updateStatus = (online) => {
+    const el = document.getElementById('connStatus');
+    if(online) { el.className='conn-pill conn-online'; el.innerHTML='<div class="dot"></div> Online'; }
+    else { el.className='conn-pill conn-offline'; el.innerHTML='<div class="dot"></div> Offline'; }
+  };
+  window.addEventListener('online', () => updateStatus(true));
+  window.addEventListener('offline', () => updateStatus(false));
+  updateStatus(navigator.onLine);
+
+  // --- NAVEGACIÓN TABS ---
+  window.switchTab = (tab) => {
+      document.getElementById('view-obs').style.display = tab === 'obs' ? 'block' : 'none';
+      document.getElementById('view-asis').style.display = tab === 'asis' ? 'block' : 'none';
+      document.getElementById('btnTabObs').className = tab === 'obs' ? 'nav-btn active' : 'nav-btn';
+      document.getElementById('btnTabAsis').className = tab === 'asis' ? 'nav-btn active' : 'nav-btn';
+      if(tab === 'obs') setTimeout(resizeCanvas, 200);
+  };
+
+  // --- INICIALIZAR FECHAS ---
+  document.getElementById('fecha').valueAsDate = new Date();
+  document.getElementById('fechaAsistencia').valueAsDate = new Date();
+  
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  document.getElementById('mesReporte').value = `${yyyy}-${mm}`;
+
+  // --- CONTROL DE ASISTENCIA ---
+  window.renderAsistencia = () => {
+      const container = document.getElementById('attendanceList');
+      let html = '';
+      estudiantesBase.forEach(est => {
+          const estado = asistenciaTemp[est.doc] || 'P';
+          html += `
+          <div class="att-row">
+              <div>
+                  <div class="att-name">${est.nombre}</div>
+                  <div class="att-doc">${est.doc}</div>
+              </div>
+              <div class="att-options">
+                  <button class="att-btn ${estado === 'P' ? 'active-p' : ''}" onclick="setAtt('${est.doc}', 'P')">Asistió</button>
+                  <button class="att-btn ${estado === 'E' ? 'active-e' : ''}" onclick="setAtt('${est.doc}', 'E')">Excusa</button>
+                  <button class="att-btn ${estado === 'I' ? 'active-i' : ''}" onclick="setAtt('${est.doc}', 'I')">Injustif.</button>
+              </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+  };
+
+  window.setAtt = (doc, status) => {
+      asistenciaTemp[doc] = status;
+      renderAsistencia();
+  };
+
+  window.cargarAsistenciaDelDia = async () => {
+      const fecha = document.getElementById('fechaAsistencia').value;
+      if(!fecha) return;
+      try {
+          const docSnap = await getDoc(doc(db, "controlAsistencia", fecha));
+          if (docSnap.exists()) {
+              const data = docSnap.data();
+              asistenciaTemp = {};
+              if(data.detalles) data.detalles.forEach(d => asistenciaTemp[d.doc] = d.estado);
+          } else {
+              asistenciaTemp = {};
+          }
+          renderAsistencia();
+      } catch (e) { console.error(e); }
+  };
+
+  window.guardarAsistencia = async () => {
+      const fecha = document.getElementById('fechaAsistencia').value;
+      if(!fecha) return alert("Seleccione fecha");
+      const dataToSave = {
+          fecha: fecha,
+          timestamp: new Date().toISOString(),
+          detalles: estudiantesBase.map(est => ({
+              doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P'
+          }))
+      };
+      try {
+          await setDoc(doc(db, "controlAsistencia", fecha), dataToSave);
+          alert("✅ Asistencia guardada.");
+      } catch(e) { alert("Error: " + e.message); }
+  };
+
+  window.cargarAsistenciaDelDia();
+
+  // --- REPORTE MENSUAL MATRIZ ---
+  window.descargarReporteMensual = async () => {
+      const mesInput = document.getElementById('mesReporte').value; // YYYY-MM
+      if(!mesInput) return alert("Seleccione un mes.");
+
+      const [year, month] = mesInput.split('-');
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const startDate = `${mesInput}-01`;
+      const endDate = `${mesInput}-${daysInMonth}`;
+
+      const q = query(collection(db, "controlAsistencia"),
+          where("fecha", ">=", startDate),
+          where("fecha", "<=", endDate)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const asistenciaMes = {}; 
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const dayData = {};
+          if(data.detalles) {
+              data.detalles.forEach(d => dayData[d.doc] = d.estado);
+          }
+          asistenciaMes[data.fecha] = dayData;
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('l', 'mm', 'a4');
+
+      pdf.setFontSize(14);
+      pdf.setTextColor(27, 94, 32);
+      pdf.text(`Control de Asistencia Mensual - ${mesInput}`, 14, 15);
+      
+      const headRow = ['Estudiante'];
+      for(let i=1; i<=daysInMonth; i++) headRow.push(String(i));
+      headRow.push('Fallas');
+      headRow.push('Excusas');
+
+      const bodyData = estudiantesBase.map(est => {
+          const row = [est.nombre];
+          let totalFallas = 0;
+          let totalExcusas = 0;
+
+          for(let i=1; i<=daysInMonth; i++) {
+              const diaStr = String(i).padStart(2, '0');
+              const fechaFull = `${mesInput}-${diaStr}`;
+              
+              let estado = ' ';
+              if(asistenciaMes[fechaFull]) {
+                  const estadoDia = asistenciaMes[fechaFull][est.doc];
+                  if(estadoDia === 'I') { estado = 'X'; totalFallas++; }
+                  else if(estadoDia === 'E') { estado = 'E'; totalExcusas++; }
+                  else if(estadoDia === 'P') { estado = '•'; }
+              }
+              row.push(estado);
+          }
+          row.push(String(totalFallas));
+          row.push(String(totalExcusas));
+          return row;
+      });
+
+      pdf.autoTable({
+          startY: 20,
+          head: [headRow],
+          body: bodyData,
+          theme: 'grid',
+          styles: { fontSize: 6, cellPadding: 1, halign: 'center' },
+          columnStyles: { 0: { halign: 'left', cellWidth: 40 } },
+          headStyles: { fillColor: [27, 94, 32] },
+          didParseCell: function(data) {
+              if (data.section === 'body' && data.column.index > 0) {
+                  if(data.cell.raw === 'X') data.cell.styles.textColor = [200, 0, 0];
+                  if(data.cell.raw === 'E') data.cell.styles.textColor = [200, 100, 0];
+              }
+          }
+      });
+
+      pdf.save(`Asistencia_Mensual_${mesInput}.pdf`);
+  };
+
+
+  // --- CANVAS FIRMA ---
+  const canvas = document.getElementById('signaturePad');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.scale(ratio, ratio);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 500); 
+
+  const getPos = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+  
+  const startDraw = (e) => { e.preventDefault(); isDrawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); };
+  const moveDraw = (e) => { e.preventDefault(); if(!isDrawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
+  const endDraw = () => { isDrawing=false; };
+
+  canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive:false}); canvas.addEventListener('touchmove', moveDraw, {passive:false}); canvas.addEventListener('touchend', endDraw);
+
+  document.getElementById('btnLimpiar').onclick = () => ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  function isCanvasBlank(c) {
+      const context = c.getContext('2d');
+      const pixelBuffer = new Uint32Array(context.getImageData(0, 0, c.width, c.height).data.buffer);
+      return !pixelBuffer.some(color => color !== 0);
+  }
+
+  // --- LISTENERS FIREBASE ---
+  onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
+    allRegistros = [];
+    snap.forEach(doc => allRegistros.push({id: doc.id, ...doc.data()}));
+    renderRegistros();
+    renderExcusas();
+  });
+
+  onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
+    allExcusas = [];
+    snap.forEach(doc => allExcusas.push({id: doc.id, ...doc.data()}));
+    renderExcusas();
+  });
+
+  // --- RENDERIZADO REGISTROS ---
+  window.renderRegistros = () => {
+    const container = document.getElementById('listaRegistros');
+    const search = document.getElementById('buscador').value.toLowerCase();
+
+    const filtered = allRegistros.filter(r => 
+        (r.nombreEstudiante||'').toLowerCase().includes(search) || 
+        (r.documentoEstudiante||'').includes(search)
+    );
+
+    if(filtered.length === 0) {
+        container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No se encontraron registros.</div>';
+        return;
+    }
+
+    const grupos = {};
+    filtered.forEach(r => {
+        const key = r.documentoEstudiante || 'SIN_DOC';
+        if(!grupos[key]) grupos[key] = { nombre: r.nombreEstudiante, docs: [] };
+        grupos[key].docs.push(r);
+    });
+
+    let html = '';
+    Object.keys(grupos).forEach(key => {
+        const g = grupos[key];
+        g.docs.sort((a,b) => (a.fecha||'') < (b.fecha||'') ? 1 : -1);
+
+        html += `
+        <div class="student-block">
+            <div class="student-info-bar">
+                <div>
+                   <div class="st-name">${g.nombre || 'Sin Nombre'}</div>
+                   <div class="st-doc">Doc: ${key} · Registros: ${g.docs.length}</div>
+                </div>
+                <button class="btn-blue" onclick="descargarPDF('${key}')">Descargar PDF</button>
+            </div>
+            <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Fecha</th>
+                        <th>Detalle</th>
+                        <th>Firmas</th>
+                        <th style="width:90px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        g.docs.forEach(r => {
+            const tipo = r.tipoRegistro || 'Comportamental';
+            const claseTipo = tipo === 'Académico' ? 'tag-acad' : 'tag-comp';
+
+            html += `
+                <tr>
+                    <td>
+                        <div style="font-size:12px;">${r.fecha}</div>
+                        <span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span>
+                    </td>
+                    <td>
+                        <div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div>
+                        <div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div>
+                    </td>
+                    <td>
+                        <div style="font-size:11px;">
+                             ${r.firmaAcudiente 
+                               ? `<span style="color:green;">✅ Firmado Acudiente</span>`
+                               : `<span style="color:red; font-weight:bold;">⏳ Pendiente</span>`
+                             }
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:5px;">
+                            <button class="bg-gray btn-icon btn-edit" onclick="editar('${r.id}')">✏️</button>
+                            <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${r.id}', 'registrosComportamentales')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        html += `</tbody></table></div></div>`;
+    });
+    container.innerHTML = html;
+  };
+
+  // --- RENDERIZADO EXCUSAS ---
+  window.renderExcusas = () => {
+    const container = document.getElementById('listaExcusas');
+    if(allExcusas.length === 0) {
+        container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No hay excusas.</div>';
+        return;
+    }
+    
+    allExcusas.sort((a,b) => (a.fechaEnvio||'') < (b.fechaEnvio||'') ? 1 : -1);
+
+    let html = `
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha Falta</th>
+                <th>Estudiante</th>
+                <th>Motivo</th>
+                <th>Detalle</th>
+                <th>Firma Acudiente</th>
+                <th style="width:50px;">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+    allExcusas.forEach(e => {
+        const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
+        let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+        if(!match) {
+             const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
+             if(base) nom = base.nombre;
+        }
+        
+        html += `
+            <tr>
+                <td>${e.fechaInasistencia}</td>
+                <td><b>${nom}</b></td>
+                <td>${e.motivoTipo}</td>
+                <td>${e.motivoDetalle}</td>
+                <td><img src="${e.firmaAcudiente}" class="sig-preview"></td>
+                <td>
+                    <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${e.id}', 'excusasInasistencia')">🗑️</button>
+                </td>
+            </tr>
+        `;
+    });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  };
+
+  // --- FUNCION ELIMINAR GENERAL ---
+  window.eliminarDocumento = async (id, coleccion) => {
+      if(confirm("⚠️ ¿Está seguro de eliminar este registro?\n\nEsta acción no se puede deshacer.")) {
+          try {
+              await deleteDoc(doc(db, coleccion, id));
+              // No es necesario alert, el onSnapshot actualizará la vista
+          } catch(e) {
+              alert("Error al eliminar: " + e.message);
+          }
+      }
+  };
+
+  // --- CRUD REGISTRO ---
+  const form = document.getElementById('formRegistro');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnGuardar');
+    const id = document.getElementById('editId').value;
+    
+    // Obtener valores del select
+    const select = document.getElementById('selectEstudiante');
+    const docSeleccionado = select.value;
+    const nombreSeleccionado = select.options[select.selectedIndex].text;
+
+    if(!docSeleccionado) { alert("Seleccione un estudiante."); return; }
+    if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
+
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
+    const data = {
+        tipoRegistro: document.getElementById('tipoRegistro').value,
+        fecha: document.getElementById('fecha').value,
+        documentoEstudiante: docSeleccionado,
+        nombreEstudiante: nombreSeleccionado,
+        comportamiento: document.getElementById('comportamiento').value,
+        descargos: document.getElementById('descargos').value,
+        procedimiento: document.getElementById('procedimiento').value
+    };
+
+    if(!isCanvasBlank(canvas)) data.firma = canvas.toDataURL();
+
+    try {
+        if(id) {
+            await updateDoc(doc(db, "registrosComportamentales", id), data);
+            alert("Registro actualizado.");
+            cancelarEdicion();
+        } else {
+            await addDoc(collection(db, "registrosComportamentales"), {
+                ...data, timestamp: new Date().toISOString()
+            });
+            alert("Guardado con éxito.");
+            form.reset();
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+        }
+    } catch(err) {
+        alert("Error: " + err.message);
+    }
+    btn.disabled = false;
+    btn.innerText = "Guardar registro";
+  });
+
+  window.editar = (id) => {
+    const r = allRegistros.find(x => x.id === id);
+    if(!r) return;
+    
+    document.getElementById('editId').value = r.id;
+    document.getElementById('tipoRegistro').value = r.tipoRegistro || 'Comportamental';
+    document.getElementById('fecha').value = r.fecha;
+    
+    // Setear Select
+    document.getElementById('selectEstudiante').value = r.documentoEstudiante;
+    
+    document.getElementById('comportamiento').value = r.comportamiento;
+    document.getElementById('descargos').value = r.descargos;
+    document.getElementById('procedimiento').value = r.procedimiento;
+    
+    document.getElementById('btnGuardar').innerText = "Actualizar";
+    document.getElementById('divCancel').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+
+  window.cancelarEdicion = () => {
+    form.reset();
+    document.getElementById('editId').value = '';
+    document.getElementById('btnGuardar').innerText = "Guardar registro";
+    document.getElementById('divCancel').style.display = 'none';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+
+  // --- PDF REPORTES ---
+  window.descargarPDF = (docId) => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    
+    const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
+    if(!recs.length) return;
+    
+    pdf.setFillColor(27, 94, 32); 
+    pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text("Institución Educativa de María", 14, 12);
+    pdf.setFontSize(10);
+    pdf.text("Reporte Disciplinario del Estudiante", 14, 20);
+
+    pdf.setTextColor(0,0,0);
+    pdf.text(`Nombre: ${recs[0].nombreEstudiante}`, 14, 40);
+    pdf.text(`Documento: ${docId}`, 14, 46);
+    
+    const body = recs.map(r => [
+        r.fecha,
+        r.tipoRegistro || "Comportamental",
+        r.comportamiento,
+        r.procedimiento,
+        r.firmaAcudiente ? "FIRMADO" : "PENDIENTE"
+    ]);
+
+    pdf.autoTable({
+        startY: 55,
+        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']],
+        body: body,
+        headStyles: { fillColor: [27, 94, 32] }
+    });
+    
+    pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
+  };
+
+  window.descargarExcusasPDF = () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    
+    pdf.setFillColor(2, 136, 209);
+    pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text("Institución Educativa de María", 14, 12);
+    pdf.setFontSize(10);
+    pdf.text("Control de Ausentismo - Reporte General", 14, 20);
+
+    pdf.setTextColor(0,0,0);
+    pdf.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 14, 40);
+    
+    const body = allExcusas.map(e => {
+         const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
+         let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+         if(!match) {
+             const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
+             if(base) nom = base.nombre;
+         }
+
+         return [
+             e.fechaInasistencia,
+             nom,
+             e.motivoTipo,
+             e.motivoDetalle
+         ];
+    });
+
+    pdf.autoTable({
+        startY: 50,
+        head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']],
+        body: body,
+        headStyles: { fillColor: [2, 136, 209] }
+    });
+    
+    pdf.save(`Reporte_Excusas.pdf`);
+  };
+</script>
+</body>
+</html>
+
+
+    /* TARJETAS */
+    .card {
+      background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px;
+      box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px;
+    }
+    .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+    .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+    /* SEPARADOR DE SECCIÓN */
+    .section-divider {
+        margin: 25px 0 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px dashed #e0e0e0;
+        color: #0288d1;
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    /* FORMULARIO */
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
     @media (min-width: 900px) { .form-grid.top-row { grid-template-columns: 1fr 1fr 1fr 1fr; } }
 
     .form-group { margin-bottom: 12px; }
