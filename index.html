@@ -15,8 +15,6 @@
       --primary: #1b5e20;       
       --primary-light: #2e7d32; 
       --accent: #0288d1;        
-      
-      /* CAMBIO: Verde de fondo un poco más fuerte (#c8e6c9) */
       --bg-body: #c8e6c9;       
       
       --text-main: #0f172a;
@@ -33,7 +31,7 @@
 
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg-body); /* Usando el nuevo verde */
+      background: var(--bg-body);
       min-height: 100vh;
       padding: 16px;
       color: var(--text-main);
@@ -243,7 +241,10 @@
 
             <div class="form-group">
               <label>Documento estudiante</label>
-              <input type="number" id="documentoEstudiante" placeholder="Ej: 123456789" required>
+              <input type="number" id="documentoEstudiante" placeholder="Ej: 123456789" required list="listaEstudiantes">
+              <datalist id="listaEstudiantes">
+                  <!-- Se llena dinámicamente -->
+              </datalist>
             </div>
 
             <div class="form-group">
@@ -372,7 +373,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // --- LISTA DE ESTUDIANTES ---
+  // --- LISTA DE ESTUDIANTES OFICIAL ---
   const estudiantesBase = [
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
@@ -380,6 +381,23 @@
     { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
+
+  // Llenar datalist para autocompletar en registro
+  const dataList = document.getElementById("listaEstudiantes");
+  estudiantesBase.forEach(est => {
+      const option = document.createElement("option");
+      option.value = est.doc;
+      option.label = est.nombre;
+      dataList.appendChild(option);
+  });
+
+  // Autocompletar nombre al poner documento
+  document.getElementById("documentoEstudiante").addEventListener("change", function() {
+      const selected = estudiantesBase.find(e => e.doc === this.value);
+      if(selected) {
+          document.getElementById("nombreEstudiante").value = selected.nombre;
+      }
+  });
 
   // --- ESTADO ---
   let allRegistros = [];
@@ -721,7 +739,12 @@
 
     allExcusas.forEach(e => {
         const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
-        const nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+        // Si no está en registros, buscar en lista base
+        let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+        if(!match) {
+            const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
+            if(base) nom = base.nombre;
+        }
         
         html += `
             <tr>
@@ -861,7 +884,13 @@
     
     const body = allExcusas.map(e => {
          const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
-         const nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+         // Buscar nombre en lista base si no tiene registros
+         let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+         if(!match) {
+             const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
+             if(base) nom = base.nombre;
+         }
+
          return [
              e.fechaInasistencia,
              nom,
