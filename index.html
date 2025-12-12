@@ -2,33 +2,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Seguimiento disciplinario - Docente</title>
+  <title>Seguimiento Disciplinario - Docente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- jsPDF + autotable -->
+  <!-- jsPDF + autotable para reportes PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
-      --primary: #22c55e;
-      --primary-dark: #16a34a;
-      --accent: #0ea5e9;
-      --bg: #bbf7d0;
-      --card-bg: #ffffff;
-      --border: #cbd5e1;
+      /* COLORES TEMA ÁNGEL (Verde Oscuro) */
+      --primary: #1b5e20;       
+      --primary-light: #2e7d32; 
+      --accent: #0288d1;        
+      
+      /* CAMBIO: Verde de fondo un poco más fuerte (#c8e6c9) */
+      --bg-body: #c8e6c9;       
+      
       --text-main: #0f172a;
-      --text-muted: #64748b;
-      --radius-lg: 18px;
+      --text-muted: #555;
+      --card-bg: #ffffff;
+      --border: #dcdcdc;
+      
+      --radius-xl: 24px;
       --radius-md: 12px;
-      --shadow-soft: 0 10px 30px rgba(15,23,42,0.12);
+      --shadow: 0 4px 15px rgba(27, 94, 32, 0.08);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #bbf7d0, #f9fafb 55%);
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg-body); /* Usando el nuevo verde */
       min-height: 100vh;
       padding: 16px;
       color: var(--text-main);
@@ -36,1153 +41,844 @@
       justify-content: center;
     }
 
-    .app-shell {
-      width: 100%;
-      max-width: 1200px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .app-shell { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
 
+    /* ENCABEZADO */
     .top-bar {
+      display: flex; align-items: center; gap: 15px; padding: 12px 20px;
+      background: #ffffff; border-radius: 50px; box-shadow: var(--shadow); border: 1px solid #c8e6c9;
+    }
+    .brand-logo { width: 55px; height: 55px; flex-shrink: 0; }
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-text { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+    .brand-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .conn-pill {
+      font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+      white-space: nowrap; display: flex; align-items: center; gap: 5px; border: 1px solid transparent;
+    }
+    .conn-online { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .conn-offline { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* --- NAVEGACIÓN (TABS) --- */
+    .nav-tabs {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 80px;
-      height: 80px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 2px solid #22c55e55;
-      background: white;
-      flex-shrink: 0;
-    }
-
-    .brand-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .brand-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #064e3b;
-    }
-
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .brand-meta {
-      font-size: 11px;
-      color: #0f172a;
-      font-weight: 500;
-    }
-
-    .connection-status {
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .connection-status.online {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #4ade80;
-    }
-
-    .connection-status.offline {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
-
-    .connection-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: currentColor;
-    }
-
-    @media (max-width: 900px) {
-      body { padding: 10px; }
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      padding: 18px 18px 16px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #064e3b;
-      margin-bottom: 4px;
-    }
-
-    .card-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 10px 14px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 8px;
-    }
-
-    label {
-      font-size: 13px;
-      font-weight: 500;
-      color: #0f172a;
-    }
-
-    .field-hint {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    input[type="text"],
-    input[type="date"],
-    textarea {
-      width: 100%;
-      padding: 9px 11px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      background: #f9fafb;
-      font-size: 13px;
-      color: var(--text-main);
-      outline: none;
-      transition: border 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: #94a3b8;
-    }
-
-    input:focus,
-    textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.35);
-      background: #ffffff;
-    }
-
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 8px 16px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-      white-space: nowrap;
-    }
-
-    button:active { transform: scale(0.97); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #ecfdf5;
-      box-shadow: 0 10px 20px rgba(34,197,94,0.35);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #0ea5e9, #0369a1);
-      color: #e0f2fe;
-      box-shadow: 0 10px 20px rgba(56,189,248,0.35);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      color: #fee2e2;
-      box-shadow: 0 10px 20px rgba(248,113,113,0.35);
-    }
-
-    .btn-small {
-      padding: 5px 10px;
-      font-size: 11px;
-      border-radius: 999px;
-    }
-
-    .btn-muted {
-      background: #e2e8f0;
-      color: #0f172a;
-      box-shadow: none;
-    }
-
-    .records-list {
-      margin-top: 10px;
-      max-height: 60vh;
-      overflow-y: auto;
-      padding-right: 4px;
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 #ffffff;
-    }
-
-    .records-list::-webkit-scrollbar { width: 6px; }
-    .records-list::-webkit-scrollbar-track { background: #ffffff; }
-    .records-list::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 999px;
-    }
-
-    .student-section {
-      border-radius: var(--radius-md);
-      border: 1px solid #e2e8f0;
-      background: #f9fafb;
-      padding: 10px;
+      background: #fff;
+      padding: 5px;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
       margin-bottom: 10px;
     }
-
-    .student-header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+    .nav-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 12px;
+      border-radius: 40px;
+      font-weight: 700;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3);
     }
 
-    .student-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #022c22;
+    /* TARJETAS */
+    .card {
+      background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px;
+      box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px;
+    }
+    .card-header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+    .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+    /* SEPARADOR DE SECCIÓN */
+    .section-divider {
+        margin: 25px 0 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px dashed #e0e0e0;
+        color: #0288d1;
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
     }
 
-    .student-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    /* FORMULARIO */
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .form-grid.top-row { grid-template-columns: 1fr 1fr 1fr 1fr; } }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    input, textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc;
+      background: #fafafa; font-size: 14px; transition: all 0.2s;
     }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1); }
+    textarea { min-height: 100px; resize: vertical; }
 
-    th, td {
-      border: 1px solid #e2e8f0;
-      padding: 6px 6px;
-      vertical-align: top;
+    /* ETIQUETAS */
+    .tag-type { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; display: inline-block; margin-bottom: 4px; }
+    .tag-comp { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+    .tag-acad { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+
+    /* ASISTENCIA GRID */
+    .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+    .att-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; transition: background 0.2s;
     }
-
-    th {
-      background: #16a34a;
-      color: #ecfdf5;
-      font-weight: 600;
-      text-align: left;
+    .att-row:hover { background: #f1f5f9; }
+    .att-name { font-weight: 600; font-size: 14px; color: #334155; }
+    .att-doc { font-size: 11px; color: #64748b; }
+    
+    .att-options { display: flex; gap: 5px; }
+    .att-btn {
+      border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px;
+      border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
+    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; box-shadow: 0 0 5px #86efac; }
+    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; box-shadow: 0 0 5px #fdba74; }
+    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; box-shadow: 0 0 5px #fca5a5; }
 
-    tr:nth-child(even) td {
-      background: #f1f5f9;
+    /* CANVAS FIRMA */
+    canvas.signature-pad { width: 100%; height: 180px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; }
+
+    /* BOTONES */
+    .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+    button {
+      border: none; padding: 12px 20px; border-radius: 30px; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.1s;
     }
+    button:active { transform: scale(0.98); }
 
-    .signature-preview {
-      max-width: 110px;
-      max-height: 40px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      background: white;
-    }
+    .btn-save { background: var(--primary); color: white; flex: 2; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.3); }
+    .btn-clear { background: #d32f2f; color: white; flex: 1; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+    .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(2, 136, 209, 0.2); }
+    .btn-dark { background: #455a64; color: white; font-size: 12px; padding: 8px 16px; box-shadow: 0 4px 10px rgba(55, 71, 79, 0.2); }
+    .btn-icon { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    .bg-gray { background: #eee; color: #333; }
 
-    .info-text {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    /* TABLAS */
+    .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid #ddd; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+    th { background: var(--primary); color: white; text-align: left; padding: 12px; font-weight: 600; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .sig-preview { max-width: 80px; height: auto; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
 
-    canvas.signature-pad {
-      border-radius: 14px;
-      border: 1px dashed #cbd5e1;
-      background: #ffffff;
-      width: 100%;
-      height: 220px;
-      display: block;
-      cursor: crosshair;
-      margin-top: 6px;
-      touch-action: none;
-    }
+    /* ESTUDIANTE BLOQUE */
+    .student-block { border: 1px solid #e0e0e0; border-radius: var(--radius-md); padding: 0; margin-bottom: 15px; overflow: hidden; }
+    .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .st-name { font-weight: 800; color: var(--text-main); font-size: 14px; }
+    .st-doc { font-size: 12px; color: #666; }
 
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .card { padding: 16px 14px 14px; }
-      canvas.signature-pad { height: 200px; }
-      th, td { font-size: 11px; }
+    @media(max-width: 600px) {
+      .top-bar { flex-direction: column; align-items: flex-start; border-radius: 20px; }
+      .brand-text { align-items: flex-start; }
+      .btn-row { flex-direction: column; }
+      button { width: 100%; }
+      .card-header-row { flex-direction: column; align-items: flex-start; }
+      .att-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .att-options { width: 100%; justify-content: space-between; }
+      .att-btn { flex: 1; text-align: center; }
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <!-- ENCABEZADO -->
-    <header class="top-bar">
-      <div class="brand">
-        <div class="brand-logo">
-          <!-- escudo.png debe estar en la misma carpeta -->
-          <img src="escudo.png" alt="Escudo Institución Educativa de María">
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">Institución Educativa de María</div>
-          <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
-          <div class="brand-meta">Seguimiento comportamental y disciplinario</div>
-        </div>
-      </div>
-      <div id="connStatus" class="connection-status offline">
-        <span class="connection-dot"></span><span>Offline</span>
-      </div>
-    </header>
 
-    <!-- REGISTRO DEL DOCENTE -->
-    <section class="card">
-      <div class="card-title">Registro del docente</div>
-      <div class="card-subtitle">
-        Diligencie los campos y registre la firma del estudiante / docente. Los registros se
-        guardan en Firebase y se agrupan por estudiante.
-      </div>
+<div class="app-shell">
+  
+  <!-- ENCABEZADO -->
+  <header class="top-bar">
+    <div class="brand-logo">
+      <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">Institución Educativa de María</div>
+      <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
+      <div class="brand-subtitle" style="font-weight:600;">Seguimiento comportamental y disciplinario</div>
+    </div>
+    <div id="connStatus" class="conn-pill conn-offline">
+      <div class="dot"></div> <span>Conectando...</span>
+    </div>
+  </header>
 
-      <form id="formRegistro">
-        <input type="hidden" id="editId" />
+  <!-- MENÚ DE NAVEGACIÓN (TABS) -->
+  <nav class="nav-tabs">
+    <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones y Disciplina</button>
+    <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Control de Asistencia</button>
+  </nav>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="fecha">Fecha</label>
-            <input type="date" id="fecha" required />
+  <!-- VISTA 1: OBSERVACIONES -->
+  <div id="view-obs">
+      
+      <!-- TARJETA REGISTRO DOCENTE -->
+      <section class="card">
+        <h2 class="card-title">📝 Nuevo Registro</h2>
+        <p class="card-desc">Observaciones comportamentales y académicas.</p>
+
+        <form id="formRegistro">
+          <input type="hidden" id="editId">
+
+          <div class="form-grid top-row">
+            <div class="form-group">
+                <label style="color:#d84315;">Tipo de registro</label>
+                <select id="tipoRegistro" style="font-weight:bold; color:#d84315;">
+                    <option value="Comportamental">Comportamental</option>
+                    <option value="Académico">Académico</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="fecha" required>
+            </div>
+
+            <div class="form-group">
+              <label>Documento estudiante</label>
+              <input type="number" id="documentoEstudiante" placeholder="Ej: 123456789" required>
+            </div>
+
+            <div class="form-group">
+              <label>Nombre estudiante</label>
+              <input type="text" id="nombreEstudiante" placeholder="Nombre completo" required>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="documentoEstudiante">Documento del estudiante</label>
-            <input type="text" id="documentoEstudiante" required placeholder="Ej: 123456789" />
+            <label>Descripción del comportamiento / Novedad</label>
+            <textarea id="comportamiento" placeholder="Explique la situación presentada..."></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+                <label>Descargos (versión del estudiante)</label>
+                <textarea id="descargos" placeholder="Lo que manifiesta el estudiante..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Procedimiento / acciones a seguir</label>
+                <textarea id="procedimiento" placeholder="Compromisos o sanciones..."></textarea>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="nombreEstudiante">Nombre del estudiante</label>
-            <input type="text" id="nombreEstudiante" required placeholder="Nombre completo" />
+            <label>Firma estudiante / docente</label>
+            <canvas id="signaturePad" class="signature-pad"></canvas>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="comportamiento">Descripción del comportamiento</label>
-          <textarea id="comportamiento" required placeholder="Explique brevemente la situación presentada..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="descargos">Descargos (versión del estudiante)</label>
-          <textarea id="descargos" required placeholder="Registre lo manifestado por el estudiante..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="procedimiento">Procedimiento / acciones a seguir</label>
-          <textarea id="procedimiento" required placeholder="Compromisos, acuerdos, remisiones, etc."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Firma estudiante / docente</label>
-          <div class="field-hint">Dibuje aquí la firma correspondiente antes de guardar el registro.</div>
-          <canvas id="signaturePad" class="signature-pad"></canvas>
-          <div class="button-row">
-            <button type="button" class="btn-danger" id="btnLimpiarFirma">Limpiar firma</button>
+          <div class="btn-row">
+            <button type="button" class="btn-clear" id="btnLimpiar">Limpiar firma</button>
+            <button type="submit" class="btn-save" id="btnGuardar">Guardar registro</button>
           </div>
+          <div style="margin-top:10px; display:none;" id="divCancel">
+             <button type="button" class="bg-gray btn-icon" style="width:100%" onclick="cancelarEdicion()">Cancelar Edición</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TARJETA HISTORIAL -->
+      <section class="card">
+        <h2 class="card-title">📂 Historial de Registros</h2>
+        <p class="card-desc">Consulte el estado de las firmas de los acudientes.</p>
+        
+        <div class="form-group">
+            <input type="text" id="buscador" placeholder="Buscar por nombre o documento..." onkeyup="renderRegistros()">
         </div>
 
-        <div class="button-row">
-          <button type="submit" class="btn-primary" id="btnGuardar">Guardar registro</button>
-          <button type="button" class="btn-muted" id="btnCancelarEdicion" style="display:none;">Cancelar edición</button>
+        <div id="listaRegistros">
+            <div style="text-align:center; padding:20px; color:#888;">Cargando datos...</div>
         </div>
-      </form>
-    </section>
-
-    <!-- REGISTROS POR ESTUDIANTE -->
-    <section class="card">
-      <div class="card-title">Registros comportamentales por estudiante</div>
-      <div class="card-subtitle">
-        Visualice todos los registros realizados y descargue el historial de cada estudiante en PDF.
-      </div>
-
-      <div class="form-group">
-        <label for="buscarRegistros">Buscar por nombre o documento</label>
-        <input type="text" id="buscarRegistros" placeholder="Escriba parte del nombre o documento..." />
-      </div>
-
-      <div id="registrosContainer" class="records-list"></div>
-    </section>
-
-    <!-- CONTROL Y SEGUIMIENTO DE AUSENTISMO -->
-    <section class="card">
-      <div class="card-title">Control y seguimiento de ausentismo escolar</div>
-      <div class="card-subtitle">
-        Excusas enviadas por los acudientes a través del portal del acudiente. Se agrupan por estudiante.
-      </div>
-
-      <div class="form-group">
-        <label for="buscarExcusas">Buscar por nombre o documento</label>
-        <input type="text" id="buscarExcusas" placeholder="Escriba parte del nombre o documento..." />
-      </div>
-
-      <div id="excusasContainer" class="records-list"></div>
-      <div class="info-text">
-        Nota: las excusas se leen desde la colección <strong>excusasInasistencia</strong> de Firebase.
-      </div>
-    </section>
+      </section>
   </div>
 
-  <!-- LÓGICA FIREBASE Y APLICATIVO -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
-      getDocs, query, where
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  <!-- VISTA 2: ASISTENCIA -->
+  <div id="view-asis" style="display:none;">
+      
+      <!-- TARJETA CONTROL ASISTENCIA -->
+      <section class="card" style="border-left: 5px solid #0288d1;">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title" style="color:#0288d1;">Control de Asistencia Diario</h2>
+                <p class="card-desc">Seleccione la fecha y guarde el estado.</p>
+            </div>
+            <div style="text-align:right;">
+                <input type="date" id="fechaAsistencia" style="padding:8px; border-radius:8px; border:1px solid #ccc;" onchange="cargarAsistenciaDelDia()">
+            </div>
+        </div>
 
-    // ---------- CONFIG FIREBASE ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
-      authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-      projectId: "diariodeprocesos-6f78d",
-      storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
-      messagingSenderId: "487922338632",
-      appId: "1:487922338632:web:47fc48c23dbea064b0817d"
-    };
+        <div id="attendanceList" class="attendance-grid">
+            <!-- AQUÍ SE CARGAN LOS ESTUDIANTES -->
+            <div style="text-align:center; color:#888;">Cargando lista...</div>
+        </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const colRegistros = collection(db, "registrosComportamentales");
-    const colExcusas   = collection(db, "excusasInasistencia");
+        <div class="btn-row" style="margin-top:20px;">
+            <button class="btn-blue" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
+        </div>
 
-    // ---------- ESTADO CONEXIÓN ----------
-    const connStatus = document.getElementById('connStatus');
-    function actualizarConexion() {
-      if (navigator.onLine) {
-        connStatus.className = "connection-status online";
-        connStatus.innerHTML = '<span class="connection-dot"></span><span>Online - Conectado</span>';
-      } else {
-        connStatus.className = "connection-status offline";
-        connStatus.innerHTML = '<span class="connection-dot"></span><span>Offline (solo lectura)</span>';
-      }
-    }
-    window.addEventListener('online', actualizarConexion);
-    window.addEventListener('offline', actualizarConexion);
-    actualizarConexion();
+        <!-- GENERADOR DE REPORTE MENSUAL -->
+        <div class="section-divider">Reportes Mensuales</div>
+        <div style="display:flex; gap:10px; align-items:flex-end; background:#f1f9ff; padding:15px; border-radius:12px; border:1px solid #b3e5fc;">
+            <div style="flex:1;">
+                <label style="margin-bottom:5px; color:#0277bd;">Seleccione el Mes para el Reporte</label>
+                <input type="month" id="mesReporte" style="width:100%;">
+            </div>
+            <button class="btn-dark" onclick="descargarReporteMensual()">📊 Descargar Informe Mensual (Matriz)</button>
+        </div>
 
-    // ---------- ESTADO LOCAL ----------
-    let registros = [];
-    let excusas = [];
-    let studentNamesByDoc = {}; // documento -> nombre
-    const escudoImg = new Image();
-    escudoImg.src = "escudo.png";
+      </section>
 
-    // ---------- UTILIDADES ----------
-    function escapeHTML(s) {
-      if (!s) return "";
-      return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
+      <!-- TARJETA EXCUSAS -->
+      <section class="card">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title">📩 Buzón de Excusas (Padres)</h2>
+                <p class="card-desc">Excusas enviadas por los padres.</p>
+            </div>
+            <button class="btn-blue" onclick="descargarExcusasPDF()">📄 Descargar Reporte PDF</button>
+        </div>
+        
+        <div id="listaExcusas">
+            <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
+        </div>
+      </section>
+  </div>
 
-    function agruparPor(arr, claveFn) {
-      const res = {};
-      arr.forEach(item => {
-        const key = claveFn(item);
-        if (!res[key]) res[key] = [];
-        res[key].push(item);
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, 
+    onSnapshot, setDoc, getDoc, query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  // CONFIGURACIÓN FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+    projectId: "diariodeprocesos-6f78d",
+    storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
+    messagingSenderId: "487922338632",
+    appId: "1:487922338632:web:47fc48c23dbea064b0817d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // --- LISTA DE ESTUDIANTES ---
+  const estudiantesBase = [
+    { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
+    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
+    { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
+    { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
+    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
+  ];
+
+  // --- ESTADO ---
+  let allRegistros = [];
+  let allExcusas = [];
+  let asistenciaTemp = {};
+
+  // Status Conexión
+  const updateStatus = (online) => {
+    const el = document.getElementById('connStatus');
+    if(online) { el.className='conn-pill conn-online'; el.innerHTML='<div class="dot"></div> Online'; }
+    else { el.className='conn-pill conn-offline'; el.innerHTML='<div class="dot"></div> Offline'; }
+  };
+  window.addEventListener('online', () => updateStatus(true));
+  window.addEventListener('offline', () => updateStatus(false));
+  updateStatus(navigator.onLine);
+
+  // --- NAVEGACIÓN TABS ---
+  window.switchTab = (tab) => {
+      document.getElementById('view-obs').style.display = tab === 'obs' ? 'block' : 'none';
+      document.getElementById('view-asis').style.display = tab === 'asis' ? 'block' : 'none';
+      document.getElementById('btnTabObs').className = tab === 'obs' ? 'nav-btn active' : 'nav-btn';
+      document.getElementById('btnTabAsis').className = tab === 'asis' ? 'nav-btn active' : 'nav-btn';
+      if(tab === 'obs') setTimeout(resizeCanvas, 200);
+  };
+
+  // --- INICIALIZAR FECHAS ---
+  document.getElementById('fecha').valueAsDate = new Date();
+  document.getElementById('fechaAsistencia').valueAsDate = new Date();
+  
+  // Set mes actual en reporte
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  document.getElementById('mesReporte').value = `${yyyy}-${mm}`;
+
+  // --- CONTROL DE ASISTENCIA ---
+  window.renderAsistencia = () => {
+      const container = document.getElementById('attendanceList');
+      let html = '';
+      estudiantesBase.forEach(est => {
+          const estado = asistenciaTemp[est.doc] || 'P';
+          html += `
+          <div class="att-row">
+              <div>
+                  <div class="att-name">${est.nombre}</div>
+                  <div class="att-doc">${est.doc}</div>
+              </div>
+              <div class="att-options">
+                  <button class="att-btn ${estado === 'P' ? 'active-p' : ''}" onclick="setAtt('${est.doc}', 'P')">Asistió</button>
+                  <button class="att-btn ${estado === 'E' ? 'active-e' : ''}" onclick="setAtt('${est.doc}', 'E')">Excusa</button>
+                  <button class="att-btn ${estado === 'I' ? 'active-i' : ''}" onclick="setAtt('${est.doc}', 'I')">Injustif.</button>
+              </div>
+          </div>`;
       });
-      return res;
-    }
+      container.innerHTML = html;
+  };
 
-    // ---------- CARGA DE REGISTROS ----------
-    async function cargarRegistros() {
+  window.setAtt = (doc, status) => {
+      asistenciaTemp[doc] = status;
+      renderAsistencia();
+  };
+
+  window.cargarAsistenciaDelDia = async () => {
+      const fecha = document.getElementById('fechaAsistencia').value;
+      if(!fecha) return;
       try {
-        const snap = await getDocs(colRegistros);
-        registros = [];
-        studentNamesByDoc = {};
-        snap.forEach(d => {
-          const data = d.data();
-          const r = {
-            firebaseId: d.id,
-            id: data.id || Date.now(),
-            fecha: data.fecha || "",
-            documentoEstudiante: data.documentoEstudiante || "",
-            nombreEstudiante: data.nombreEstudiante || "",
-            comportamiento: data.comportamiento || "",
-            descargos: data.descargos || "",
-            procedimiento: data.procedimiento || "",
-            firma: data.firma || data.firmaEstudianteDocente || "",
-            firmaAcudiente: data.firmaAcudiente || "",
-            fechaFirmaAcudiente: data.fechaFirmaAcudiente || ""
-          };
-          registros.push(r);
-          if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
-            studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
-          }
-        });
-        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
-        renderRegistros();
-        renderExcusas(); // para tener nombres actualizados
-      } catch (err) {
-        console.error("Error cargando registros:", err);
-        registros = JSON.parse(localStorage.getItem("registrosComportamentales") || "[]");
-        registros.forEach(r => {
-          if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
-            studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
-          }
-        });
-        renderRegistros();
-      }
-    }
-
-    // ---------- CARGA DE EXCUSAS ----------
-    async function cargarExcusas() {
-      try {
-        const snap = await getDocs(colExcusas);
-        excusas = [];
-        snap.forEach(d => {
-          const data = d.data();
-          excusas.push({
-            firebaseId: d.id,
-            documentoEstudiante: data.documentoEstudiante || "",
-            fechaInasistencia: data.fechaInasistencia || "",
-            motivoTipo: data.motivoTipo || "",
-            motivoDetalle: data.motivoDetalle || "",
-            firmaAcudiente: data.firmaAcudiente || "",
-            fechaEnvio: data.fechaEnvio || ""
-          });
-        });
-        localStorage.setItem("excusasInasistencia", JSON.stringify(excusas));
-        renderExcusas();
-      } catch (err) {
-        console.error("Error cargando excusas:", err);
-        excusas = JSON.parse(localStorage.getItem("excusasInasistencia") || "[]");
-        renderExcusas();
-      }
-    }
-
-    // ---------- RENDER REGISTROS ----------
-    const registrosContainer = document.getElementById('registrosContainer');
-    const buscarRegistrosInput = document.getElementById('buscarRegistros');
-
-    function renderRegistros() {
-      let datos = registros.slice();
-      const term = (buscarRegistrosInput.value || "").toLowerCase().trim();
-      if (term) {
-        datos = datos.filter(r =>
-          (r.nombreEstudiante || "").toLowerCase().includes(term) ||
-          (r.documentoEstudiante || "").toLowerCase().includes(term)
-        );
-      }
-
-      if (!datos.length) {
-        registrosContainer.innerHTML = '<div class="info-text">No hay registros para mostrar.</div>';
-        return;
-      }
-
-      const agrupados = agruparPor(datos, r => r.documentoEstudiante || "Sin documento");
-      const docs = Object.keys(agrupados).sort();
-
-      let html = "";
-      docs.forEach(docEst => {
-        const lista = agrupados[docEst];
-        const nombre = lista[0].nombreEstudiante || studentNamesByDoc[docEst] || "Sin nombre";
-        html += '<div class="student-section">';
-        html += '  <div class="student-header">';
-        html += '    <div>';
-        html += '      <div class="student-title">Estudiante: ' + escapeHTML(nombre) + '</div>';
-        html += '      <div class="student-meta">Documento: ' + escapeHTML(docEst) + ' · Registros: ' + lista.length + '</div>';
-        html += '    </div>';
-        html += '    <div class="button-row">';
-        html += '      <button type="button" class="btn-secondary btn-small" onclick="downloadRegistroPDF(\'' +
-          docEst.replace(/'/g, "\\'") + '\')">Descargar PDF de seguimiento</button>';
-        html += '    </div>';
-        html += '  </div>';
-
-        html += '  <div class="table-wrapper">';
-        html += '    <table>';
-        html += '      <thead><tr>';
-        html += '        <th>Fecha</th>';
-        html += '        <th>Comportamiento</th>';
-        html += '        <th>Descargos</th>';
-        html += '        <th>Procedimiento</th>';
-        html += '        <th>Firma estudiante/docente</th>';
-        html += '        <th>Firma acudiente</th>';
-        html += '        <th>Acciones</th>';
-        html += '      </tr></thead>';
-        html += '      <tbody>';
-
-        lista.sort((a,b) => (a.fecha || "").localeCompare(b.fecha || ""));
-        lista.forEach(r => {
-          html += '      <tr>';
-          html += '        <td>' + escapeHTML(r.fecha || "") + '</td>';
-          html += '        <td>' + escapeHTML(r.comportamiento || "") + '</td>';
-          html += '        <td>' + escapeHTML(r.descargos || "") + '</td>';
-          html += '        <td>' + escapeHTML(r.procedimiento || "") + '</td>';
-          html += '        <td>';
-          if (r.firma) {
-            html += '<img class="signature-preview" src="' + r.firma + '" alt="Firma estudiante/docente">';
+          const docSnap = await getDoc(doc(db, "controlAsistencia", fecha));
+          if (docSnap.exists()) {
+              const data = docSnap.data();
+              asistenciaTemp = {};
+              if(data.detalles) data.detalles.forEach(d => asistenciaTemp[d.doc] = d.estado);
           } else {
-            html += '<span class="info-text">Sin firma</span>';
+              asistenciaTemp = {};
           }
-          html += '        </td>';
-          html += '        <td>';
-          if (r.firmaAcudiente) {
-            html += '<img class="signature-preview" src="' + r.firmaAcudiente + '" alt="Firma acudiente">';
-          } else {
-            html += '<span class="info-text">Pendiente</span>';
-          }
-          html += '        </td>';
-          html += '        <td>';
-          html += '          <button type="button" class="btn-muted btn-small" onclick="editRecord(\'' + r.firebaseId + '\')">Editar</button> ';
-          html += '          <button type="button" class="btn-danger btn-small" onclick="deleteRecord(\'' + r.firebaseId + '\')">Eliminar</button>';
-          html += '        </td>';
-          html += '      </tr>';
-        });
+          renderAsistencia();
+      } catch (e) { console.error(e); }
+  };
 
-        html += '      </tbody>';
-        html += '    </table>';
-        html += '  </div>';
-        html += '</div>';
-      });
-
-      registrosContainer.innerHTML = html;
-    }
-
-    buscarRegistrosInput.addEventListener('input', renderRegistros);
-
-    // ---------- RENDER EXCUSAS ----------
-    const excusasContainer = document.getElementById('excusasContainer');
-    const buscarExcusasInput = document.getElementById('buscarExcusas');
-
-    function renderExcusas() {
-      let datos = excusas.slice();
-      const term = (buscarExcusasInput.value || "").toLowerCase().trim();
-      if (term) {
-        datos = datos.filter(e =>
-          (e.documentoEstudiante || "").toLowerCase().includes(term) ||
-          (studentNamesByDoc[e.documentoEstudiante] || "").toLowerCase().includes(term)
-        );
-      }
-
-      if (!datos.length) {
-        excusasContainer.innerHTML = '<div class="info-text">No hay excusas para mostrar.</div>';
-        return;
-      }
-
-      const agrupados = agruparPor(datos, e => e.documentoEstudiante || "Sin documento");
-      const docs = Object.keys(agrupados).sort();
-
-      let html = "";
-      docs.forEach(docEst => {
-        const lista = agrupados[docEst];
-        const nombre = studentNamesByDoc[docEst] || "Sin nombre registrado";
-        html += '<div class="student-section">';
-        html += '  <div class="student-header">';
-        html += '    <div>';
-        html += '      <div class="student-title">Estudiante: ' + escapeHTML(nombre) + '</div>';
-        html += '      <div class="student-meta">Documento: ' + escapeHTML(docEst) + ' · Excusas: ' + lista.length + '</div>';
-        html += '    </div>';
-        html += '    <div class="button-row">';
-        html += '      <button type="button" class="btn-secondary btn-small" onclick="downloadExcusasPDF(\'' +
-          docEst.replace(/'/g, "\\'") + '\')">Descargar PDF de excusas</button>';
-        html += '    </div>';
-        html += '  </div>';
-
-        html += '  <div class="table-wrapper">';
-        html += '    <table>';
-        html += '      <thead><tr>';
-        html += '        <th>Fecha de inasistencia</th>';
-        html += '        <th>Motivo</th>';
-        html += '        <th>Descripción</th>';
-        html += '        <th>Firma acudiente</th>';
-        html += '      </tr></thead>';
-        html += '      <tbody>';
-
-        lista.sort((a,b) => (a.fechaInasistencia || "").localeCompare(b.fechaInasistencia || ""));
-        lista.forEach(e => {
-          html += '      <tr>';
-          html += '        <td>' + escapeHTML(e.fechaInasistencia || "") + '</td>';
-          html += '        <td>' + escapeHTML(e.motivoTipo || "") + '</td>';
-          html += '        <td>' + escapeHTML(e.motivoDetalle || "") + '</td>';
-          html += '        <td>';
-          if (e.firmaAcudiente) {
-            html += '<img class="signature-preview" src="' + e.firmaAcudiente + '" alt="Firma acudiente">';
-          } else {
-            html += '<span class="info-text">Sin firma</span>';
-          }
-          html += '        </td>';
-          html += '      </tr>';
-        });
-
-        html += '      </tbody>';
-        html += '    </table>';
-        html += '  </div>';
-        html += '</div>';
-      });
-
-      excusasContainer.innerHTML = html;
-    }
-
-    buscarExcusasInput.addEventListener('input', renderExcusas);
-
-    // ---------- FIRMA REGISTRO DOCENTE ----------
-    const signaturePad = document.getElementById('signaturePad');
-    const sigCtx = signaturePad.getContext('2d');
-    const btnLimpiarFirma = document.getElementById('btnLimpiarFirma');
-
-    function ajustarCanvasFirma() {
-      const w = signaturePad.getBoundingClientRect().width || 600;
-      signaturePad.width = w;
-      signaturePad.height = 220;
-      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
-    }
-    ajustarCanvasFirma();
-    window.addEventListener('resize', ajustarCanvasFirma);
-
-    let dibujando = false, sx = 0, sy = 0;
-    function getPosFirma(e) {
-      const rect = signaturePad.getBoundingClientRect();
-      let x, y;
-      if (e.touches && e.touches[0]) {
-        x = e.touches[0].clientX - rect.left;
-        y = e.touches[0].clientY - rect.top;
-      } else {
-        x = e.offsetX ?? (e.clientX - rect.left);
-        y = e.offsetY ?? (e.clientY - rect.top);
-      }
-      return { x, y };
-    }
-    function startDraw(e) {
-      e.preventDefault();
-      dibujando = true;
-      const p = getPosFirma(e);
-      sx = p.x; sy = p.y;
-    }
-    function draw(e) {
-      if (!dibujando) return;
-      e.preventDefault();
-      const p = getPosFirma(e);
-      sigCtx.strokeStyle = "#0f172a";
-      sigCtx.lineWidth = 2.2;
-      sigCtx.lineCap = "round";
-      sigCtx.beginPath();
-      sigCtx.moveTo(sx, sy);
-      sigCtx.lineTo(p.x, p.y);
-      sigCtx.stroke();
-      sx = p.x; sy = p.y;
-    }
-    function stopDraw(e) {
-      e && e.preventDefault();
-      dibujando = false;
-    }
-
-    signaturePad.addEventListener("mousedown", startDraw);
-    signaturePad.addEventListener("mousemove", draw);
-    signaturePad.addEventListener("mouseup", stopDraw);
-    signaturePad.addEventListener("mouseout", stopDraw);
-    signaturePad.addEventListener("touchstart", startDraw, { passive:false });
-    signaturePad.addEventListener("touchmove", draw, { passive:false });
-    signaturePad.addEventListener("touchend", stopDraw, { passive:false });
-
-    btnLimpiarFirma.addEventListener('click', () => {
-      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
-    });
-
-    // ---------- CRUD REGISTROS ----------
-    const formRegistro = document.getElementById('formRegistro');
-    const editIdInput = document.getElementById('editId');
-    const btnGuardar = document.getElementById('btnGuardar');
-    const btnCancelarEdicion = document.getElementById('btnCancelarEdicion');
-    const fechaInput = document.getElementById('fecha');
-    const docInput = document.getElementById('documentoEstudiante');
-    const nombreInput = document.getElementById('nombreEstudiante');
-    const compInput = document.getElementById('comportamiento');
-    const descInput = document.getElementById('descargos');
-    const procInput = document.getElementById('procedimiento');
-
-    fechaInput.valueAsDate = new Date();
-
-    formRegistro.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para guardar el registro.");
-        return;
-      }
-
-      const registro = {
-        fecha: fechaInput.value,
-        documentoEstudiante: docInput.value.trim(),
-        nombreEstudiante: nombreInput.value.trim(),
-        comportamiento: compInput.value.trim(),
-        descargos: descInput.value.trim(),
-        procedimiento: procInput.value.trim(),
-        firma: signaturePad.toDataURL("image/png")
+  window.guardarAsistencia = async () => {
+      const fecha = document.getElementById('fechaAsistencia').value;
+      if(!fecha) return alert("Seleccione fecha");
+      const dataToSave = {
+          fecha: fecha,
+          timestamp: new Date().toISOString(),
+          detalles: estudiantesBase.map(est => ({
+              doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P'
+          }))
       };
-
-      if (!registro.fecha || !registro.documentoEstudiante || !registro.nombreEstudiante) {
-        alert("Complete todos los campos obligatorios.");
-        return;
-      }
-
       try {
-        if (editIdInput.value) {
-          // actualizar
-          const firebaseId = editIdInput.value;
-          await updateDoc(doc(db, "registrosComportamentales", firebaseId), registro);
-          const idx = registros.findIndex(r => r.firebaseId === firebaseId);
-          if (idx !== -1) {
-            registros[idx] = { ...registros[idx], ...registro };
+          await setDoc(doc(db, "controlAsistencia", fecha), dataToSave);
+          alert("✅ Asistencia guardada.");
+      } catch(e) { alert("Error: " + e.message); }
+  };
+
+  window.cargarAsistenciaDelDia();
+
+  // --- REPORTE MENSUAL MATRIZ ---
+  window.descargarReporteMensual = async () => {
+      const mesInput = document.getElementById('mesReporte').value; // YYYY-MM
+      if(!mesInput) return alert("Seleccione un mes.");
+
+      const [year, month] = mesInput.split('-');
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const startDate = `${mesInput}-01`;
+      const endDate = `${mesInput}-${daysInMonth}`;
+
+      // Consultar rango de fechas en Firestore
+      const q = query(collection(db, "controlAsistencia"),
+          where("fecha", ">=", startDate),
+          where("fecha", "<=", endDate)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const asistenciaMes = {}; // { 'YYYY-MM-DD': { 'docEst': 'P/E/I' } }
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const dayData = {};
+          if(data.detalles) {
+              data.detalles.forEach(d => dayData[d.doc] = d.estado);
           }
-          alert("Registro actualizado correctamente.");
+          asistenciaMes[data.fecha] = dayData;
+      });
+
+      // Generar PDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape
+
+      pdf.setFontSize(14);
+      pdf.setTextColor(27, 94, 32);
+      pdf.text(`Control de Asistencia Mensual - ${mesInput}`, 14, 15);
+      
+      // Cabeceras: Nombre + Días 1..31 + Totales
+      const headRow = ['Estudiante'];
+      for(let i=1; i<=daysInMonth; i++) headRow.push(String(i));
+      headRow.push('Fallas');
+      headRow.push('Excusas');
+
+      const bodyData = estudiantesBase.map(est => {
+          const row = [est.nombre];
+          let totalFallas = 0;
+          let totalExcusas = 0;
+
+          for(let i=1; i<=daysInMonth; i++) {
+              const diaStr = String(i).padStart(2, '0');
+              const fechaFull = `${mesInput}-${diaStr}`;
+              
+              // Buscar estado en los datos descargados
+              let estado = ' ';
+              if(asistenciaMes[fechaFull]) {
+                  const estadoDia = asistenciaMes[fechaFull][est.doc];
+                  if(estadoDia === 'I') { estado = 'X'; totalFallas++; }
+                  else if(estadoDia === 'E') { estado = 'E'; totalExcusas++; }
+                  else if(estadoDia === 'P') { estado = '•'; }
+              }
+              row.push(estado);
+          }
+          row.push(String(totalFallas));
+          row.push(String(totalExcusas));
+          return row;
+      });
+
+      pdf.autoTable({
+          startY: 20,
+          head: [headRow],
+          body: bodyData,
+          theme: 'grid',
+          styles: { fontSize: 6, cellPadding: 1, halign: 'center' }, // Fuente pequeña para que quepa
+          columnStyles: { 0: { halign: 'left', cellWidth: 40 } }, // Nombre más ancho
+          headStyles: { fillColor: [27, 94, 32] },
+          didParseCell: function(data) {
+              // Colores para X y E
+              if (data.section === 'body' && data.column.index > 0) {
+                  if(data.cell.raw === 'X') data.cell.styles.textColor = [200, 0, 0];
+                  if(data.cell.raw === 'E') data.cell.styles.textColor = [200, 100, 0];
+              }
+          }
+      });
+
+      pdf.save(`Asistencia_Mensual_${mesInput}.pdf`);
+  };
+
+
+  // --- CANVAS FIRMA (Registro) ---
+  const canvas = document.getElementById('signaturePad');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.scale(ratio, ratio);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 500); 
+
+  const getPos = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+  
+  const startDraw = (e) => { e.preventDefault(); isDrawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); };
+  const moveDraw = (e) => { e.preventDefault(); if(!isDrawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
+  const endDraw = () => { isDrawing=false; };
+
+  canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive:false}); canvas.addEventListener('touchmove', moveDraw, {passive:false}); canvas.addEventListener('touchend', endDraw);
+
+  document.getElementById('btnLimpiar').onclick = () => ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  function isCanvasBlank(c) {
+      const context = c.getContext('2d');
+      const pixelBuffer = new Uint32Array(context.getImageData(0, 0, c.width, c.height).data.buffer);
+      return !pixelBuffer.some(color => color !== 0);
+  }
+
+  // --- LISTENERS FIREBASE ---
+  onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
+    allRegistros = [];
+    snap.forEach(doc => allRegistros.push({id: doc.id, ...doc.data()}));
+    renderRegistros();
+    renderExcusas();
+  });
+
+  onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
+    allExcusas = [];
+    snap.forEach(doc => allExcusas.push({id: doc.id, ...doc.data()}));
+    renderExcusas();
+  });
+
+  // --- RENDERIZADO REGISTROS ---
+  window.renderRegistros = () => {
+    const container = document.getElementById('listaRegistros');
+    const search = document.getElementById('buscador').value.toLowerCase();
+
+    const filtered = allRegistros.filter(r => 
+        (r.nombreEstudiante||'').toLowerCase().includes(search) || 
+        (r.documentoEstudiante||'').includes(search)
+    );
+
+    if(filtered.length === 0) {
+        container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No se encontraron registros.</div>';
+        return;
+    }
+
+    const grupos = {};
+    filtered.forEach(r => {
+        const key = r.documentoEstudiante || 'SIN_DOC';
+        if(!grupos[key]) grupos[key] = { nombre: r.nombreEstudiante, docs: [] };
+        grupos[key].docs.push(r);
+    });
+
+    let html = '';
+    Object.keys(grupos).forEach(key => {
+        const g = grupos[key];
+        g.docs.sort((a,b) => (a.fecha||'') < (b.fecha||'') ? 1 : -1);
+
+        html += `
+        <div class="student-block">
+            <div class="student-info-bar">
+                <div>
+                   <div class="st-name">${g.nombre || 'Sin Nombre'}</div>
+                   <div class="st-doc">Doc: ${key} · Registros: ${g.docs.length}</div>
+                </div>
+                <button class="btn-blue" onclick="descargarPDF('${key}')">Descargar PDF</button>
+            </div>
+            <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Fecha</th>
+                        <th>Detalle</th>
+                        <th>Firmas</th>
+                        <th style="width:60px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        g.docs.forEach(r => {
+            const tipo = r.tipoRegistro || 'Comportamental';
+            const claseTipo = tipo === 'Académico' ? 'tag-acad' : 'tag-comp';
+
+            html += `
+                <tr>
+                    <td>
+                        <div style="font-size:12px;">${r.fecha}</div>
+                        <span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span>
+                    </td>
+                    <td>
+                        <div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div>
+                        <div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div>
+                    </td>
+                    <td>
+                        <div style="font-size:11px;">
+                             ${r.firmaAcudiente 
+                               ? `<span style="color:green;">✅ Firmado Acudiente</span>`
+                               : `<span style="color:red; font-weight:bold;">⏳ Pendiente</span>`
+                             }
+                        </div>
+                    </td>
+                    <td>
+                        <button class="bg-gray btn-icon" onclick="editar('${r.id}')">✏️</button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += `</tbody></table></div></div>`;
+    });
+    container.innerHTML = html;
+  };
+
+  // --- RENDERIZADO EXCUSAS ---
+  window.renderExcusas = () => {
+    const container = document.getElementById('listaExcusas');
+    if(allExcusas.length === 0) {
+        container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No hay excusas.</div>';
+        return;
+    }
+    
+    allExcusas.sort((a,b) => (a.fechaEnvio||'') < (b.fechaEnvio||'') ? 1 : -1);
+
+    let html = `
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha Falta</th>
+                <th>Estudiante</th>
+                <th>Motivo</th>
+                <th>Detalle</th>
+                <th>Firma Acudiente</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+    allExcusas.forEach(e => {
+        const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
+        const nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+        
+        html += `
+            <tr>
+                <td>${e.fechaInasistencia}</td>
+                <td><b>${nom}</b></td>
+                <td>${e.motivoTipo}</td>
+                <td>${e.motivoDetalle}</td>
+                <td><img src="${e.firmaAcudiente}" class="sig-preview"></td>
+            </tr>
+        `;
+    });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  };
+
+  // --- CRUD REGISTRO ---
+  const form = document.getElementById('formRegistro');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnGuardar');
+    const id = document.getElementById('editId').value;
+    
+    if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
+
+    btn.disabled = true;
+    btn.innerText = "Guardando...";
+
+    const data = {
+        tipoRegistro: document.getElementById('tipoRegistro').value,
+        fecha: document.getElementById('fecha').value,
+        documentoEstudiante: document.getElementById('documentoEstudiante').value,
+        nombreEstudiante: document.getElementById('nombreEstudiante').value,
+        comportamiento: document.getElementById('comportamiento').value,
+        descargos: document.getElementById('descargos').value,
+        procedimiento: document.getElementById('procedimiento').value
+    };
+
+    if(!isCanvasBlank(canvas)) data.firma = canvas.toDataURL();
+
+    try {
+        if(id) {
+            await updateDoc(doc(db, "registrosComportamentales", id), data);
+            alert("Registro actualizado.");
+            cancelarEdicion();
         } else {
-          // nuevo
-          registro.id = Date.now();
-          const ref = await addDoc(colRegistros, registro);
-          registros.push({ ...registro, firebaseId: ref.id });
-          alert("Registro guardado correctamente.");
+            await addDoc(collection(db, "registrosComportamentales"), {
+                ...data, timestamp: new Date().toISOString()
+            });
+            alert("Guardado con éxito.");
+            form.reset();
+            ctx.clearRect(0,0,canvas.width,canvas.height);
         }
+    } catch(err) {
+        alert("Error: " + err.message);
+    }
+    btn.disabled = false;
+    btn.innerText = "Guardar registro";
+  });
 
-        if (registro.documentoEstudiante && registro.nombreEstudiante) {
-          studentNamesByDoc[registro.documentoEstudiante] = registro.nombreEstudiante;
-        }
+  window.editar = (id) => {
+    const r = allRegistros.find(x => x.id === id);
+    if(!r) return;
+    document.getElementById('editId').value = r.id;
+    document.getElementById('tipoRegistro').value = r.tipoRegistro || 'Comportamental';
+    document.getElementById('fecha').value = r.fecha;
+    document.getElementById('documentoEstudiante').value = r.documentoEstudiante;
+    document.getElementById('nombreEstudiante').value = r.nombreEstudiante;
+    document.getElementById('comportamiento').value = r.comportamiento;
+    document.getElementById('descargos').value = r.descargos;
+    document.getElementById('procedimiento').value = r.procedimiento;
+    
+    document.getElementById('btnGuardar').innerText = "Actualizar";
+    document.getElementById('divCancel').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
 
-        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
-        formRegistro.reset();
-        fechaInput.valueAsDate = new Date();
-        sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
-        editIdInput.value = "";
-        btnGuardar.textContent = "Guardar registro";
-        btnCancelarEdicion.style.display = "none";
-        renderRegistros();
-        renderExcusas(); // por si es un nuevo estudiante
-      } catch (err) {
-        console.error("Error al guardar:", err);
-        alert("Error al guardar el registro.");
-      }
+  window.cancelarEdicion = () => {
+    form.reset();
+    document.getElementById('editId').value = '';
+    document.getElementById('btnGuardar').innerText = "Guardar registro";
+    document.getElementById('divCancel').style.display = 'none';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+
+  // --- PDF REPORTES ---
+  window.descargarPDF = (docId) => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    
+    const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
+    if(!recs.length) return;
+    
+    pdf.setFillColor(27, 94, 32); 
+    pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text("Institución Educativa de María", 14, 12);
+    pdf.setFontSize(10);
+    pdf.text("Reporte Disciplinario del Estudiante", 14, 20);
+
+    pdf.setTextColor(0,0,0);
+    pdf.text(`Nombre: ${recs[0].nombreEstudiante}`, 14, 40);
+    pdf.text(`Documento: ${docId}`, 14, 46);
+    
+    const body = recs.map(r => [
+        r.fecha,
+        r.tipoRegistro || "Comportamental",
+        r.comportamiento,
+        r.procedimiento,
+        r.firmaAcudiente ? "FIRMADO" : "PENDIENTE"
+    ]);
+
+    pdf.autoTable({
+        startY: 55,
+        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']],
+        body: body,
+        headStyles: { fillColor: [27, 94, 32] }
+    });
+    
+    pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
+  };
+
+  window.descargarExcusasPDF = () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    
+    pdf.setFillColor(2, 136, 209);
+    pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text("Institución Educativa de María", 14, 12);
+    pdf.setFontSize(10);
+    pdf.text("Control de Ausentismo - Reporte General", 14, 20);
+
+    pdf.setTextColor(0,0,0);
+    pdf.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 14, 40);
+    
+    const body = allExcusas.map(e => {
+         const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
+         const nom = match ? match.nombreEstudiante : e.documentoEstudiante;
+         return [
+             e.fechaInasistencia,
+             nom,
+             e.motivoTipo,
+             e.motivoDetalle
+         ];
     });
 
-    function cargarRegistroEnFormulario(firebaseId) {
-      const r = registros.find(x => x.firebaseId === firebaseId);
-      if (!r) return;
-      fechaInput.value = r.fecha || "";
-      docInput.value = r.documentoEstudiante || "";
-      nombreInput.value = r.nombreEstudiante || "";
-      compInput.value = r.comportamiento || "";
-      descInput.value = r.descargos || "";
-      procInput.value = r.procedimiento || "";
-      editIdInput.value = firebaseId;
-      btnGuardar.textContent = "Actualizar registro";
-      btnCancelarEdicion.style.display = "inline-flex";
-
-      // mostrar firma almacenada (si existe)
-      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
-      if (r.firma) {
-        const img = new Image();
-        img.onload = () => {
-          sigCtx.drawImage(img, 0, 0, signaturePad.width, signaturePad.height);
-        };
-        img.src = r.firma;
-      }
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    btnCancelarEdicion.addEventListener('click', () => {
-      formRegistro.reset();
-      fechaInput.valueAsDate = new Date();
-      editIdInput.value = "";
-      btnGuardar.textContent = "Guardar registro";
-      btnCancelarEdicion.style.display = "none";
-      sigCtx.clearRect(0, 0, signaturePad.width, signaturePad.height);
+    pdf.autoTable({
+        startY: 50,
+        head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']],
+        body: body,
+        headStyles: { fillColor: [2, 136, 209] }
     });
-
-    async function eliminarRegistro(firebaseId) {
-      if (!confirm("¿Está seguro de eliminar este registro?")) return;
-      if (!navigator.onLine) {
-        alert("Se necesita conexión a internet para eliminar.");
-        return;
-      }
-      try {
-        await deleteDoc(doc(db, "registrosComportamentales", firebaseId));
-        registros = registros.filter(r => r.firebaseId !== firebaseId);
-        localStorage.setItem("registrosComportamentales", JSON.stringify(registros));
-        renderRegistros();
-      } catch (err) {
-        console.error("Error al eliminar:", err);
-        alert("Error al eliminar el registro.");
-      }
-    }
-
-    // Exponer funciones a window para los botones inline
-    window.editRecord = cargarRegistroEnFormulario;
-    window.deleteRecord = eliminarRegistro;
-
-    // ---------- PDF REGISTROS ----------
-    window.downloadRegistroPDF = function (docEst) {
-      const jsPDF = window.jspdf.jsPDF;
-      const pdf = new jsPDF('landscape', 'mm', 'a4');
-
-      const lista = registros.filter(r => (r.documentoEstudiante || "") === docEst);
-      if (!lista.length) {
-        alert("No hay registros para este estudiante.");
-        return;
-      }
-
-      const nombre = lista[0].nombreEstudiante || studentNamesByDoc[docEst] || "";
-
-      // Encabezado con escudo
-      if (escudoImg.complete) {
-        try {
-          pdf.addImage(escudoImg, 'PNG', 10, 8, 18, 22);
-        } catch (e) {
-          console.error("No se pudo agregar el escudo al PDF:", e);
-        }
-      }
-
-      pdf.setFontSize(16);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('INSTITUCIÓN EDUCATIVA DE MARÍA', 148, 15, { align: 'center' });
-      pdf.setFontSize(12);
-      pdf.text('Sede Rural Santa Juana (Primaria)', 148, 21, { align: 'center' });
-      pdf.text('Seguimiento comportamental y disciplinario – 2026', 148, 27, { align: 'center' });
-
-      pdf.setFontSize(11);
-      const lineaEst = 'Estudiante: ' + (nombre || '________________') +
-        '   Documento: ' + (docEst || '__________');
-      pdf.text(lineaEst, 148, 34, { align: 'center' });
-
-      const body = lista.map(r => [
-        r.fecha || '',
-        r.comportamiento || '',
-        r.descargos || '',
-        r.procedimiento || '',
-        '', // firma estudiante/docente
-        ''  // firma acudiente
-      ]);
-
-      pdf.autoTable({
-        startY: 38,
-        head: [['Fecha', 'Comportamiento', 'Descargos', 'Procedimiento', 'Firma estudiante/docente', 'Firma acudiente']],
-        body,
-        theme: 'grid',
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          overflow: 'linebreak',
-          valign: 'top'
-        },
-        headStyles: {
-          fillColor: [22, 163, 74],
-          textColor: 255,
-          fontStyle: 'bold',
-          halign: 'center'
-        },
-        columnStyles: {
-          0: { cellWidth: 22 },
-          1: { cellWidth: 55 },
-          2: { cellWidth: 55 },
-          3: { cellWidth: 55 },
-          4: { cellWidth: 35 },
-          5: { cellWidth: 35 }
-        },
-        didDrawCell: function (data) {
-          const idx = data.row.index;
-          if (data.section === 'body') {
-            const r = lista[idx];
-            // Firma estudiante/docente
-            if (data.column.index === 4 && r.firma) {
-              try {
-                pdf.addImage(r.firma, 'PNG',
-                  data.cell.x + 2,
-                  data.cell.y + 2,
-                  data.cell.width - 4,
-                  data.cell.height - 4
-                );
-              } catch (e) {
-                console.error("Error agregando firma estudiante/docente:", e);
-              }
-            }
-            // Firma acudiente
-            if (data.column.index === 5 && r.firmaAcudiente) {
-              try {
-                pdf.addImage(r.firmaAcudiente, 'PNG',
-                  data.cell.x + 2,
-                  data.cell.y + 2,
-                  data.cell.width - 4,
-                  data.cell.height - 4
-                );
-              } catch (e) {
-                console.error("Error agregando firma acudiente:", e);
-              }
-            }
-          }
-        }
-      });
-
-      const nombreArchivo = 'Seguimiento_' +
-        (nombre || 'Estudiante').replace(/\s+/g, '_') +
-        '_' + (docEst || '') + '.pdf';
-      pdf.save(nombreArchivo);
-    };
-
-    // ---------- PDF EXCUSAS ----------
-    window.downloadExcusasPDF = function (docEst) {
-      const jsPDF = window.jspdf.jsPDF;
-      const pdf = new jsPDF('landscape', 'mm', 'a4');
-
-      const lista = excusas.filter(e => (e.documentoEstudiante || "") === docEst);
-      if (!lista.length) {
-        alert("No hay excusas para este estudiante.");
-        return;
-      }
-
-      const nombre = studentNamesByDoc[docEst] || "";
-
-      // Encabezado con escudo
-      if (escudoImg.complete) {
-        try {
-          pdf.addImage(escudoImg, 'PNG', 10, 8, 18, 22);
-        } catch (e) {
-          console.error("No se pudo agregar el escudo al PDF:", e);
-        }
-      }
-
-      pdf.setFontSize(16);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('INSTITUCIÓN EDUCATIVA DE MARÍA', 148, 15, { align: 'center' });
-      pdf.setFontSize(12);
-      pdf.text('Sede Rural Santa Juana (Primaria)', 148, 21, { align: 'center' });
-      pdf.text('Control y seguimiento de ausentismo escolar', 148, 27, { align: 'center' });
-
-      pdf.setFontSize(11);
-      const lineaEst = 'Estudiante: ' + (nombre || '________________') +
-        '   Documento: ' + (docEst || '__________');
-      pdf.text(lineaEst, 148, 34, { align: 'center' });
-
-      const body = lista.map(e => [
-        e.fechaInasistencia || '',
-        e.motivoTipo || '',
-        e.motivoDetalle || '',
-        '' // firma acudiente
-      ]);
-
-      pdf.autoTable({
-        startY: 38,
-        head: [['Fecha de inasistencia', 'Motivo', 'Descripción', 'Firma acudiente']],
-        body,
-        theme: 'grid',
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          overflow: 'linebreak',
-          valign: 'top'
-        },
-        headStyles: {
-          fillColor: [22, 163, 74],
-          textColor: 255,
-          fontStyle: 'bold',
-          halign: 'center'
-        },
-        columnStyles: {
-          0: { cellWidth: 30 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 110 },
-          3: { cellWidth: 40 }
-        },
-        didDrawCell: function (data) {
-          const idx = data.row.index;
-          if (data.section === 'body' && data.column.index === 3) {
-            const e = lista[idx];
-            if (e && e.firmaAcudiente) {
-              try {
-                pdf.addImage(e.firmaAcudiente, 'PNG',
-                  data.cell.x + 2,
-                  data.cell.y + 2,
-                  data.cell.width - 4,
-                  data.cell.height - 4
-                );
-              } catch (err) {
-                console.error("Error agregando firma acudiente:", err);
-              }
-            }
-          }
-        }
-      });
-
-      const nombreArchivo = 'Excusas_' +
-        (nombre || 'Estudiante').replace(/\s+/g, '_') +
-        '_' + (docEst || '') + '.pdf';
-      pdf.save(nombreArchivo);
-    };
-
-    // ---------- CARGA INICIAL ----------
-    if (navigator.onLine) {
-      cargarRegistros();
-      cargarExcusas();
-    } else {
-      registros = JSON.parse(localStorage.getItem("registrosComportamentales") || "[]");
-      excusas = JSON.parse(localStorage.getItem("excusasInasistencia") || "[]");
-      registros.forEach(r => {
-        if (r.documentoEstudiante && r.nombreEstudiante && !studentNamesByDoc[r.documentoEstudiante]) {
-          studentNamesByDoc[r.documentoEstudiante] = r.nombreEstudiante;
-        }
-      });
-      renderRegistros();
-      renderExcusas();
-    }
-  </script>
+    
+    pdf.save(`Reporte_Excusas.pdf`);
+  };
+</script>
 </body>
 </html>
