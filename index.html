@@ -38,24 +38,45 @@
 
     .app-shell { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
 
-    /* ENCABEZADO */
+    /* ENCABEZADO OPTIMIZADO */
     .top-bar {
-      display: flex; align-items: center; gap: 15px; padding: 12px 20px;
-      background: #ffffff; border-radius: 50px; box-shadow: var(--shadow); border: 1px solid #c8e6c9;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 10px 20px;
+      background: #ffffff; 
+      border-radius: 50px; 
+      box-shadow: var(--shadow); 
+      border: 1px solid #c8e6c9;
     }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1; 
+    }
+
     .brand-logo { width: 55px; height: 55px; flex-shrink: 0; }
     .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
-    .brand-text { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+    
+    .brand-text { display: flex; flex-direction: column; justify-content: center; }
+    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.1; }
     .brand-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .conn-pill {
-      font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
-      white-space: nowrap; display: flex; align-items: center; gap: 5px; border: 1px solid transparent;
+    /* INDICADOR DE CONEXIÓN MINIMALISTA (SOLO PUNTO) */
+    .conn-indicator {
+      width: 14px; 
+      height: 14px; 
+      border-radius: 50%; 
+      display: block;
+      border: 2px solid #fff; 
+      box-shadow: 0 0 0 1px #e0e0e0;
+      transition: background-color 0.3s;
     }
-    .conn-online { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
-    .conn-offline { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .conn-online { background-color: #22c55e; box-shadow: 0 0 0 1px #22c55e; }
+    .conn-offline { background-color: #ef4444; box-shadow: 0 0 0 1px #ef4444; }
 
     /* TABS */
     .nav-tabs {
@@ -112,7 +133,7 @@
     .btn-edit { background: #f1f8e9; color: #33691e; }
     .bg-gray { background: #eee; color: #333; }
 
-    /* SECCIONES OCULTAS (ACORDEÓN) */
+    /* SECCIONES OCULTAS */
     .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; animation: slideDown 0.3s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -142,7 +163,12 @@
     .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
     
     @media(max-width: 600px) {
-      .top-bar { flex-direction: column; align-items: flex-start; border-radius: 20px; }
+      .top-bar { padding: 10px; }
+      .brand-group { gap: 10px; }
+      .brand-logo { width: 45px; height: 45px; }
+      .brand-title { font-size: 14px; }
+      .brand-subtitle { font-size: 10px; }
+      
       .btn-row { flex-direction: column; }
       button { width: 100%; }
       .att-row { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -156,17 +182,20 @@
 <div class="app-shell">
   
   <header class="top-bar">
-    <div class="brand-logo">
-      <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
+    <!-- GRUPO MARCA (ESCUDO + TEXTO) -->
+    <div class="brand-group">
+        <div class="brand-logo">
+          <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Institución Educativa de María</div>
+          <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
+          <div class="brand-subtitle" style="font-weight:600;">Seguimiento comportamental y disciplinario</div>
+        </div>
     </div>
-    <div class="brand-text">
-      <div class="brand-title">Institución Educativa de María</div>
-      <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
-      <div class="brand-subtitle" style="font-weight:600;">Seguimiento comportamental y disciplinario</div>
-    </div>
-    <div id="connStatus" class="conn-pill conn-offline">
-      <div class="dot"></div> <span>Conectando...</span>
-    </div>
+    
+    <!-- ESTADO CONEXIÓN MINIMALISTA -->
+    <div id="connStatus" class="conn-indicator conn-offline" title="Desconectado"></div>
   </header>
 
   <!-- MENÚ TABS -->
@@ -272,7 +301,7 @@
             <button class="btn-blue" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
         </div>
 
-        <div class="section-divider">Reportes</div>
+        <div style="margin:25px 0 15px; border-bottom:2px dashed #e0e0e0; color:#0288d1; font-weight:700; font-size:14px; text-transform:uppercase;">Reportes</div>
         <div style="display:flex; gap:10px; align-items:center; background:#f1f9ff; padding:10px; border-radius:12px;">
             <input type="month" id="mesReporte" style="flex:1;">
             <button class="btn-icon bg-gray" onclick="descargarReporteMensual()">📊 Descargar Matriz</button>
@@ -324,12 +353,12 @@
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
-  // Llenar datalist para buscador con lupa
+  // Llenar datalist
   const dataList = document.getElementById("listaEstudiantes");
   estudiantesBase.forEach(est => {
       const option = document.createElement("option");
-      option.value = est.nombre; // Valor visible es el nombre
-      option.setAttribute("data-doc", est.doc); // Guardamos doc como atributo
+      option.value = est.nombre;
+      option.setAttribute("data-doc", est.doc);
       dataList.appendChild(option);
   });
 
@@ -340,8 +369,13 @@
 
   const updateStatus = (online) => {
     const el = document.getElementById('connStatus');
-    if(online) { el.className='conn-pill conn-online'; el.innerHTML='<div class="dot"></div> Online'; }
-    else { el.className='conn-pill conn-offline'; el.innerHTML='<div class="dot"></div> Offline'; }
+    if(online) { 
+        el.className='conn-indicator conn-online'; 
+        el.title='En línea';
+    } else { 
+        el.className='conn-indicator conn-offline'; 
+        el.title='Desconectado';
+    }
   };
   window.addEventListener('online', () => updateStatus(true));
   window.addEventListener('offline', () => updateStatus(false));
@@ -356,7 +390,6 @@
       if(tab === 'obs') setTimeout(resizeCanvas, 200);
   };
 
-  // TOGGLE HISTORIAL (Mostrar/Ocultar)
   window.toggleHistorial = (id) => {
       const el = document.getElementById(id);
       if(el.style.display === 'none' || el.style.display === '') {
@@ -522,7 +555,7 @@
       return !pixelBuffer.some(color => color !== 0);
   }
 
-  // --- LISTENERS FIREBASE ---
+  // --- LISTENERS ---
   onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
     allRegistros = [];
     snap.forEach(doc => allRegistros.push({id: doc.id, ...doc.data()}));
@@ -587,7 +620,6 @@
     container.innerHTML = html;
   };
 
-  // --- RENDERIZADO EXCUSAS ---
   window.renderExcusas = () => {
     const container = document.getElementById('listaExcusas');
     if(allExcusas.length === 0) {
@@ -618,15 +650,12 @@
     container.innerHTML = html;
   };
 
-  // --- CRUD REGISTRO ---
   const form = document.getElementById('formRegistro');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnGuardar');
     const id = document.getElementById('editId').value;
     const nombreInput = document.getElementById("inputEstudiante").value;
-    
-    // Obtener DOC usando el datalist
     let docSeleccionado = null;
     const opciones = document.getElementById("listaEstudiantes").options;
     for (let i = 0; i < opciones.length; i++) {
@@ -635,13 +664,9 @@
             break;
         }
     }
-
-    if(!docSeleccionado) { alert("Seleccione un estudiante de la lista válida."); return; }
+    if(!docSeleccionado) { alert("Seleccione un estudiante válido."); return; }
     if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
-
-    btn.disabled = true;
-    btn.innerText = "Guardando...";
-
+    btn.disabled = true; btn.innerText = "Guardando...";
     const data = {
         tipoRegistro: document.getElementById('tipoRegistro').value,
         fecha: document.getElementById('fecha').value,
@@ -651,9 +676,7 @@
         descargos: document.getElementById('descargos').value,
         procedimiento: document.getElementById('procedimiento').value
     };
-
     if(!isCanvasBlank(canvas)) data.firma = canvas.toDataURL();
-
     try {
         if(id) {
             await updateDoc(doc(db, "registrosComportamentales", id), data);
@@ -668,12 +691,11 @@
             ctx.clearRect(0,0,canvas.width,canvas.height);
         }
     } catch(err) { alert("Error: " + err.message); }
-    btn.disabled = false;
-    btn.innerText = "Guardar registro";
+    btn.disabled = false; btn.innerText = "Guardar registro";
   });
 
   window.eliminarDocumento = async (id, coleccion) => {
-      if(confirm("⚠️ ¿Está seguro de eliminar este registro?\n\nEsta acción no se puede deshacer.")) {
+      if(confirm("⚠️ ¿Está seguro de eliminar este registro?")) {
           try { await deleteDoc(doc(db, coleccion, id)); } catch(e) { alert("Error al eliminar: " + e.message); }
       }
   };
@@ -688,7 +710,6 @@
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos;
     document.getElementById('procedimiento').value = r.procedimiento;
-    
     document.getElementById('btnGuardar').innerText = "Actualizar";
     document.getElementById('divCancel').style.display = 'block';
     window.scrollTo({top:0, behavior:'smooth'});
@@ -702,70 +723,39 @@
     ctx.clearRect(0,0,canvas.width,canvas.height);
   };
 
-  // --- PDF REPORTES ---
   window.descargarPDF = (docId) => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
     const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
     if(!recs.length) return;
-    
-    pdf.setFillColor(27, 94, 32); 
-    pdf.rect(0, 0, 210, 30, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(16);
+    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255); pdf.setFontSize(16);
     pdf.text("Institución Educativa de María", 14, 12);
-    pdf.setFontSize(10);
-    pdf.text("Reporte Disciplinario del Estudiante", 14, 20);
-    pdf.setTextColor(0,0,0);
-    pdf.text(`Nombre: ${recs[0].nombreEstudiante}`, 14, 40);
+    pdf.setFontSize(10); pdf.text("Reporte Disciplinario del Estudiante", 14, 20);
+    pdf.setTextColor(0,0,0); pdf.text(`Nombre: ${recs[0].nombreEstudiante}`, 14, 40);
     pdf.text(`Documento: ${docId}`, 14, 46);
-    
-    const body = recs.map(r => [
-        r.fecha,
-        r.tipoRegistro || "Comportamental",
-        r.comportamiento,
-        r.procedimiento,
-        r.firmaAcudiente ? "FIRMADO" : "PENDIENTE"
-    ]);
-
-    pdf.autoTable({
-        startY: 55, head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']], body: body,
-        headStyles: { fillColor: [27, 94, 32] }
-    });
+    const body = recs.map(r => [ r.fecha, r.tipoRegistro || "Comportamental", r.comportamiento, r.procedimiento, r.firmaAcudiente ? "FIRMADO" : "PENDIENTE" ]);
+    pdf.autoTable({ startY: 55, head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'Estado']], body: body, headStyles: { fillColor: [27, 94, 32] } });
     pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
   };
 
   window.descargarExcusasPDF = () => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
-    pdf.setFillColor(2, 136, 209);
-    pdf.rect(0, 0, 210, 30, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(16);
+    pdf.setFillColor(2, 136, 209); pdf.rect(0, 0, 210, 30, 'F');
+    pdf.setTextColor(255, 255, 255); pdf.setFontSize(16);
     pdf.text("Institución Educativa de María", 14, 12);
-    pdf.setFontSize(10);
-    pdf.text("Control de Ausentismo - Reporte General", 14, 20);
-    pdf.setTextColor(0,0,0);
-    pdf.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 14, 40);
-    
+    pdf.setFontSize(10); pdf.text("Control de Ausentismo - Reporte General", 14, 20);
+    pdf.setTextColor(0,0,0); pdf.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 40);
     const body = allExcusas.map(e => {
          const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
          let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
-         if(!match) {
-             const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
-             if(base) nom = base.nombre;
-         }
-         return [e.fechaInasistencia, nom, e.motivoTipo, e.motivoDetalle];
+         if(!match) { const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante); if(base) nom = base.nombre; }
+         return [ e.fechaInasistencia, nom, e.motivoTipo, e.motivoDetalle ];
     });
-
-    pdf.autoTable({
-        startY: 50, head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']], body: body,
-        headStyles: { fillColor: [2, 136, 209] }
-    });
+    pdf.autoTable({ startY: 50, head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']], body: body, headStyles: { fillColor: [2, 136, 209] } });
     pdf.save(`Reporte_Excusas.pdf`);
   };
 </script>
 </body>
 </html>
-
-
