@@ -14,6 +14,7 @@
       --primary: #1b5e20;       
       --primary-light: #2e7d32; 
       --accent: #0288d1;        
+      --tools-color: #f57c00;   /* Color para herramientas */
       --bg-body: #c8e6c9;       
       --text-main: #0f172a;
       --text-muted: #555;
@@ -65,7 +66,7 @@
     .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.1; }
     .brand-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    /* INDICADOR DE CONEXIÓN MINIMALISTA (SOLO PUNTO) */
+    /* INDICADOR DE CONEXIÓN */
     .conn-indicator {
       width: 14px; 
       height: 14px; 
@@ -80,13 +81,15 @@
 
     /* TABS */
     .nav-tabs {
-      display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px;
+      display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px; gap: 5px; flex-wrap: wrap;
     }
     .nav-btn {
       flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px;
-      font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease;
+      font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease; white-space: nowrap;
     }
     .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3); }
+    /* Estilo especial para cuando la pestaña activa es herramientas */
+    .nav-btn.active-tools { background: var(--tools-color); color: white; box-shadow: 0 2px 8px rgba(245, 124, 0, 0.3); }
 
     /* TARJETAS */
     .card {
@@ -112,8 +115,9 @@
 
     /* BUSCADOR CON LUPA */
     .search-wrapper { position: relative; }
-    .search-wrapper input { padding-left: 35px; }
-    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.5; }
+    .search-wrapper select { padding-left: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.5; z-index: 2; pointer-events: none;}
+    .search-wrapper::after { content: '▼'; font-size: 10px; color: #666; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 
     /* BOTONES */
     .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
@@ -128,6 +132,11 @@
     .btn-clear { background: #d32f2f; color: white; flex: 1; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
     .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; box-shadow: 0 4px 10px rgba(69, 90, 100, 0.3); }
     .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; }
+    
+    /* ESTILOS BOTONES DE HERRAMIENTAS */
+    .btn-tools { background: var(--tools-color); color: white; font-size: 16px; padding: 18px; box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-tools:hover { background: #ef6c00; transform: translateY(-2px); }
+    
     .btn-icon { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
     .btn-del { background: #ffebee; color: #c62828; }
     .btn-edit { background: #f1f8e9; color: #33691e; }
@@ -144,6 +153,9 @@
     td { padding: 12px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     .sig-preview { max-width: 80px; height: auto; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
+    .tag-type { padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-left:5px; }
+    .tag-acad { background:#e3f2fd; color:#0288d1; }
+    .tag-comp { background:#e8f5e9; color:#2e7d32; }
 
     /* CANVAS FIRMA */
     canvas.signature-pad { width: 100%; height: 180px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; }
@@ -168,12 +180,14 @@
       .brand-logo { width: 45px; height: 45px; }
       .brand-title { font-size: 14px; }
       .brand-subtitle { font-size: 10px; }
+      .nav-tabs { flex-direction: column; gap: 5px; }
       
       .btn-row { flex-direction: column; }
       button { width: 100%; }
       .att-row { flex-direction: column; align-items: flex-start; gap: 8px; }
       .att-options { width: 100%; justify-content: space-between; }
       .att-btn { flex: 1; text-align: center; }
+      .form-grid.top-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -200,8 +214,9 @@
 
   <!-- MENÚ TABS -->
   <nav class="nav-tabs">
-    <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones y Disciplina</button>
-    <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Control de Asistencia</button>
+    <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones</button>
+    <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Asistencia</button>
+    <button id="btnTabHerramientas" class="nav-btn" onclick="switchTab('herramientas')">Herramientas</button>
   </nav>
 
   <!-- VISTA 1: OBSERVACIONES -->
@@ -227,13 +242,15 @@
               <input type="date" id="fecha" required>
             </div>
 
-            <!-- BUSCADOR CON LUPA -->
+            <!-- BUSCADOR CON LUPA MEJORADO (USANDO SELECT) -->
             <div class="form-group">
-              <label>Buscar Estudiante</label>
+              <label>Seleccionar Estudiante</label>
               <div class="search-wrapper">
                   <span class="search-icon">🔍</span>
-                  <input list="listaEstudiantes" id="inputEstudiante" placeholder="Escriba nombre del estudiante..." required>
-                  <datalist id="listaEstudiantes"></datalist>
+                  <!-- Select real para garantizar lista desplegable -->
+                  <select id="selectEstudiante" required>
+                      <option value="">-- Seleccione un estudiante --</option>
+                  </select>
               </div>
             </div>
           </div>
@@ -323,7 +340,72 @@
       </section>
   </div>
 
+  <!-- VISTA 3: HERRAMIENTAS -->
+  <div id="view-herramientas" style="display:none;">
+    <section class="card" style="border-left: 5px solid var(--tools-color);">
+        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas Docentes</h2>
+        <p class="card-desc">Accesos directos a plataformas externas.</p>
+
+        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
+            
+            <!-- BOTÓN 1: DIARIO DE PROCESOS -->
+            <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" style="text-decoration:none;">
+                <button class="btn-tools" style="width:100%;">
+                    📓 DIARIO DE PROCESOS
+                </button>
+            </a>
+
+            <!-- BOTÓN 2: PLANILLA DE NOTAS -->
+            <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" style="text-decoration:none;">
+                <button class="btn-tools" style="width:100%;">
+                    📊 PLANILLA DE NOTAS
+                </button>
+            </a>
+
+            <!-- BOTÓN 3: TEMARIOS -->
+            <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" style="text-decoration:none;">
+                <button class="btn-tools" style="width:100%;">
+                    📚 TEMARIOS
+                </button>
+            </a>
+
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center; color: #888; font-size: 12px;">
+            Se abrirán en nuevas pestañas para facilitar la visualización móvil.
+        </div>
+    </section>
+  </div>
+
 </div>
+
+<!-- SCRIPT DE DATOS ESTÁTICOS (SE CARGA INMEDIATAMENTE) -->
+<script>
+  // Datos base definidos globalmente para asegurar que se carguen rápido
+  const estudiantesBase = [
+    { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
+    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
+    { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
+    { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
+    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
+  ];
+
+  // Llenar el SELECT de estudiantes
+  document.addEventListener("DOMContentLoaded", () => {
+      const select = document.getElementById("selectEstudiante");
+      if(select) {
+        estudiantesBase.forEach(est => {
+            const option = document.createElement("option");
+            option.value = est.doc; // El valor es el documento ID
+            option.textContent = est.nombre; // El texto es el nombre visible
+            select.appendChild(option);
+        });
+      }
+  });
+
+  // Funciones de utilidad global
+  window.estudiantesBase = estudiantesBase;
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
@@ -343,24 +425,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-  // --- LISTA DE ESTUDIANTES ---
-  const estudiantesBase = [
-    { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
-    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
-    { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
-    { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
-    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
-  ];
-
-  // Llenar datalist
-  const dataList = document.getElementById("listaEstudiantes");
-  estudiantesBase.forEach(est => {
-      const option = document.createElement("option");
-      option.value = est.nombre;
-      option.setAttribute("data-doc", est.doc);
-      dataList.appendChild(option);
-  });
 
   // --- ESTADO ---
   let allRegistros = [];
@@ -383,11 +447,28 @@
 
   // --- NAVEGACIÓN ---
   window.switchTab = (tab) => {
-      document.getElementById('view-obs').style.display = tab === 'obs' ? 'block' : 'none';
-      document.getElementById('view-asis').style.display = tab === 'asis' ? 'block' : 'none';
-      document.getElementById('btnTabObs').className = tab === 'obs' ? 'nav-btn active' : 'nav-btn';
-      document.getElementById('btnTabAsis').className = tab === 'asis' ? 'nav-btn active' : 'nav-btn';
-      if(tab === 'obs') setTimeout(resizeCanvas, 200);
+      // Ocultar todas las vistas
+      document.getElementById('view-obs').style.display = 'none';
+      document.getElementById('view-asis').style.display = 'none';
+      document.getElementById('view-herramientas').style.display = 'none';
+
+      // Resetear clases de botones
+      document.getElementById('btnTabObs').className = 'nav-btn';
+      document.getElementById('btnTabAsis').className = 'nav-btn';
+      document.getElementById('btnTabHerramientas').className = 'nav-btn';
+
+      // Activar la seleccionada
+      if (tab === 'obs') {
+          document.getElementById('view-obs').style.display = 'block';
+          document.getElementById('btnTabObs').className = 'nav-btn active';
+          setTimeout(resizeCanvas, 200);
+      } else if (tab === 'asis') {
+          document.getElementById('view-asis').style.display = 'block';
+          document.getElementById('btnTabAsis').className = 'nav-btn active';
+      } else if (tab === 'herramientas') {
+          document.getElementById('view-herramientas').style.display = 'block';
+          document.getElementById('btnTabHerramientas').className = 'nav-btn active-tools';
+      }
   };
 
   window.toggleHistorial = (id) => {
@@ -408,7 +489,7 @@
   window.renderAsistencia = () => {
       const container = document.getElementById('attendanceList');
       let html = '';
-      estudiantesBase.forEach(est => {
+      window.estudiantesBase.forEach(est => {
           const estado = asistenciaTemp[est.doc] || 'P';
           html += `
           <div class="att-row">
@@ -452,7 +533,7 @@
       if(!fecha) return alert("Seleccione fecha");
       const dataToSave = {
           fecha: fecha, timestamp: new Date().toISOString(),
-          detalles: estudiantesBase.map(est => ({ doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P' }))
+          detalles: window.estudiantesBase.map(est => ({ doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P' }))
       };
       try {
           await setDoc(doc(db, "controlAsistencia", fecha), dataToSave);
@@ -489,7 +570,7 @@
       for(let i=1; i<=daysInMonth; i++) headRow.push(String(i));
       headRow.push('Fallas'); headRow.push('Excusas');
 
-      const bodyData = estudiantesBase.map(est => {
+      const bodyData = window.estudiantesBase.map(est => {
           const row = [est.nombre];
           let totalFallas = 0; let totalExcusas = 0;
           for(let i=1; i<=daysInMonth; i++) {
@@ -637,7 +718,7 @@
         const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
         let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
         if(!match) {
-             const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante);
+             const base = window.estudiantesBase.find(est => est.doc === e.documentoEstudiante);
              if(base) nom = base.nombre;
         }
         html += `
@@ -655,18 +736,17 @@
     e.preventDefault();
     const btn = document.getElementById('btnGuardar');
     const id = document.getElementById('editId').value;
-    const nombreInput = document.getElementById("inputEstudiante").value;
-    let docSeleccionado = null;
-    const opciones = document.getElementById("listaEstudiantes").options;
-    for (let i = 0; i < opciones.length; i++) {
-        if (opciones[i].value === nombreInput) {
-            docSeleccionado = opciones[i].getAttribute("data-doc");
-            break;
-        }
-    }
-    if(!docSeleccionado) { alert("Seleccione un estudiante válido."); return; }
+    
+    // Obtener datos directamente del Select
+    const select = document.getElementById("selectEstudiante");
+    const docSeleccionado = select.value;
+    const nombreInput = select.options[select.selectedIndex].text;
+
+    if(!docSeleccionado) { alert("⚠️ Por favor, seleccione un estudiante de la lista."); return; }
     if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
+    
     btn.disabled = true; btn.innerText = "Guardando...";
+    
     const data = {
         tipoRegistro: document.getElementById('tipoRegistro').value,
         fecha: document.getElementById('fecha').value,
@@ -676,7 +756,9 @@
         descargos: document.getElementById('descargos').value,
         procedimiento: document.getElementById('procedimiento').value
     };
+    
     if(!isCanvasBlank(canvas)) data.firma = canvas.toDataURL();
+    
     try {
         if(id) {
             await updateDoc(doc(db, "registrosComportamentales", id), data);
@@ -688,6 +770,8 @@
             });
             alert("Guardado con éxito.");
             form.reset();
+            // Restablecer el select manualmente
+            select.value = "";
             ctx.clearRect(0,0,canvas.width,canvas.height);
         }
     } catch(err) { alert("Error: " + err.message); }
@@ -706,7 +790,11 @@
     document.getElementById('editId').value = r.id;
     document.getElementById('tipoRegistro').value = r.tipoRegistro || 'Comportamental';
     document.getElementById('fecha').value = r.fecha;
-    document.getElementById('inputEstudiante').value = r.nombreEstudiante;
+    
+    // Cargar valor en el SELECT
+    const select = document.getElementById("selectEstudiante");
+    select.value = r.documentoEstudiante; 
+
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos;
     document.getElementById('procedimiento').value = r.procedimiento;
@@ -717,6 +805,7 @@
 
   window.cancelarEdicion = () => {
     form.reset();
+    document.getElementById('selectEstudiante').value = "";
     document.getElementById('editId').value = '';
     document.getElementById('btnGuardar').innerText = "Guardar registro";
     document.getElementById('divCancel').style.display = 'none';
@@ -750,7 +839,7 @@
     const body = allExcusas.map(e => {
          const match = allRegistros.find(r => r.documentoEstudiante == e.documentoEstudiante);
          let nom = match ? match.nombreEstudiante : e.documentoEstudiante;
-         if(!match) { const base = estudiantesBase.find(est => est.doc === e.documentoEstudiante); if(base) nom = base.nombre; }
+         if(!match) { const base = window.estudiantesBase.find(est => est.doc === e.documentoEstudiante); if(base) nom = base.nombre; }
          return [ e.fechaInasistencia, nom, e.motivoTipo, e.motivoDetalle ];
     });
     pdf.autoTable({ startY: 50, head: [['Fecha Falta', 'Estudiante', 'Motivo', 'Detalle']], body: body, headStyles: { fillColor: [2, 136, 209] } });
@@ -759,3 +848,6 @@
 </script>
 </body>
 </html>
+
+
+
