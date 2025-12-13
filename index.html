@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -114,11 +113,41 @@
     input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1); }
     textarea { min-height: 100px; resize: vertical; }
 
-    /* BUSCADOR CON LUPA */
+    /* BUSCADOR PERSONALIZADO (LUPA + LISTA + TECLADO) */
     .search-wrapper { position: relative; }
-    .search-wrapper select { padding-left: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; }
-    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.5; z-index: 2; pointer-events: none;}
-    .search-wrapper::after { content: '▼'; font-size: 10px; color: #666; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .search-wrapper input { padding-left: 35px; } /* Espacio para la lupa */
+    .search-icon { 
+        position: absolute; left: 10px; top: 12px; 
+        font-size: 16px; opacity: 0.6; cursor: pointer; z-index: 5;
+    }
+    
+    /* Lista desplegable personalizada */
+    .custom-dropdown {
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: white;
+      border: 1px solid var(--primary);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      display: none; /* Se muestra con JS */
+    }
+    .custom-dropdown.show { display: block; }
+    
+    .dropdown-item {
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s;
+    }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background-color: #e8f5e9; }
+    
+    .item-nombre { font-weight: 700; color: #333; display: block; }
+    .item-doc { font-size: 11px; color: #666; }
 
     /* BOTONES */
     .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
@@ -243,15 +272,23 @@
               <input type="date" id="fecha" required>
             </div>
 
-            <!-- BUSCADOR CON LUPA MEJORADO (USANDO SELECT) -->
+            <!-- BUSCADOR CON LUPA + LISTA + TECLADO -->
             <div class="form-group">
               <label>Seleccionar Estudiante</label>
               <div class="search-wrapper">
-                  <span class="search-icon">🔍</span>
-                  <!-- Select real para garantizar lista desplegable -->
-                  <select id="selectEstudiante" required>
-                      <option value="">-- Seleccione un estudiante --</option>
-                  </select>
+                  <!-- LUPA: Al hacer clic enfoca el input para abrir teclado -->
+                  <span class="search-icon" onclick="document.getElementById('inputBusquedaEstudiante').focus()">🔍</span>
+                  
+                  <!-- INPUT DE TEXTO: Permite escribir y filtra la lista -->
+                  <input type="text" id="inputBusquedaEstudiante" placeholder="Escriba o busque..." autocomplete="off" required>
+                  
+                  <!-- CAMPO OCULTO: Guarda el Documento (ID) real seleccionado -->
+                  <input type="hidden" id="idEstudianteSeleccionado">
+                  
+                  <!-- LISTA DESPLEGABLE PERSONALIZADA -->
+                  <div id="dropdownEstudiantes" class="custom-dropdown">
+                    <!-- Se llena con JS -->
+                  </div>
               </div>
             </div>
           </div>
@@ -380,9 +417,9 @@
 
 </div>
 
-<!-- SCRIPT DE DATOS ESTÁTICOS (SE CARGA INMEDIATAMENTE) -->
+<!-- SCRIPT DE DATOS ESTÁTICOS Y LÓGICA DE BÚSQUEDA -->
 <script>
-  // Datos base definidos globalmente para asegurar que se carguen rápido
+  // Datos base
   const estudiantesBase = [
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
@@ -391,21 +428,63 @@
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
-  // Llenar el SELECT de estudiantes
-  document.addEventListener("DOMContentLoaded", () => {
-      const select = document.getElementById("selectEstudiante");
-      if(select) {
-        estudiantesBase.forEach(est => {
-            const option = document.createElement("option");
-            option.value = est.doc; // El valor es el documento ID
-            option.textContent = est.nombre; // El texto es el nombre visible
-            select.appendChild(option);
-        });
-      }
-  });
-
-  // Funciones de utilidad global
   window.estudiantesBase = estudiantesBase;
+
+  // Lógica del Buscador Personalizado
+  document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("inputBusquedaEstudiante");
+      const dropdown = document.getElementById("dropdownEstudiantes");
+      const hiddenInput = document.getElementById("idEstudianteSeleccionado");
+
+      // Función para renderizar la lista
+      function renderDropdown(filterText = "") {
+          dropdown.innerHTML = "";
+          const filterUpper = filterText.toUpperCase();
+          
+          const filtrados = estudiantesBase.filter(est => 
+              est.nombre.includes(filterUpper) || est.doc.includes(filterUpper)
+          );
+
+          if(filtrados.length === 0) {
+              dropdown.innerHTML = '<div style="padding:10px; color:#888; font-size:12px;">No se encontraron resultados</div>';
+              return;
+          }
+
+          filtrados.forEach(est => {
+              const item = document.createElement("div");
+              item.className = "dropdown-item";
+              item.innerHTML = `<span class="item-nombre">${est.nombre}</span><span class="item-doc">DOC: ${est.doc}</span>`;
+              
+              // Al hacer clic en un item
+              item.onclick = () => {
+                  input.value = est.nombre;
+                  hiddenInput.value = est.doc;
+                  dropdown.classList.remove("show"); // Ocultar lista
+              };
+              dropdown.appendChild(item);
+          });
+      }
+
+      // 1. Al enfocar el input (o tocar la lupa), abrir la lista
+      input.addEventListener("focus", () => {
+          renderDropdown(input.value);
+          dropdown.classList.add("show");
+      });
+
+      // 2. Al escribir, filtrar
+      input.addEventListener("input", (e) => {
+          hiddenInput.value = ""; // Limpiar selección si edita
+          renderDropdown(e.target.value);
+          dropdown.classList.add("show");
+      });
+
+      // 3. Cerrar si hace clic fuera
+      document.addEventListener("click", (e) => {
+          if (!input.contains(e.target) && !dropdown.contains(e.target) && !e.target.classList.contains('search-icon')) {
+              dropdown.classList.remove("show");
+          }
+      });
+  });
 </script>
 
 <script type="module">
@@ -738,12 +817,21 @@
     const btn = document.getElementById('btnGuardar');
     const id = document.getElementById('editId').value;
     
-    // Obtener datos directamente del Select
-    const select = document.getElementById("selectEstudiante");
-    const docSeleccionado = select.value;
-    const nombreInput = select.options[select.selectedIndex].text;
+    // VALIDACIÓN IMPORTANTE: Usamos el ID oculto o el texto del input
+    const docSeleccionado = document.getElementById("idEstudianteSeleccionado").value;
+    const nombreInput = document.getElementById("inputBusquedaEstudiante").value;
 
-    if(!docSeleccionado) { alert("⚠️ Por favor, seleccione un estudiante de la lista."); return; }
+    if(!nombreInput) { alert("⚠️ Por favor, seleccione un estudiante."); return; }
+    // Si escribió un nombre que no está en la lista (no tiene docSeleccionado), se permite pero sin Doc.
+    // Opcionalmente podemos obligar a seleccionar de la lista:
+    if(!docSeleccionado) { 
+        // Intentar buscar match exacto por nombre si el usuario lo escribió completo
+        const match = window.estudiantesBase.find(est => est.nombre === nombreInput);
+        if(!match) {
+            alert("⚠️ Por favor seleccione un estudiante de la lista desplegable."); return; 
+        }
+    }
+    
     if(!id && isCanvasBlank(canvas)) { alert("Debe firmar el registro."); return; }
     
     btn.disabled = true; btn.innerText = "Guardando...";
@@ -751,7 +839,7 @@
     const data = {
         tipoRegistro: document.getElementById('tipoRegistro').value,
         fecha: document.getElementById('fecha').value,
-        documentoEstudiante: docSeleccionado,
+        documentoEstudiante: docSeleccionado || "SIN_DOC", // Fallback
         nombreEstudiante: nombreInput,
         comportamiento: document.getElementById('comportamiento').value,
         descargos: document.getElementById('descargos').value,
@@ -770,9 +858,11 @@
                 ...data, timestamp: new Date().toISOString()
             });
             alert("Guardado con éxito.");
+            
+            // Limpiar formulario y campos personalizados
             form.reset();
-            // Restablecer el select manualmente
-            select.value = "";
+            document.getElementById("inputBusquedaEstudiante").value = "";
+            document.getElementById("idEstudianteSeleccionado").value = "";
             ctx.clearRect(0,0,canvas.width,canvas.height);
         }
     } catch(err) { alert("Error: " + err.message); }
@@ -792,9 +882,9 @@
     document.getElementById('tipoRegistro').value = r.tipoRegistro || 'Comportamental';
     document.getElementById('fecha').value = r.fecha;
     
-    // Cargar valor en el SELECT
-    const select = document.getElementById("selectEstudiante");
-    select.value = r.documentoEstudiante; 
+    // Cargar datos en el buscador personalizado
+    document.getElementById("inputBusquedaEstudiante").value = r.nombreEstudiante;
+    document.getElementById("idEstudianteSeleccionado").value = r.documentoEstudiante;
 
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos;
@@ -806,7 +896,8 @@
 
   window.cancelarEdicion = () => {
     form.reset();
-    document.getElementById('selectEstudiante').value = "";
+    document.getElementById("inputBusquedaEstudiante").value = "";
+    document.getElementById("idEstudianteSeleccionado").value = "";
     document.getElementById('editId').value = '';
     document.getElementById('btnGuardar').innerText = "Guardar registro";
     document.getElementById('divCancel').style.display = 'none';
@@ -849,3 +940,4 @@
 </script>
 </body>
 </html>
+
