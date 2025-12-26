@@ -225,7 +225,6 @@
 
           <!-- SECCIÓN DE FIRMAS ACTUALIZADA: 2 CANVAS -->
           <div class="form-grid">
-             <!-- Firma Estudiante -->
              <div class="sig-container">
                 <div class="sig-header">
                     <span class="sig-label">Firma Estudiante</span>
@@ -233,8 +232,6 @@
                 </div>
                 <canvas id="sigStudent" class="signature-pad"></canvas>
              </div>
-             
-             <!-- Firma Docente -->
              <div class="sig-container">
                 <div class="sig-header">
                     <span class="sig-label">Firma Docente</span>
@@ -285,10 +282,15 @@
             <button class="btn-icon bg-gray" onclick="descargarReporteMensual()">📊 Descargar Matriz</button>
         </div>
         <button type="button" class="btn-historial" style="background:#0288d1;" onclick="toggleHistorial('historialExc')">📩 Ver Historial de Excusas</button>
+        
         <div id="historialExc" class="hidden-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h3 style="color:#0288d1; margin:0;">Excusas Recibidas</h3>
-                <button class="btn-icon bg-gray" onclick="descargarExcusasPDF()">📄 PDF</button>
+                <button class="btn-icon bg-gray" onclick="descargarExcusasPDF()">📄 PDF Completo</button>
+            </div>
+            <!-- BUSCADOR DE EXCUSAS AGREGADO -->
+            <div class="form-group">
+                <input type="text" id="buscadorExcusas" placeholder="🔍 Buscar excusa por nombre de estudiante..." onkeyup="renderExcusas()">
             </div>
             <div id="listaExcusas">
                 <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
@@ -312,7 +314,6 @@
             <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" style="text-decoration:none;">
                 <button class="btn-tools" style="width:100%;">📚 TEMARIOS</button>
             </a>
-            <!-- NUEVO BOTÓN AGREGADO -->
             <a href="https://roscar33.github.io/Horario/" target="_blank" style="text-decoration:none;">
                 <button class="btn-tools" style="width:100%;">🕒 HORARIO DE CLASES</button>
             </a>
@@ -426,7 +427,7 @@
   const today = new Date();
   document.getElementById('mesReporte').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-  // --- ASISTENCIA LOGIC ---
+  // --- ASISTENCIA ---
   window.renderAsistencia = () => {
       const container = document.getElementById('attendanceList');
       let html = '';
@@ -441,7 +442,6 @@
       });
       container.innerHTML = html;
   };
-
   window.setAtt = (doc, status) => { asistenciaTemp[doc] = status; renderAsistencia(); };
   window.cargarAsistenciaDelDia = async () => {
       const fecha = document.getElementById('fechaAsistencia').value;
@@ -464,109 +464,43 @@
   };
   window.cargarAsistenciaDelDia();
 
-  // --- REPORTE MENSUAL ---
-  window.descargarReporteMensual = async () => {
-      const mesInput = document.getElementById('mesReporte').value;
-      if(!mesInput) return alert("Seleccione un mes.");
-      const [year, month] = mesInput.split('-');
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const q = query(collection(db, "controlAsistencia"), where("fecha", ">=", `${mesInput}-01`), where("fecha", "<=", `${mesInput}-${daysInMonth}`));
-      const querySnapshot = await getDocs(q);
-      const asistenciaMes = {}; 
-      querySnapshot.forEach((doc) => {
-          const d = doc.data();
-          asistenciaMes[d.fecha] = (d.detalles || []).reduce((acc, det) => ({...acc, [det.doc]: det.estado}), {});
-      });
-
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('l', 'mm', 'a4');
-      pdf.setFontSize(14); pdf.setTextColor(27, 94, 32);
-      pdf.text(`Control de Asistencia Mensual - ${mesInput}`, 14, 15);
-      
-      const headRow = ['Estudiante'];
-      for(let i=1; i<=daysInMonth; i++) headRow.push(String(i));
-      headRow.push('Fallas', 'Excusas');
-
-      const bodyData = window.estudiantesBase.map(est => {
-          const row = [est.nombre];
-          let totalFallas = 0, totalExcusas = 0;
-          for(let i=1; i<=daysInMonth; i++) {
-              const f = `${mesInput}-${String(i).padStart(2,'0')}`;
-              const e = asistenciaMes[f] ? asistenciaMes[f][est.doc] : null;
-              if(e === 'I') { row.push('X'); totalFallas++; }
-              else if(e === 'E') { row.push('E'); totalExcusas++; }
-              else if(e === 'P') { row.push('•'); }
-              else row.push(' ');
-          }
-          row.push(String(totalFallas), String(totalExcusas));
-          return row;
-      });
-
-      pdf.autoTable({
-          startY: 20, head: [headRow], body: bodyData, theme: 'grid',
-          styles: { fontSize: 6, cellPadding: 1, halign: 'center' },
-          columnStyles: { 0: { halign: 'left', cellWidth: 40 } },
-          headStyles: { fillColor: [27, 94, 32] },
-          didParseCell: function(data) {
-              if (data.section === 'body' && data.column.index > 0) {
-                  if(data.cell.raw === 'X') data.cell.styles.textColor = [200, 0, 0];
-                  if(data.cell.raw === 'E') data.cell.styles.textColor = [200, 100, 0];
-              }
-          }
-      });
-      pdf.save(`Asistencia_Mensual_${mesInput}.pdf`);
-  };
-
-  // --- CANVAS MULTIPLE SETUP ---
+  // --- CANVAS SETUP ---
   const canvasIds = ['sigStudent', 'sigTeacher'];
   const pads = {};
-
   function initPad(id) {
       const canvas = document.getElementById(id);
       const ctx = canvas.getContext('2d');
       let isDrawing = false;
       pads[id] = { canvas, ctx };
-
       const getPos = (e) => {
           const rect = canvas.getBoundingClientRect();
           const t = e.touches ? e.touches[0] : e;
           return { x: t.clientX - rect.left, y: t.clientY - rect.top };
       };
-      
       const start = (e) => { e.preventDefault(); isDrawing = true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); };
       const move = (e) => { e.preventDefault(); if(!isDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
       const end = () => { isDrawing = false; };
-
       canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
       canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
   }
-
   function resizeAllCanvas() {
       canvasIds.forEach(id => {
-          const { canvas, ctx } = pads[id];
-          if(!canvas.offsetParent) return; // Si está oculto
+          const p = pads[id];
+          if(!p || !p.canvas.offsetParent) return;
           const ratio = Math.max(window.devicePixelRatio || 1, 1);
-          // Guardar contenido si existe
-          const temp = ctx.getImageData(0,0,canvas.width, canvas.height); 
-          // Ajustar tamaño
-          canvas.width = canvas.offsetWidth * ratio;
-          canvas.height = canvas.offsetHeight * ratio;
-          ctx.scale(ratio, ratio);
-          // No restauramos temp porque al cambiar ratio se distorsiona, mejor limpiar o redibujar si se tuviera historial
+          p.canvas.width = p.canvas.offsetWidth * ratio;
+          p.canvas.height = p.canvas.offsetHeight * ratio;
+          p.ctx.scale(ratio, ratio);
       });
   }
-
   window.addEventListener('resize', resizeAllCanvas);
-  
-  // Inicializar al cargar
   canvasIds.forEach(id => initPad(id));
   setTimeout(resizeAllCanvas, 500);
 
   window.limpiarFirma = (id) => {
-      const { canvas, ctx } = pads[id];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const p = pads[id];
+      p.ctx.clearRect(0, 0, p.canvas.width, p.canvas.height);
   };
-  
   function isCanvasBlank(canvas) {
       const context = canvas.getContext('2d');
       const pixelBuffer = new Uint32Array(context.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
@@ -585,7 +519,7 @@
     renderExcusas();
   });
 
-  // --- RENDER REGISTROS ---
+  // --- RENDER REGISTROS (OBSERVACIONES) ---
   window.renderRegistros = () => {
     const container = document.getElementById('listaRegistros');
     const search = document.getElementById('buscador').value.toLowerCase();
@@ -609,32 +543,24 @@
         g.docs.sort((a,b) => (a.fecha||'') < (b.fecha||'') ? 1 : -1);
         html += `<div class="student-block">
             <div class="student-info-bar">
-                <div><div class="st-name">${g.nombre || 'Sin Nombre'}</div><div class="st-doc">Doc: ${key} · Registros: ${g.docs.length}</div></div>
+                <div><div class="st-name">${g.nombre}</div><div class="st-doc">Doc: ${key} · Regs: ${g.docs.length}</div></div>
                 <button class="btn-blue" onclick="descargarPDF('${key}')">Descargar PDF</button>
             </div>
             <div class="table-container"><table>
-                <thead><tr><th style="width:90px;">Fecha</th><th>Detalle</th><th>Estado Firmas</th><th style="width:90px;">Acción</th></tr></thead>
+                <thead><tr><th style="width:90px;">Fecha</th><th>Detalle</th><th>Firmas</th><th style="width:80px;">Acción</th></tr></thead>
                 <tbody>`;
         g.docs.forEach(r => {
             const tipo = r.tipoRegistro || 'Comportamental';
             const claseTipo = tipo === 'Académico' ? 'tag-acad' : 'tag-comp';
-            
-            // Lógica de estado de firmas
-            let statusFirma = [];
-            if(r.firmaEstudiante) statusFirma.push('<span style="color:green; font-size:10px;">Est:OK</span>');
-            else statusFirma.push('<span style="color:red; font-size:10px;">Est:--</span>');
-            
-            // Compatibilidad: Si tiene r.firma pero no firmaDocente, asumimos que r.firma es Docente (legado)
-            if(r.firmaDocente || r.firma) statusFirma.push('<span style="color:green; font-size:10px;">Doc:OK</span>');
-            else statusFirma.push('<span style="color:red; font-size:10px;">Doc:--</span>');
-
-            if(r.firmaAcudiente) statusFirma.push('<span style="color:green; font-size:10px;">Acu:OK</span>');
-            else statusFirma.push('<span style="color:#d84315; font-size:10px; font-weight:bold;">Acu:PEN</span>');
+            let stat = [];
+            stat.push(r.firmaEstudiante ? '<span style="color:green; font-size:10px;">Est:OK</span>' : '<span style="color:red; font-size:10px;">Est:--</span>');
+            stat.push((r.firmaDocente || r.firma) ? '<span style="color:green; font-size:10px;">Doc:OK</span>' : '<span style="color:red; font-size:10px;">Doc:--</span>');
+            stat.push(r.firmaAcudiente ? '<span style="color:green; font-size:10px;">Acu:OK</span>' : '<span style="color:#d84315; font-size:10px; font-weight:bold;">Acu:PEN</span>');
 
             html += `<tr>
                     <td><div style="font-size:12px;">${r.fecha}</div><span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span></td>
                     <td><div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div><div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div></td>
-                    <td><div style="display:flex; flex-direction:column;">${statusFirma.join('')}</div></td>
+                    <td><div style="display:flex; flex-direction:column;">${stat.join('')}</div></td>
                     <td><div style="display:flex; gap:5px;">
                         <button class="bg-gray btn-icon btn-edit" onclick="editar('${r.id}')">✏️</button>
                         <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${r.id}', 'registrosComportamentales')">🗑️</button>
@@ -646,9 +572,49 @@
     container.innerHTML = html;
   };
 
-  window.renderExcusas = () => { /* ...Código de excusas similar al anterior... */ };
+  // --- RENDER EXCUSAS (ASISTENCIA) - CORREGIDO ---
+  window.renderExcusas = () => {
+    const container = document.getElementById('listaExcusas');
+    const search = document.getElementById('buscadorExcusas').value.toLowerCase();
+    
+    // Filtrar por nombre de estudiante (buscando en la base local por el documento de la excusa)
+    const filtered = allExcusas.filter(exc => {
+        const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
+        const nombre = estMatch ? estMatch.nombre.toLowerCase() : exc.documentoEstudiante.toLowerCase();
+        return nombre.includes(search);
+    });
 
-  // --- GUARDAR ---
+    if(filtered.length === 0) {
+        container.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No se encontraron excusas.</div>';
+        return;
+    }
+
+    filtered.sort((a,b) => (a.fechaInasistencia||'') < (b.fechaInasistencia||'') ? 1 : -1);
+
+    let html = `<div class="table-container"><table>
+        <thead><tr><th style="width:100px;">Fecha Inasist.</th><th>Estudiante</th><th>Motivo / Detalle</th><th>Firma Acu.</th><th style="width:50px;">🗑️</th></tr></thead>
+        <tbody>`;
+
+    filtered.forEach(exc => {
+        const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
+        const nombreEst = estMatch ? estMatch.nombre : "Doc: " + exc.documentoEstudiante;
+        const firmaImg = exc.firmaAcudiente 
+            ? `<img src="${exc.firmaAcudiente}" class="sig-preview" style="max-height:40px; cursor:zoom-in;" onclick="window.open('${exc.firmaAcudiente}')">` 
+            : '<span style="color:red; font-size:10px;">Sin firma</span>';
+
+        html += `<tr>
+            <td style="font-weight:bold;">${exc.fechaInasistencia}</td>
+            <td><div style="font-size:13px; font-weight:700;">${nombreEst}</div></td>
+            <td style="font-size:12px; color:#555;">${exc.motivoDetalle}</td>
+            <td style="text-align:center;">${firmaImg}</td>
+            <td><button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${exc.id}', 'excusasInasistencia')">🗑️</button></td>
+          </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+  };
+
+  // --- ACCIONES FORMULARIO ---
   const form = document.getElementById('formRegistro');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -657,17 +623,10 @@
     const docSeleccionado = document.getElementById("idEstudianteSeleccionado").value;
     const nombreInput = document.getElementById("inputBusquedaEstudiante").value;
 
-    if(!nombreInput) { alert("⚠️ Seleccione un estudiante."); return; }
-    if(!docSeleccionado) { 
-        const match = window.estudiantesBase.find(est => est.nombre === nombreInput);
-        if(!match) { alert("⚠️ Seleccione un estudiante de la lista."); return; }
-    }
-    
-    // Validar que al menos el docente firme
-    if(!id && isCanvasBlank(pads['sigTeacher'].canvas)) { alert("El docente debe firmar."); return; }
+    if(!nombreInput) return alert("Seleccione estudiante.");
+    if(!id && isCanvasBlank(pads['sigTeacher'].canvas)) return alert("El docente debe firmar.");
 
     btn.disabled = true; btn.innerText = "Guardando...";
-    
     const data = {
         tipoRegistro: document.getElementById('tipoRegistro').value,
         fecha: document.getElementById('fecha').value,
@@ -677,31 +636,25 @@
         descargos: document.getElementById('descargos').value,
         procedimiento: document.getElementById('procedimiento').value
     };
-    
-    // Guardar firmas individualmente
     if(!isCanvasBlank(pads['sigStudent'].canvas)) data.firmaEstudiante = pads['sigStudent'].canvas.toDataURL();
     if(!isCanvasBlank(pads['sigTeacher'].canvas)) data.firmaDocente = pads['sigTeacher'].canvas.toDataURL();
 
     try {
         if(id) {
             await updateDoc(doc(db, "registrosComportamentales", id), data);
-            alert("Registro actualizado.");
-            cancelarEdicion();
+            alert("Actualizado."); cancelarEdicion();
         } else {
             await addDoc(collection(db, "registrosComportamentales"), { ...data, timestamp: new Date().toISOString() });
-            alert("Guardado con éxito.");
-            form.reset();
+            alert("Guardado."); form.reset();
+            window.limpiarFirma('sigStudent'); window.limpiarFirma('sigTeacher');
             document.getElementById("inputBusquedaEstudiante").value = "";
-            document.getElementById("idEstudianteSeleccionado").value = "";
-            window.limpiarFirma('sigStudent');
-            window.limpiarFirma('sigTeacher');
         }
     } catch(err) { alert("Error: " + err.message); }
     btn.disabled = false; btn.innerText = "Guardar registro";
   });
 
-  window.eliminarDocumento = async (id, coleccion) => {
-      if(confirm("⚠️ ¿Eliminar registro?")) { try { await deleteDoc(doc(db, coleccion, id)); } catch(e) { alert("Error: " + e.message); } }
+  window.eliminarDocumento = async (id, col) => {
+      if(confirm("¿Eliminar?")) { try { await deleteDoc(doc(db, col, id)); } catch(e){ alert(e.message); } }
   };
 
   window.editar = (id) => {
@@ -715,128 +668,75 @@
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos;
     document.getElementById('procedimiento').value = r.procedimiento;
-    
-    // Nota: Las firmas no se pueden "editar" pintándolas de nuevo en el canvas desde base64 fácilmente,
-    // así que se dejan los canvas limpios para nuevas firmas si se desea actualizar.
-    
-    document.getElementById('btnGuardar').innerText = "Actualizar (Firmar de nuevo si es necesario)";
+    document.getElementById('btnGuardar').innerText = "Actualizar (Firmar de nuevo)";
     document.getElementById('divCancel').style.display = 'block';
     window.scrollTo({top:0, behavior:'smooth'});
   };
 
   window.cancelarEdicion = () => {
-    form.reset();
-    document.getElementById("inputBusquedaEstudiante").value = "";
-    document.getElementById("idEstudianteSeleccionado").value = "";
-    document.getElementById('editId').value = '';
+    form.reset(); document.getElementById('editId').value = '';
     document.getElementById('btnGuardar').innerText = "Guardar registro";
     document.getElementById('divCancel').style.display = 'none';
-    window.limpiarFirma('sigStudent');
-    window.limpiarFirma('sigTeacher');
+    window.limpiarFirma('sigStudent'); window.limpiarFirma('sigTeacher');
   };
 
-  // --- PDF CON 3 COLUMNAS DE FIRMA ---
+  // --- GENERACIÓN PDF (3 COLUMNAS) ---
   window.descargarPDF = (docId) => {
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('l', 'mm', 'a4'); // Horizontal (landscape) para que quepan las 3 firmas
+    const pdf = new jsPDF('l', 'mm', 'a4');
     const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
     if(!recs.length) return;
 
-    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 297, 30, 'F');
-    pdf.setTextColor(255, 255, 255); pdf.setFontSize(16);
-    pdf.text("Institución Educativa de María - Sede Santa Juana", 14, 12);
-    pdf.setFontSize(10); pdf.text("Reporte Disciplinario Detallado", 14, 20);
-    
-    pdf.setTextColor(0,0,0); 
-    pdf.text(`Estudiante: ${recs[0].nombreEstudiante}`, 14, 40);
-    pdf.text(`Documento: ${docId}`, 14, 46);
-    
-    // Cuerpo con 3 columnas de firma vacías (se llenan con imagen)
-    const body = recs.map(r => [
-        r.fecha,
-        r.tipoRegistro ? r.tipoRegistro.substring(0,4) : "Comp",
-        r.comportamiento,
-        r.procedimiento,
-        "", // Estudiante
-        "", // Docente
-        ""  // Acudiente
-    ]);
+    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 297, 25, 'F');
+    pdf.setTextColor(255, 255, 255); pdf.setFontSize(14);
+    pdf.text("Institución Educativa de María - Reporte Disciplinario", 14, 15);
+    pdf.setTextColor(0,0,0); pdf.setFontSize(10);
+    pdf.text(`Estudiante: ${recs[0].nombreEstudiante}  |  Doc: ${docId}`, 14, 35);
+
+    const body = recs.map(r => [r.fecha, r.tipoRegistro, r.comportamiento, r.procedimiento, "", "", ""]);
 
     pdf.autoTable({
-        startY: 55,
-        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'F. Estudiante', 'F. Docente', 'F. Acudiente']],
+        startY: 40,
+        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'F.Estudiante', 'F.Docente', 'F.Acudiente']],
         body: body,
         headStyles: { fillColor: [27, 94, 32] },
-        bodyStyles: { minCellHeight: 20 }, // Más altura para las firmas
-        columnStyles: {
-            0: { cellWidth: 25 },
-            1: { cellWidth: 15 },
-            2: { cellWidth: 60 },
-            3: { cellWidth: 60 },
-            4: { cellWidth: 35 },
-            5: { cellWidth: 35 },
-            6: { cellWidth: 35 }
-        },
+        bodyStyles: { minCellHeight: 18 },
+        columnStyles: { 2: { cellWidth: 55 }, 3: { cellWidth: 55 }, 4: { cellWidth: 32 }, 5: { cellWidth: 32 }, 6: { cellWidth: 32 } },
         didDrawCell: function(data) {
             if (data.section === 'body') {
                 const r = recs[data.row.index];
-                
-                // Columna 4 (index 4): Firma Estudiante
-                if(data.column.index === 4 && r.firmaEstudiante) {
-                    try { pdf.addImage(r.firmaEstudiante, 'PNG', data.cell.x + 2, data.cell.y + 2, 30, 15); } catch(e){}
-                }
-                
-                // Columna 5 (index 5): Firma Docente
-                // Soporte retroactivo: r.firmaDocente O r.firma (viejo)
-                const fDoc = r.firmaDocente || r.firma; 
-                if(data.column.index === 5 && fDoc) {
-                    try { pdf.addImage(fDoc, 'PNG', data.cell.x + 2, data.cell.y + 2, 30, 15); } catch(e){}
-                }
-
-                // Columna 6 (index 6): Firma Acudiente
-                if(data.column.index === 6 && r.firmaAcudiente) {
-                    try { pdf.addImage(r.firmaAcudiente, 'PNG', data.cell.x + 2, data.cell.y + 2, 30, 15); } catch(e){}
-                }
+                if(data.column.index === 4 && r.firmaEstudiante) pdf.addImage(r.firmaEstudiante, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
+                const fDoc = r.firmaDocente || r.firma;
+                if(data.column.index === 5 && fDoc) pdf.addImage(fDoc, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
+                if(data.column.index === 6 && r.firmaAcudiente) pdf.addImage(r.firmaAcudiente, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
             }
         }
     });
-
-    pdf.save(`Reporte_Completo_${recs[0].nombreEstudiante}.pdf`);
+    pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
   };
 
-  // PDF Excusas (Mantenemos simple)
   window.descargarExcusasPDF = () => {
-      // ... código similar al anterior para excusas ...
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
-      pdf.setFillColor(2, 136, 209); pdf.rect(0, 0, 210, 30, 'F');
-      pdf.setTextColor(255, 255, 255); pdf.text("Control de Ausentismo", 14, 18);
-      
-      const body = allExcusas.map(e => {
-          // Búsqueda de nombre
-          const match = window.estudiantesBase.find(est => est.doc === e.documentoEstudiante);
-          const nom = match ? match.nombre : e.documentoEstudiante;
-          return [e.fechaInasistencia, nom, e.motivoDetalle, ""];
+      pdf.text("Historial de Excusas Recibidas", 14, 15);
+      const body = allExcusas.map(exc => {
+          const est = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
+          return [exc.fechaInasistencia, est ? est.nombre : exc.documentoEstudiante, exc.motivoDetalle, ""];
       });
-
       pdf.autoTable({
-          startY: 40,
-          head: [['Fecha', 'Estudiante', 'Detalle', 'Firma Acudiente']],
+          startY: 20,
+          head: [['Fecha Inasist.', 'Estudiante', 'Motivo', 'Firma']],
           body: body,
           bodyStyles: { minCellHeight: 15 },
-          didDrawCell: function(data) {
-              if (data.section === 'body' && data.column.index === 3) {
+          didDrawCell: (data) => {
+              if(data.section === 'body' && data.column.index === 3) {
                   const exc = allExcusas[data.row.index];
-                  if(exc.firmaAcudiente) {
-                      try { pdf.addImage(exc.firmaAcudiente, 'PNG', data.cell.x+2, data.cell.y+2, 25, 10); } catch(e){}
-                  }
+                  if(exc.firmaAcudiente) pdf.addImage(exc.firmaAcudiente, 'PNG', data.cell.x+2, data.cell.y+2, 25, 10);
               }
           }
       });
-      pdf.save("Reporte_Excusas.pdf");
+      pdf.save("Historial_Excusas.pdf");
   };
 </script>
 </body>
 </html>
-
-
