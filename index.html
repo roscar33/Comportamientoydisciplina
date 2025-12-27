@@ -572,7 +572,7 @@
     container.innerHTML = html;
   };
 
-  // --- RENDER EXCUSAS (ASISTENCIA) - CORREGIDO ---
+  // --- RENDER EXCUSAS (ASISTENCIA) - FIX: incluye tipo de motivo sin cambiar etiquetas ---
   window.renderExcusas = () => {
     const container = document.getElementById('listaExcusas');
     const search = document.getElementById('buscadorExcusas').value.toLowerCase();
@@ -580,7 +580,7 @@
     // Filtrar por nombre de estudiante (buscando en la base local por el documento de la excusa)
     const filtered = allExcusas.filter(exc => {
         const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
-        const nombre = estMatch ? estMatch.nombre.toLowerCase() : exc.documentoEstudiante.toLowerCase();
+        const nombre = estMatch ? estMatch.nombre.toLowerCase() : String(exc.documentoEstudiante || '').toLowerCase();
         return nombre.includes(search);
     });
 
@@ -597,15 +597,23 @@
 
     filtered.forEach(exc => {
         const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
-        const nombreEst = estMatch ? estMatch.nombre : "Doc: " + exc.documentoEstudiante;
+        const nombreEst = estMatch ? estMatch.nombre : "Doc: " + (exc.documentoEstudiante || '');
+
+        // ✅ Detecta el tipo aunque el campo se llame diferente en el otro módulo
+        const tipo = (exc.tipoMotivo || exc.motivoTipo || exc.tipoInasistencia || exc.motivo || '').toString().trim();
+        const detalle = (exc.motivoDetalle || '').toString().trim();
+
+        // ✅ SIN cambiar etiquetas: solo agregamos el tipo en el texto del registro
+        const motivoTexto = (tipo ? `<strong>${tipo}</strong>${detalle ? ' — ' : ''}` : '') + (detalle || '');
+
         const firmaImg = exc.firmaAcudiente 
             ? `<img src="${exc.firmaAcudiente}" class="sig-preview" style="max-height:40px; cursor:zoom-in;" onclick="window.open('${exc.firmaAcudiente}')">` 
             : '<span style="color:red; font-size:10px;">Sin firma</span>';
 
         html += `<tr>
-            <td style="font-weight:bold;">${exc.fechaInasistencia}</td>
+            <td style="font-weight:bold;">${exc.fechaInasistencia || ''}</td>
             <td><div style="font-size:13px; font-weight:700;">${nombreEst}</div></td>
-            <td style="font-size:12px; color:#555;">${exc.motivoDetalle}</td>
+            <td style="font-size:12px; color:#555;">${motivoTexto || '<span style="color:#999;">(Sin motivo)</span>'}</td>
             <td style="text-align:center;">${firmaImg}</td>
             <td><button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${exc.id}', 'excusasInasistencia')">🗑️</button></td>
           </tr>`;
@@ -715,14 +723,22 @@
     pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
   };
 
+  // --- PDF EXCUSAS - FIX: incluye tipo sin cambiar etiquetas ---
   window.descargarExcusasPDF = () => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
       pdf.text("Historial de Excusas Recibidas", 14, 15);
+
       const body = allExcusas.map(exc => {
           const est = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
-          return [exc.fechaInasistencia, est ? est.nombre : exc.documentoEstudiante, exc.motivoDetalle, ""];
+
+          const tipo = (exc.tipoMotivo || exc.motivoTipo || exc.tipoInasistencia || exc.motivo || '').toString().trim();
+          const detalle = (exc.motivoDetalle || '').toString().trim();
+          const motivoPDF = (tipo ? `${tipo}${detalle ? ' — ' : ''}` : '') + (detalle || '');
+
+          return [exc.fechaInasistencia || '', est ? est.nombre : (exc.documentoEstudiante || ''), motivoPDF, ""];
       });
+
       pdf.autoTable({
           startY: 20,
           head: [['Fecha Inasist.', 'Estudiante', 'Motivo', 'Firma']],
@@ -731,7 +747,7 @@
           didDrawCell: (data) => {
               if(data.section === 'body' && data.column.index === 3) {
                   const exc = allExcusas[data.row.index];
-                  if(exc.firmaAcudiente) pdf.addImage(exc.firmaAcudiente, 'PNG', data.cell.x+2, data.cell.y+2, 25, 10);
+                  if(exc && exc.firmaAcudiente) pdf.addImage(exc.firmaAcudiente, 'PNG', data.cell.x+2, data.cell.y+2, 25, 10);
               }
           }
       });
