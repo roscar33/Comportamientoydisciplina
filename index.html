@@ -1,758 +1,524 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Seguimiento Disciplinario - Docente</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+<title>Seguimiento de Procesos Escolares · Primaria 2026</title>
+<meta name="theme-color" content="#1b5e20" />
 
-  <!-- Librerías para PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<!-- Optimización para APK -->
+<meta name="mobile-web-app-capable" content="yes">
 
-  <style>
-    :root {
-      --primary: #1b5e20;       
-      --primary-light: #2e7d32; 
-      --accent: #0288d1;        
-      --tools-color: #f57c00;
-      --bg-body: #c8e6c9;       
-      --text-main: #0f172a;
-      --text-muted: #555;
-      --card-bg: #ffffff;
-      --border: #dcdcdc;
-      --radius-xl: 24px;
-      --radius-md: 12px;
-      --shadow: 0 4px 15px rgba(27, 94, 32, 0.08);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg-body);
-      min-height: 100vh;
-      padding: 16px;
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-    }
-
-    .app-shell { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
-
-    /* ENCABEZADO */
-    .top-bar {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 20px;
-      background: #ffffff; border-radius: 50px; box-shadow: var(--shadow); border: 1px solid #c8e6c9;
-    }
-    .brand-group { display: flex; align-items: center; gap: 12px; flex: 1; }
-    .brand-logo { width: 55px; height: 55px; flex-shrink: 0; }
-    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
-    .brand-text { display: flex; flex-direction: column; justify-content: center; }
-    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); line-height: 1.1; }
-    .brand-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    /* CONEXIÓN */
-    .conn-indicator { width: 14px; height: 14px; border-radius: 50%; display: block; border: 2px solid #fff; box-shadow: 0 0 0 1px #e0e0e0; transition: background-color 0.3s; }
-    .conn-online { background-color: #22c55e; box-shadow: 0 0 0 1px #22c55e; }
-    .conn-offline { background-color: #ef4444; box-shadow: 0 0 0 1px #ef4444; }
-
-    /* TABS */
-    .nav-tabs { display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px; gap: 5px; flex-wrap: wrap; }
-    .nav-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px; font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
-    .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(27, 94, 32, 0.3); }
-    .nav-btn.active-tools { background: var(--tools-color); color: white; box-shadow: 0 2px 8px rgba(245, 124, 0, 0.3); }
-
-    /* TARJETAS */
-    .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px; }
-    .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
-    .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
-    /* FORMULARIO */
-    .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-    @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-    @media (min-width: 900px) { .form-grid.top-row { grid-template-columns: 1fr 1fr 2fr; } }
-    .form-group { margin-bottom: 12px; position: relative; }
-    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
-    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; transition: all 0.2s; }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1); }
-    textarea { min-height: 100px; resize: vertical; }
-
-    /* BUSCADOR */
-    .search-wrapper { position: relative; }
-    .search-wrapper input { padding-left: 35px; }
-    .search-icon { position: absolute; left: 10px; top: 12px; font-size: 16px; opacity: 0.6; cursor: pointer; z-index: 5; }
-    .custom-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--primary); border-top: none; border-radius: 0 0 12px 12px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.15); display: none; }
-    .custom-dropdown.show { display: block; }
-    .dropdown-item { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
-    .dropdown-item:last-child { border-bottom: none; }
-    .dropdown-item:hover { background-color: #e8f5e9; }
-    .item-nombre { font-weight: 700; color: #333; display: block; }
-    .item-doc { font-size: 11px; color: #666; }
-
-    /* BOTONES */
-    .btn-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-    button { border: none; padding: 12px 20px; border-radius: 30px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
-    button:active { transform: scale(0.98); }
-    .btn-save { background: var(--primary); color: white; flex: 2; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.3); }
-    .btn-clear { background: #d32f2f; color: white; font-size: 11px; padding: 5px 10px; box-shadow: none; width: auto; }
-    .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; box-shadow: 0 4px 10px rgba(69, 90, 100, 0.3); }
-    .btn-blue { background: #0288d1; color: white; font-size: 12px; padding: 8px 16px; }
-    .btn-tools { background: var(--tools-color); color: white; font-size: 16px; padding: 18px; box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .btn-tools:hover { background: #ef6c00; transform: translateY(-2px); }
-    .btn-icon { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
-    .btn-del { background: #ffebee; color: #c62828; }
-    .btn-edit { background: #f1f8e9; color: #33691e; }
-    .bg-gray { background: #eee; color: #333; }
-
-    /* SECCIONES OCULTAS */
-    .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; animation: slideDown 0.3s ease-out; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* TABLAS */
-    .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid #ddd; margin-top: 15px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
-    th { background: var(--primary); color: white; text-align: left; padding: 12px; font-weight: 600; white-space: nowrap; }
-    td { padding: 12px; border-bottom: 1px solid #eee; color: #333; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    .sig-preview { max-width: 80px; height: auto; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
-    .tag-type { padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-left:5px; }
-    .tag-acad { background:#e3f2fd; color:#0288d1; }
-    .tag-comp { background:#e8f5e9; color:#2e7d32; }
-
-    /* CANVAS FIRMA */
-    canvas.signature-pad { width: 100%; height: 120px; background: #fff; border: 2px dashed #b0bec5; border-radius: var(--radius-md); cursor: crosshair; touch-action: none; display: block; }
-    .sig-container { background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 10px; }
-    .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .sig-label { font-size: 12px; font-weight: 700; color: #555; }
-
-    /* ASISTENCIA */
-    .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-    .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
-    .att-name { font-weight: 600; font-size: 14px; color: #334155; }
-    .att-options { display: flex; gap: 5px; }
-    .att-btn { border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; }
-    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
-    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-
-    /* ESTUDIANTE BLOQUE HISTORIAL */
-    .student-block { border: 1px solid #e0e0e0; border-radius: var(--radius-md); margin-bottom: 15px; overflow: hidden; }
-    .student-info-bar { background: #f5f5f5; padding: 10px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
-    
-    @media(max-width: 600px) {
-      .top-bar { padding: 10px; }
-      .brand-group { gap: 10px; }
-      .brand-logo { width: 45px; height: 45px; }
-      .brand-title { font-size: 14px; }
-      .brand-subtitle { font-size: 10px; }
-      .nav-tabs { flex-direction: column; gap: 5px; }
-      .form-grid.top-row { grid-template-columns: 1fr; }
-      canvas.signature-pad { height: 100px; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="app-shell">
+<style>
+  /* Base y Reset */
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: system-ui, Arial, sans-serif; background: #dff5e1; padding-bottom: 95px; user-select: none; }
   
-  <header class="top-bar">
-    <div class="brand-group">
-        <div class="brand-logo">
-          <img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';">
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">Institución Educativa de María</div>
-          <div class="brand-subtitle">Sede Rural Santa Juana (Primaria) · 2026</div>
-          <div class="brand-subtitle" style="font-weight:600;">Seguimiento comportamental y disciplinario</div>
-        </div>
-    </div>
-    <div id="connStatus" class="conn-indicator conn-offline" title="Desconectado"></div>
-  </header>
+  /* ENCABEZADO */
+  .header { background: #1b5e20; color: #fff; text-align: center; padding: 20px 16px 35px; border-radius: 0 0 30px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .header img { width: 90px; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); display: inline-block; }
+  .header h2 { margin: 5px 0; font-size: 22px; letter-spacing: -0.5px; }
+  .header h4 { margin: 5px 0; font-weight: 500; opacity: 0.9; font-size: 14px; }
+  .header strong { display: block; margin-top: 8px; font-size: 15px; color: #a5d6a7; }
+  .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
 
-  <nav class="nav-tabs">
-    <button id="btnTabObs" class="nav-btn active" onclick="switchTab('obs')">Observaciones</button>
-    <button id="btnTabAsis" class="nav-btn" onclick="switchTab('asis')">Asistencia</button>
-    <button id="btnTabHerramientas" class="nav-btn" onclick="switchTab('herramientas')">Herramientas</button>
-  </nav>
+  /* MENÚ FLOTANTE */
+  .menu { display: flex; justify-content: space-around; gap: 10px; background: #2e7d32; padding: 8px; margin: -25px auto 20px; width: 92%; border-radius: 999px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); position: relative; z-index: 10; }
+  .menu button { flex: 1; border: none; padding: 12px 14px; border-radius: 999px; font-weight: 800; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.2s; font-size: 14px; }
+  .menu button.active { background: #fff; color: #1b5e20; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-  <!-- VISTA 1: OBSERVACIONES -->
-  <div id="view-obs">
-      <section class="card">
-        <h2 class="card-title">📝 Nuevo Registro</h2>
-        <p class="card-desc">Observaciones comportamentales y académicas.</p>
+  /* CONTENEDOR PRINCIPAL */
+  .container { background: #fff; width: 92%; margin: 10px auto; padding: 20px 16px; border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+  
+  /* FORMULARIOS */
+  .input-label { font-weight: 700; color: #1b5e20; font-size: 13px; margin-left: 4px; margin-bottom: 4px; display: block; }
+  input, textarea, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #ddd; font-size: 16px; background: #f9f9f9; transition: border 0.3s; appearance: none; -webkit-appearance: none; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #1b5e20; background: #fff; }
+  textarea { min-height: 110px; resize: none; }
 
-        <form id="formRegistro">
-          <input type="hidden" id="editId">
+  /* RECORDAR DOCUMENTO */
+  .remember-box { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 14px; color: #555; }
+  .remember-box input { width: auto; margin: 0; }
 
-          <div class="form-grid top-row">
-            <div class="form-group">
-                <label style="color:#d84315;">Tipo de registro</label>
-                <select id="tipoRegistro" style="font-weight:bold; color:#d84315;">
-                    <option value="Comportamental">Comportamental</option>
-                    <option value="Académico">Académico</option>
-                </select>
-            </div>
-            <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" id="fecha" required>
-            </div>
-            <div class="form-group">
-              <label>Seleccionar Estudiante</label>
-              <div class="search-wrapper">
-                  <span class="search-icon" onclick="document.getElementById('inputBusquedaEstudiante').focus()">🔍</span>
-                  <input type="text" id="inputBusquedaEstudiante" placeholder="Escriba o busque..." autocomplete="off" required>
-                  <input type="hidden" id="idEstudianteSeleccionado">
-                  <div id="dropdownEstudiantes" class="custom-dropdown"></div>
-              </div>
-            </div>
-          </div>
+  /* BOTONES */
+  .btn { width: 100%; padding: 15px; background: #1b5e20; color: #fff; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 0 #145018; margin-top: 5px; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #145018; }
+  .btn.sec { background: #546e7a; box-shadow: 0 4px 0 #37474f; }
+  .btn.blue { background: #0277bd; box-shadow: 0 4px 0 #01579b; }
 
-          <div class="form-group">
-            <label>Descripción del comportamiento / Novedad</label>
-            <textarea id="comportamiento" placeholder="Explique la situación presentada..."></textarea>
-          </div>
+  /* TARJETAS OBSERVACIONES */
+  .card { margin-top: 15px; border-radius: 16px; overflow: hidden; border: 1px solid #eee; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+  .card .top { padding: 10px 12px; font-weight: 900; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .badge { padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+  .card .body { padding: 15px; color: #333; font-size: 14px; line-height: 1.5; }
+  .row { margin-top: 10px; }
+  .row b { display: block; margin-bottom: 3px; color: #1b5e20; font-size: 12px; text-transform: uppercase; }
 
-          <div class="form-grid">
-            <div class="form-group">
-                <label>Descargos (versión del estudiante)</label>
-                <textarea id="descargos" placeholder="Lo que manifiesta el estudiante..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Procedimiento / acciones a seguir</label>
-                <textarea id="procedimiento" placeholder="Compromisos o sanciones..."></textarea>
-            </div>
-          </div>
+  /* CUADROS ESTADÍSTICOS ASISTENCIA */
+  .att-summary { display: flex; gap: 10px; margin-bottom: 15px; }
+  .att-box { flex: 1; text-align: center; padding: 10px 5px; border-radius: 12px; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+  .att-red { background: #ef4444; }
+  .att-orange { background: #f97316; }
+  .att-green { background: #22c55e; }
+  .att-num { font-size: 22px; font-weight: 900; display: block; }
+  .att-lbl { font-size: 10px; text-transform: uppercase; font-weight: 700; opacity: 0.9; }
 
-          <!-- SECCIÓN DE FIRMAS ACTUALIZADA: 2 CANVAS -->
-          <div class="form-grid">
-             <div class="sig-container">
-                <div class="sig-header">
-                    <span class="sig-label">Firma Estudiante</span>
-                    <button type="button" class="btn-clear" onclick="limpiarFirma('sigStudent')">Borrar</button>
-                </div>
-                <canvas id="sigStudent" class="signature-pad"></canvas>
-             </div>
-             <div class="sig-container">
-                <div class="sig-header">
-                    <span class="sig-label">Firma Docente</span>
-                    <button type="button" class="btn-clear" onclick="limpiarFirma('sigTeacher')">Borrar</button>
-                </div>
-                <canvas id="sigTeacher" class="signature-pad"></canvas>
-             </div>
-          </div>
+  /* FIRMA */
+  .sig-wrap { margin-top: 15px; padding: 10px; border-radius: 14px; background: #f1f5f9; border: 2px dashed #b0bec5; }
+  canvas { width: 100%; height: 180px; border-radius: 8px; background: #fff; touch-action: none; display: block; }
+  .sig-actions { display: flex; gap: 10px; margin-top: 10px; }
+  .sig-actions button { flex: 1; padding: 10px; font-size: 13px; margin-top: 0; box-shadow: none !important; }
 
-          <div class="btn-row">
-            <button type="submit" class="btn-save" id="btnGuardar">Guardar registro</button>
-          </div>
-          <div style="margin-top:10px; display:none;" id="divCancel">
-             <button type="button" class="bg-gray btn-icon" style="width:100%" onclick="cancelarEdicion()">Cancelar Edición</button>
-          </div>
+  /* ESTILO PARA NUEVO ITEM */
+  .new-item { border: 2px solid #d32f2f; animation: pulse 2s infinite; }
+  .new-tag { background: #d32f2f; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 5px; vertical-align: middle; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
 
-          <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 Ver Historial de Registros</button>
-        </form>
+  /* MODAL SOPORTE */
+  #modalSoporte { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: none; overflow-y: auto; }
+  .modal-header { background: #263238; color: #fff; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 10; }
+  .modal-header .close { position: absolute; left: 15px; top: 18px; font-size: 24px; background: none; border: none; color: #fff; }
+  .modal-body { padding: 20px; max-width: 500px; margin: 0 auto; }
 
-        <div id="historialObs" class="hidden-section">
-            <h3 style="color:#1b5e20; border-bottom:1px solid #ddd; padding-bottom:5px;">Historial Completo</h3>
-            <div class="form-group">
-                <input type="text" id="buscador" placeholder="🔍 Buscar registro antiguo..." onkeyup="renderRegistros()">
-            </div>
-            <div id="listaRegistros">
-                <div style="text-align:center; padding:20px; color:#888;">Cargando datos...</div>
-            </div>
-        </div>
-      </section>
-  </div>
+  /* TEXTO BIENVENIDA SOPORTE */
+  .welcome-soporte { background: #e3f2fd; border-left: 5px solid #0288d1; padding: 20px; border-radius: 12px; margin-bottom: 20px; color: #01579b; line-height: 1.6; font-size: 15px; }
 
-  <!-- VISTA 2: ASISTENCIA -->
-  <div id="view-asis" style="display:none;">
-      <section class="card" style="border-left: 5px solid #0288d1;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 class="card-title" style="color:#0288d1; margin:0;">Asistencia Diaria</h2>
-            <input type="date" id="fechaAsistencia" style="padding:8px; border-radius:8px; border:1px solid #ccc;" onchange="cargarAsistenciaDelDia()">
-        </div>
-        <div id="attendanceList" class="attendance-grid">
-            <div style="text-align:center; color:#888;">Cargando lista...</div>
-        </div>
-        <div class="btn-row" style="margin-top:20px;">
-            <button class="btn-blue" onclick="guardarAsistencia()">💾 Guardar Asistencia</button>
-        </div>
-        <div style="margin:25px 0 15px; border-bottom:2px dashed #e0e0e0; color:#0288d1; font-weight:700; font-size:14px; text-transform:uppercase;">Reportes</div>
-        <div style="display:flex; gap:10px; align-items:center; background:#f1f9ff; padding:10px; border-radius:12px;">
-            <input type="month" id="mesReporte" style="flex:1;">
-            <button class="btn-icon bg-gray" onclick="descargarReporteMensual()">📊 Descargar Matriz</button>
-        </div>
-        <button type="button" class="btn-historial" style="background:#0288d1;" onclick="toggleHistorial('historialExc')">📩 Ver Historial de Excusas</button>
-        
-        <div id="historialExc" class="hidden-section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="color:#0288d1; margin:0;">Excusas Recibidas</h3>
-                <button class="btn-icon bg-gray" onclick="descargarExcusasPDF()">📄 PDF Completo</button>
-            </div>
-            <!-- BUSCADOR DE EXCUSAS AGREGADO -->
-            <div class="form-group">
-                <input type="text" id="buscadorExcusas" placeholder="🔍 Buscar excusa por nombre de estudiante..." onkeyup="renderExcusas()">
-            </div>
-            <div id="listaExcusas">
-                <div style="text-align:center; padding:20px; color:#888;">Cargando excusas...</div>
-            </div>
-        </div>
-      </section>
-  </div>
+  /* HISTORIAL DE MENSAJES */
+  .history-card { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid #455a64; }
+  .history-header { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
+  .history-body { font-size: 14px; color: #333; line-height: 1.4; }
+  .teacher-reply { background: #f3e5f5; border-left: 5px solid #6a1b9a; padding: 12px; border-radius: 8px; margin-top: 12px; color: #4a148c; font-size: 13px; }
 
-  <!-- VISTA 3: HERRAMIENTAS -->
-  <div id="view-herramientas" style="display:none;">
-    <section class="card" style="border-left: 5px solid var(--tools-color);">
-        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas Docentes</h2>
-        <p class="card-desc">Accesos directos a plataformas externas.</p>
-        <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
-            <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" style="text-decoration:none;">
-                <button class="btn-tools" style="width:100%;">📓 DIARIO DE PROCESOS</button>
-            </a>
-            <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" style="text-decoration:none;">
-                <button class="btn-tools" style="width:100%;">📊 PLANILLA DE NOTAS</button>
-            </a>
-            <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" style="text-decoration:none;">
-                <button class="btn-tools" style="width:100%;">📚 TEMARIOS</button>
-            </a>
-            <a href="https://roscar33.github.io/Horario/" target="_blank" style="text-decoration:none;">
-                <button class="btn-tools" style="width:100%;">🕒 HORARIO DE CLASES</button>
-            </a>
-        </div>
-    </section>
-  </div>
-</div>
+  /* OVERLAYS ÉXITO */
+  .success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; color: white; text-align: center; padding: 40px 20px; justify-content: center; align-items: center; flex-direction: column; }
+
+  #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+  #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 4.5s; }
+  @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+  @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+  .footer { margin: 30px 18px 10px; text-align: center; font-size: 13px; font-weight: 600; color: #145018; opacity: 0.8; padding-bottom: 20px; line-height: 1.4; }
+  .btn-support-trigger { display: block; width: auto; min-width: 240px; padding: 15px 25px; background: #455a64; color: #fff; font-weight: 800; border: none; border-radius: 50px; font-size: 14px; box-shadow: 0 4px 0 #263238; cursor: pointer; margin: 20px auto; }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
 <script>
-  // Datos base
-  const estudiantesBase = [
+  firebase.initializeApp({
+    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+    projectId: "diariodeprocesos-6f78d"
+  });
+  const db = firebase.firestore();
+</script>
+</head>
+
+<body>
+
+  <div class="header">
+    <img src="escudo.png" alt="Escudo I.E. De María" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE+De+Maria';">
+    <h2>Institución Educativa de María</h2>
+    <h4>Sede Rural Santa Juana · Primaria 2026</h4>
+    <strong>Docente: Oscar Barrientos</strong>
+    <p>Seguimiento de Procesos Escolares</p>
+  </div>
+
+  <div class="menu">
+    <button id="btnObs" class="active" onclick="verObs()">Observaciones</button>
+    <button id="btnExc" onclick="verExc()">Excusas / Asistencia</button>
+  </div>
+
+  <!-- SECCIÓN 1: OBSERVACIONES -->
+  <div id="obs" class="container">
+    <span class="input-label">DOCUMENTO DEL ESTUDIANTE</span>
+    <input id="docObs" type="number" placeholder="Digite documento..." inputmode="numeric">
+    
+    <div class="remember-box">
+        <input type="checkbox" id="chkRemObs">
+        <label for="chkRemObs">Recordar documento en este dispositivo</label>
+    </div>
+
+    <button id="btnBuscar" class="btn" onclick="buscarObservaciones()">VER OBSERVACIONES</button>
+    <div id="resultadoObs" style="margin-top:20px;"></div>
+  </div>
+
+  <!-- SECCIÓN 2: ASISTENCIA Y EXCUSAS -->
+  <div id="exc" class="container" style="display:none;">
+    <span class="input-label">DOCUMENTO DEL ESTUDIANTE</span>
+    <input id="docExc" type="number" placeholder="Digite documento..." inputmode="numeric">
+    
+    <div class="remember-box">
+        <input type="checkbox" id="chkRemExc">
+        <label for="chkRemExc">Recordar documento en este dispositivo</label>
+    </div>
+
+    <button id="btnInitExc" class="btn" onclick="activarFormularioExcusa()">CONTINUAR</button>
+    
+    <div id="contenedorFormExc" style="display:none; border-top:1px solid #eee; padding-top:20px; margin-top:20px;">
+        <div id="nombreExc" style="font-weight:bold; color:#1b5e20; margin-bottom:15px; text-align:center; background:#e8f5e9; padding:10px; border-radius:8px;"></div>
+        
+        <div class="att-summary">
+            <div class="att-box att-red"><span class="att-num" id="statFallas">0</span><span class="att-lbl">Fallas</span></div>
+            <div class="att-box att-orange"><span class="att-num" id="statExcusas">0</span><span class="att-lbl">Excusas</span></div>
+            <div class="att-box att-green"><span class="att-num" id="statEstado">OK</span><span class="att-lbl">Estado</span></div>
+        </div>
+
+        <h3 style="margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">Enviar Excusa</h3>
+        <span class="input-label">FECHA DE INASISTENCIA</span>
+        <input id="fechaExc" type="date">
+        <span class="input-label">MOTIVO</span>
+        <select id="motivoExc">
+            <option value="Enfermedad">Enfermedad</option>
+            <option value="Cita médica">Cita médica</option>
+            <option value="Calamidad">Calamidad</option>
+            <option value="Otro">Otro</option>
+        </select>
+        <span class="input-label">DETALLES</span>
+        <textarea id="detalleExc" placeholder="Describa el motivo detalladamente..."></textarea>
+        <span class="input-label">FIRMA DEL ACUDIENTE (OBLIGATORIA)</span>
+        <div class="sig-wrap"><canvas id="sigExc"></canvas><button class="btn sec" style="margin-top:10px" onclick="limpiarPad('sigExc')">Borrar Firma</button></div>
+        <button id="btnEnviarExc" class="btn" onclick="enviarExcusa()">ENVIAR EXCUSA</button>
+    </div>
+  </div>
+
+  <!-- PORTAL DE SOPORTE -->
+  <div id="modalSoporte">
+    <div class="modal-header"><button class="close" onclick="cerrarSoporte()">✕</button>Soporte y Comunicación</div>
+    <div class="modal-body">
+      <!-- PASO A: LOGIN -->
+      <div id="sop_step_auth">
+        <h3 style="text-align:center">Autenticación</h3>
+        <input id="docSoporte" type="number" placeholder="Documento del estudiante..." inputmode="numeric">
+        <button class="btn" onclick="autenticarSoporte()">INGRESAR</button>
+      </div>
+
+      <!-- PASO B: MENÚ SOPORTE -->
+      <div id="sop_step_menu" style="display:none">
+        <div id="sop_nombre_est" style="font-weight:800; color:#1b5e20; text-align:center; margin-bottom:20px;"></div>
+        <button class="btn blue" style="margin-bottom:12px" onclick="alert('Descargando Horario Escolar...')">📅 HORARIO ESCOLAR</button>
+        <button class="btn blue" style="margin-bottom:12px" onclick="alert('Lista de Útiles 2026...')">📚 ÚTILES ESCOLARES 2026</button>
+        <button class="btn" style="margin-bottom:12px" onclick="irAInfoComunicacion()">✉️ COMUNICARSE CON EL DOCENTE</button>
+        <button class="btn sec" style="background:#6a1b9a;" onclick="irAHistorialMensajes()">📬 VER RESPUESTAS DEL DOCENTE</button>
+      </div>
+
+      <!-- PASO C: PANTALLAZO DE ENTRADA (BIENVENIDA) -->
+      <div id="sop_step_info" style="display:none">
+        <div class="welcome-soporte">
+            <strong>Bienvenido, padre de familia.</strong><br><br>
+            Este espacio le permite comunicarse directamente con el docente.<br>
+            Aquí puede escribir inquietudes, dudas, sugerencias o informar cualquier novedad relacionada con la vida escolar de su hijo.<br><br>
+            Le invitamos a expresarse con respeto y claridad.
+        </div>
+        <button class="btn" onclick="irAFormularioMsg()">ENTENDIDO</button>
+      </div>
+
+      <!-- PASO D: FORMULARIO MENSAJE -->
+      <div id="sop_step_form" style="display:none">
+        <h3 style="border-bottom:2px solid #263238; padding-bottom:10px; margin-bottom:15px;">Nuevo Mensaje</h3>
+        
+        <span class="input-label">FECHA</span>
+        <input id="msg_fecha" type="date">
+        
+        <span class="input-label">ASUNTO</span>
+        <input id="msg_asunto" type="text" placeholder="Inquietud, duda, sugerencia...">
+        
+        <span class="input-label">CONTENIDO DEL MENSAJE</span>
+        <textarea id="msg_texto" placeholder="Escriba aquí su mensaje detallado..."></textarea>
+        
+        <span class="input-label">FIRMA (OBLIGATORIA)</span>
+        <div class="sig-wrap"><canvas id="sigSoporte"></canvas><button class="btn sec" style="margin-top:10px" onclick="limpiarPad('sigSoporte')">Borrar Firma</button></div>
+        <button class="btn" id="btnEnviarSop" onclick="enviarMensajeSoporte()">ENVIAR AL DOCENTE</button>
+      </div>
+
+      <!-- PASO E: VER RESPUESTAS (HISTORIAL) -->
+      <div id="sop_step_history" style="display:none">
+        <h3 style="color:#6a1b9a;">Mis Mensajes y Respuestas</h3>
+        <button class="btn sec" style="margin-bottom:15px; font-size:12px; padding:8px;" onclick="document.getElementById('sop_step_history').style.display='none'; document.getElementById('sop_step_menu').style.display='block';">← VOLVER</button>
+        <div id="listaMensajesRespuestas"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-support-trigger" onclick="abrirSoporte()">💬 Comunicación y Soporte</button>
+
+  <!-- PANTALLAZOS ÉXITO -->
+  <div id="successAsistencia" class="success-overlay" style="background: rgba(27, 94, 32, 0.98);">
+    <h2>✅ ¡Envío Exitoso!</h2>
+    <p>“Recuerda que es responsabilidad del estudiante ponerse al día con las actividades correspondientes a la jornada que No asistió.”</p>
+    <button class="btn" style="background:white; color:#1b5e20; width:200px" onclick="location.reload()">ENTENDIDO</button>
+  </div>
+
+  <div id="successMensaje" class="success-overlay" style="background: rgba(2, 119, 189, 0.98);">
+    <h2>✅ Mensaje Enviado</h2>
+    <p>“Apreciado Padre de familia, gracias por comunicarse, procuraré responder a su solicitud lo más pronto posible.”</p>
+    <button class="btn" style="background:white; color:#0277bd; width:200px" onclick="location.reload()">ENTENDIDO</button>
+  </div>
+
+  <div class="footer">“Familia y escuela caminamos juntos”</div>
+  <div id="toast">🔔 ¡Atención! Tienes nuevas observaciones recientes.</div>
+
+<script>
+  // ESTUDIANTES OFICIALES
+  const estudiantesValidos = [
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
     { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
     { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
-  window.estudiantesBase = estudiantesBase;
 
-  document.addEventListener("DOMContentLoaded", () => {
-      const input = document.getElementById("inputBusquedaEstudiante");
-      const dropdown = document.getElementById("dropdownEstudiantes");
-      const hiddenInput = document.getElementById("idEstudianteSeleccionado");
-      function renderDropdown(filterText = "") {
-          dropdown.innerHTML = "";
-          const filterUpper = filterText.toUpperCase();
-          const filtrados = estudiantesBase.filter(est => est.nombre.includes(filterUpper) || est.doc.includes(filterUpper));
-          if(filtrados.length === 0) {
-              dropdown.innerHTML = '<div style="padding:10px; color:#888; font-size:12px;">No se encontraron resultados</div>';
-              return;
-          }
-          filtrados.forEach(est => {
-              const item = document.createElement("div");
-              item.className = "dropdown-item";
-              item.innerHTML = `<span class="item-nombre">${est.nombre}</span><span class="item-doc">DOC: ${est.doc}</span>`;
-              item.onclick = () => {
-                  input.value = est.nombre;
-                  hiddenInput.value = est.doc;
-                  dropdown.classList.remove("show");
-              };
-              dropdown.appendChild(item);
-          });
-      }
-      input.addEventListener("focus", () => { renderDropdown(input.value); dropdown.classList.add("show"); });
-      input.addEventListener("input", (e) => { hiddenInput.value = ""; renderDropdown(e.target.value); dropdown.classList.add("show"); });
-      document.addEventListener("click", (e) => {
-          if (!input.contains(e.target) && !dropdown.contains(e.target) && !e.target.classList.contains('search-icon')) {
-              dropdown.classList.remove("show");
-          }
-      });
-  });
-</script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
-    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-    projectId: "diariodeprocesos-6f78d",
-    storageBucket: "diariodeprocesos-6f78d.firebasestorage.app",
-    messagingSenderId: "487922338632",
-    appId: "1:487922338632:web:47fc48c23dbea064b0817d"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  let allRegistros = [];
-  let allExcusas = [];
-  let asistenciaTemp = {};
-
-  const updateStatus = (online) => {
-    const el = document.getElementById('connStatus');
-    el.className = online ? 'conn-indicator conn-online' : 'conn-indicator conn-offline';
-    el.title = online ? 'En línea' : 'Desconectado';
-  };
-  window.addEventListener('online', () => updateStatus(true));
-  window.addEventListener('offline', () => updateStatus(false));
-  updateStatus(navigator.onLine);
-
-  window.switchTab = (tab) => {
-      document.getElementById('view-obs').style.display = 'none';
-      document.getElementById('view-asis').style.display = 'none';
-      document.getElementById('view-herramientas').style.display = 'none';
-      document.getElementById('btnTabObs').className = 'nav-btn';
-      document.getElementById('btnTabAsis').className = 'nav-btn';
-      document.getElementById('btnTabHerramientas').className = 'nav-btn';
-
-      if (tab === 'obs') {
-          document.getElementById('view-obs').style.display = 'block';
-          document.getElementById('btnTabObs').className = 'nav-btn active';
-          setTimeout(resizeAllCanvas, 200);
-      } else if (tab === 'asis') {
-          document.getElementById('view-asis').style.display = 'block';
-          document.getElementById('btnTabAsis').className = 'nav-btn active';
-      } else if (tab === 'herramientas') {
-          document.getElementById('view-herramientas').style.display = 'block';
-          document.getElementById('btnTabHerramientas').className = 'nav-btn active-tools';
-      }
-  };
-
-  window.toggleHistorial = (id) => {
-      const el = document.getElementById(id);
-      el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
-  };
-
-  document.getElementById('fecha').valueAsDate = new Date();
-  document.getElementById('fechaAsistencia').valueAsDate = new Date();
-  const today = new Date();
-  document.getElementById('mesReporte').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-
-  // --- ASISTENCIA ---
-  window.renderAsistencia = () => {
-      const container = document.getElementById('attendanceList');
-      let html = '';
-      window.estudiantesBase.forEach(est => {
-          const estado = asistenciaTemp[est.doc] || 'P';
-          html += `<div class="att-row"><div><div class="att-name">${est.nombre}</div><div class="att-doc">${est.doc}</div></div>
-              <div class="att-options">
-                  <button class="att-btn ${estado === 'P' ? 'active-p' : ''}" onclick="setAtt('${est.doc}', 'P')">Asistió</button>
-                  <button class="att-btn ${estado === 'E' ? 'active-e' : ''}" onclick="setAtt('${est.doc}', 'E')">Excusa</button>
-                  <button class="att-btn ${estado === 'I' ? 'active-i' : ''}" onclick="setAtt('${est.doc}', 'I')">Injustif.</button>
-              </div></div>`;
-      });
-      container.innerHTML = html;
-  };
-  window.setAtt = (doc, status) => { asistenciaTemp[doc] = status; renderAsistencia(); };
-  window.cargarAsistenciaDelDia = async () => {
-      const fecha = document.getElementById('fechaAsistencia').value;
-      if(!fecha) return;
-      try {
-          const docSnap = await getDoc(doc(db, "controlAsistencia", fecha));
-          asistenciaTemp = (docSnap.exists() && docSnap.data().detalles) ? 
-              docSnap.data().detalles.reduce((acc, d) => ({...acc, [d.doc]: d.estado}), {}) : {};
-          renderAsistencia();
-      } catch (e) { console.error(e); }
-  };
-  window.guardarAsistencia = async () => {
-      const fecha = document.getElementById('fechaAsistencia').value;
-      if(!fecha) return alert("Seleccione fecha");
-      const dataToSave = {
-          fecha: fecha, timestamp: new Date().toISOString(),
-          detalles: window.estudiantesBase.map(est => ({ doc: est.doc, nombre: est.nombre, estado: asistenciaTemp[est.doc] || 'P' }))
-      };
-      try { await setDoc(doc(db, "controlAsistencia", fecha), dataToSave); alert("✅ Asistencia guardada."); } catch(e) { alert("Error: " + e.message); }
-  };
-  window.cargarAsistenciaDelDia();
-
-  // --- CANVAS SETUP ---
-  const canvasIds = ['sigStudent', 'sigTeacher'];
-  const pads = {};
-  function initPad(id) {
-      const canvas = document.getElementById(id);
-      const ctx = canvas.getContext('2d');
-      let isDrawing = false;
-      pads[id] = { canvas, ctx };
-      const getPos = (e) => {
-          const rect = canvas.getBoundingClientRect();
-          const t = e.touches ? e.touches[0] : e;
-          return { x: t.clientX - rect.left, y: t.clientY - rect.top };
-      };
-      const start = (e) => { e.preventDefault(); isDrawing = true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); };
-      const move = (e) => { e.preventDefault(); if(!isDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
-      const end = () => { isDrawing = false; };
-      canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-      canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
-  }
-  function resizeAllCanvas() {
-      canvasIds.forEach(id => {
-          const p = pads[id];
-          if(!p || !p.canvas.offsetParent) return;
-          const ratio = Math.max(window.devicePixelRatio || 1, 1);
-          p.canvas.width = p.canvas.offsetWidth * ratio;
-          p.canvas.height = p.canvas.offsetHeight * ratio;
-          p.ctx.scale(ratio, ratio);
-      });
-  }
-  window.addEventListener('resize', resizeAllCanvas);
-  canvasIds.forEach(id => initPad(id));
-  setTimeout(resizeAllCanvas, 500);
-
-  window.limpiarFirma = (id) => {
-      const p = pads[id];
-      p.ctx.clearRect(0, 0, p.canvas.width, p.canvas.height);
-  };
-  function isCanvasBlank(canvas) {
-      const context = canvas.getContext('2d');
-      const pixelBuffer = new Uint32Array(context.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
-      return !pixelBuffer.some(color => color !== 0);
-  }
-
-  // --- FIRESTORE LISTENERS ---
-  onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
-    allRegistros = [];
-    snap.forEach(doc => allRegistros.push({id: doc.id, ...doc.data()}));
-    renderRegistros();
-  });
-  onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
-    allExcusas = [];
-    snap.forEach(doc => allExcusas.push({id: doc.id, ...doc.data()}));
-    renderExcusas();
-  });
-
-  // --- RENDER REGISTROS (OBSERVACIONES) ---
-  window.renderRegistros = () => {
-    const container = document.getElementById('listaRegistros');
-    const search = document.getElementById('buscador').value.toLowerCase();
-    const filtered = allRegistros.filter(r => (r.nombreEstudiante||'').toLowerCase().includes(search) || (r.documentoEstudiante||'').includes(search));
-
-    if(filtered.length === 0) {
-        container.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">No se encontraron registros.</div>';
-        return;
+  // CARGAR DOCUMENTO GUARDADO
+  window.onload = function() {
+    const savedDoc = localStorage.getItem("padres_doc_estudiante");
+    if(savedDoc) {
+        document.getElementById("docObs").value = savedDoc;
+        document.getElementById("docExc").value = savedDoc;
+        document.getElementById("docSoporte").value = savedDoc;
+        document.getElementById("chkRemObs").checked = true;
+        document.getElementById("chkRemExc").checked = true;
     }
-
-    const grupos = {};
-    filtered.forEach(r => {
-        const key = r.documentoEstudiante || 'SIN_DOC';
-        if(!grupos[key]) grupos[key] = { nombre: r.nombreEstudiante, docs: [] };
-        grupos[key].docs.push(r);
-    });
-
-    let html = '';
-    Object.keys(grupos).forEach(key => {
-        const g = grupos[key];
-        g.docs.sort((a,b) => (a.fecha||'') < (b.fecha||'') ? 1 : -1);
-        html += `<div class="student-block">
-            <div class="student-info-bar">
-                <div><div class="st-name">${g.nombre}</div><div class="st-doc">Doc: ${key} · Regs: ${g.docs.length}</div></div>
-                <button class="btn-blue" onclick="descargarPDF('${key}')">Descargar PDF</button>
-            </div>
-            <div class="table-container"><table>
-                <thead><tr><th style="width:90px;">Fecha</th><th>Detalle</th><th>Firmas</th><th style="width:80px;">Acción</th></tr></thead>
-                <tbody>`;
-        g.docs.forEach(r => {
-            const tipo = r.tipoRegistro || 'Comportamental';
-            const claseTipo = tipo === 'Académico' ? 'tag-acad' : 'tag-comp';
-            let stat = [];
-            stat.push(r.firmaEstudiante ? '<span style="color:green; font-size:10px;">Est:OK</span>' : '<span style="color:red; font-size:10px;">Est:--</span>');
-            stat.push((r.firmaDocente || r.firma) ? '<span style="color:green; font-size:10px;">Doc:OK</span>' : '<span style="color:red; font-size:10px;">Doc:--</span>');
-            stat.push(r.firmaAcudiente ? '<span style="color:green; font-size:10px;">Acu:OK</span>' : '<span style="color:#d84315; font-size:10px; font-weight:bold;">Acu:PEN</span>');
-
-            html += `<tr>
-                    <td><div style="font-size:12px;">${r.fecha}</div><span class="tag-type ${claseTipo}">${tipo.substring(0,4)}.</span></td>
-                    <td><div style="font-weight:600; margin-bottom:4px;">${r.comportamiento}</div><div style="font-size:11px; color:#666;"><em>${r.procedimiento}</em></div></td>
-                    <td><div style="display:flex; flex-direction:column;">${stat.join('')}</div></td>
-                    <td><div style="display:flex; gap:5px;">
-                        <button class="bg-gray btn-icon btn-edit" onclick="editar('${r.id}')">✏️</button>
-                        <button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${r.id}', 'registrosComportamentales')">🗑️</button>
-                    </div></td>
-                </tr>`;
-        });
-        html += `</tbody></table></div></div>`;
-    });
-    container.innerHTML = html;
   };
 
-  // --- RENDER EXCUSAS (ASISTENCIA) - FIX: incluye tipo de motivo sin cambiar etiquetas ---
-  window.renderExcusas = () => {
-    const container = document.getElementById('listaExcusas');
-    const search = document.getElementById('buscadorExcusas').value.toLowerCase();
+  // --- LÓGICA OBSERVACIONES (RESTAURADA) ---
+  let unsubscribeObs = null;
+  const audioNotif = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3');
+
+  function notificarNovedad() {
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    audioNotif.play().catch(e => {});
+    const x = document.getElementById("toast");
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
+  }
+
+  function buscarObservaciones() {
+    const docInput = document.getElementById("docObs").value.trim();
+    const remember = document.getElementById("chkRemObs").checked;
+    const out = document.getElementById("resultadoObs");
+    const btn = document.getElementById("btnBuscar");
+
+    if(!docInput) { alert("Digite documento."); return; }
     
-    // Filtrar por nombre de estudiante (buscando en la base local por el documento de la excusa)
-    const filtered = allExcusas.filter(exc => {
-        const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
-        const nombre = estMatch ? estMatch.nombre.toLowerCase() : String(exc.documentoEstudiante || '').toLowerCase();
-        return nombre.includes(search);
-    });
+    if(remember) localStorage.setItem("padres_doc_estudiante", docInput);
+    else localStorage.removeItem("padres_doc_estudiante");
 
-    if(filtered.length === 0) {
-        container.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No se encontraron excusas.</div>';
-        return;
-    }
+    if(unsubscribeObs) unsubscribeObs();
 
-    filtered.sort((a,b) => (a.fechaInasistencia||'') < (b.fechaInasistencia||'') ? 1 : -1);
+    btn.disabled = true;
+    btn.textContent = "CONECTANDO...";
+    out.innerHTML = "<div style='text-align:center; padding:20px;'>Sincronizando...</div>";
 
-    let html = `<div class="table-container"><table>
-        <thead><tr><th style="width:100px;">Fecha Inasist.</th><th>Estudiante</th><th>Motivo / Detalle</th><th>Firma Acu.</th><th style="width:50px;">🗑️</th></tr></thead>
-        <tbody>`;
+    const storageKey = 'count_' + docInput;
+    let lastCount = parseInt(localStorage.getItem(storageKey) || "0");
 
-    filtered.forEach(exc => {
-        const estMatch = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
-        const nombreEst = estMatch ? estMatch.nombre : "Doc: " + (exc.documentoEstudiante || '');
+    unsubscribeObs = db.collection("registrosComportamentales")
+      .where("documentoEstudiante", "==", docInput)
+      .onSnapshot(snapshot => {
+        btn.disabled = false;
+        btn.textContent = "ACTUALIZAR ESTADO";
 
-        // ✅ Detecta el tipo aunque el campo se llame diferente en el otro módulo
-        const tipo = (exc.tipoMotivo || exc.motivoTipo || exc.tipoInasistencia || exc.motivo || '').toString().trim();
-        const detalle = (exc.motivoDetalle || '').toString().trim();
+        if(snapshot.empty) { out.innerHTML = "<p style='text-align:center'>No hay registros.</p>"; return; }
 
-        // ✅ SIN cambiar etiquetas: solo agregamos el tipo en el texto del registro
-        const motivoTexto = (tipo ? `<strong>${tipo}</strong>${detalle ? ' — ' : ''}` : '') + (detalle || '');
-
-        const firmaImg = exc.firmaAcudiente 
-            ? `<img src="${exc.firmaAcudiente}" class="sig-preview" style="max-height:40px; cursor:zoom-in;" onclick="window.open('${exc.firmaAcudiente}')">` 
-            : '<span style="color:red; font-size:10px;">Sin firma</span>';
-
-        html += `<tr>
-            <td style="font-weight:bold;">${exc.fechaInasistencia || ''}</td>
-            <td><div style="font-size:13px; font-weight:700;">${nombreEst}</div></td>
-            <td style="font-size:12px; color:#555;">${motivoTexto || '<span style="color:#999;">(Sin motivo)</span>'}</td>
-            <td style="text-align:center;">${firmaImg}</td>
-            <td><button class="bg-gray btn-icon btn-del" onclick="eliminarDocumento('${exc.id}', 'excusasInasistencia')">🗑️</button></td>
-          </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    container.innerHTML = html;
-  };
-
-  // --- ACCIONES FORMULARIO ---
-  const form = document.getElementById('formRegistro');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('btnGuardar');
-    const id = document.getElementById('editId').value;
-    const docSeleccionado = document.getElementById("idEstudianteSeleccionado").value;
-    const nombreInput = document.getElementById("inputBusquedaEstudiante").value;
-
-    if(!nombreInput) return alert("Seleccione estudiante.");
-    if(!id && isCanvasBlank(pads['sigTeacher'].canvas)) return alert("El docente debe firmar.");
-
-    btn.disabled = true; btn.innerText = "Guardando...";
-    const data = {
-        tipoRegistro: document.getElementById('tipoRegistro').value,
-        fecha: document.getElementById('fecha').value,
-        documentoEstudiante: docSeleccionado || "SIN_DOC",
-        nombreEstudiante: nombreInput,
-        comportamiento: document.getElementById('comportamiento').value,
-        descargos: document.getElementById('descargos').value,
-        procedimiento: document.getElementById('procedimiento').value
-    };
-    if(!isCanvasBlank(pads['sigStudent'].canvas)) data.firmaEstudiante = pads['sigStudent'].canvas.toDataURL();
-    if(!isCanvasBlank(pads['sigTeacher'].canvas)) data.firmaDocente = pads['sigTeacher'].canvas.toDataURL();
-
-    try {
-        if(id) {
-            await updateDoc(doc(db, "registrosComportamentales", id), data);
-            alert("Actualizado."); cancelarEdicion();
-        } else {
-            await addDoc(collection(db, "registrosComportamentales"), { ...data, timestamp: new Date().toISOString() });
-            alert("Guardado."); form.reset();
-            window.limpiarFirma('sigStudent'); window.limpiarFirma('sigTeacher');
-            document.getElementById("inputBusquedaEstudiante").value = "";
+        const currentCount = snapshot.size;
+        if (currentCount > lastCount) {
+           notificarNovedad();
+           localStorage.setItem(storageKey, currentCount);
+        } else if (lastCount === 0) {
+           localStorage.setItem(storageKey, currentCount);
         }
-    } catch(err) { alert("Error: " + err.message); }
-    btn.disabled = false; btn.innerText = "Guardar registro";
-  });
 
-  window.eliminarDocumento = async (id, col) => {
-      if(confirm("¿Eliminar?")) { try { await deleteDoc(doc(db, col, id)); } catch(e){ alert(e.message); } }
-  };
+        let docs = [];
+        snapshot.forEach(d => docs.push({ id:d.id, ...d.data() }));
+        docs.sort((a,b) => (a.timestamp || a.fecha).localeCompare(b.timestamp || b.fecha));
 
-  window.editar = (id) => {
-    const r = allRegistros.find(x => x.id === id);
-    if(!r) return;
-    document.getElementById('editId').value = r.id;
-    document.getElementById('tipoRegistro').value = r.tipoRegistro;
-    document.getElementById('fecha').value = r.fecha;
-    document.getElementById("inputBusquedaEstudiante").value = r.nombreEstudiante;
-    document.getElementById("idEstudianteSeleccionado").value = r.documentoEstudiante;
-    document.getElementById('comportamiento').value = r.comportamiento;
-    document.getElementById('descargos').value = r.descargos;
-    document.getElementById('procedimiento').value = r.procedimiento;
-    document.getElementById('btnGuardar').innerText = "Actualizar (Firmar de nuevo)";
-    document.getElementById('divCancel').style.display = 'block';
-    window.scrollTo({top:0, behavior:'smooth'});
-  };
+        docs = docs.map((r, index) => {
+            const num = index + 1;
+            let color = "#4caf50"; 
+            if(num === 2) color = "#ff9800"; 
+            else if(num >= 3) color = "#f44336"; 
+            return { ...r, numSec: num, colorTema: color };
+        });
 
-  window.cancelarEdicion = () => {
-    form.reset(); document.getElementById('editId').value = '';
-    document.getElementById('btnGuardar').innerText = "Guardar registro";
-    document.getElementById('divCancel').style.display = 'none';
-    window.limpiarFirma('sigStudent'); window.limpiarFirma('sigTeacher');
-  };
+        docs.reverse();
+        renderizarObs(docs, currentCount > lastCount);
+      });
+  }
 
-  // --- GENERACIÓN PDF (3 COLUMNAS) ---
-  window.descargarPDF = (docId) => {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('l', 'mm', 'a4');
-    const recs = allRegistros.filter(r => r.documentoEstudiante === docId);
-    if(!recs.length) return;
-
-    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 297, 25, 'F');
-    pdf.setTextColor(255, 255, 255); pdf.setFontSize(14);
-    pdf.text("Institución Educativa de María - Reporte Disciplinario", 14, 15);
-    pdf.setTextColor(0,0,0); pdf.setFontSize(10);
-    pdf.text(`Estudiante: ${recs[0].nombreEstudiante}  |  Doc: ${docId}`, 14, 35);
-
-    const body = recs.map(r => [r.fecha, r.tipoRegistro, r.comportamiento, r.procedimiento, "", "", ""]);
-
-    pdf.autoTable({
-        startY: 40,
-        head: [['Fecha', 'Tipo', 'Observación', 'Procedimiento', 'F.Estudiante', 'F.Docente', 'F.Acudiente']],
-        body: body,
-        headStyles: { fillColor: [27, 94, 32] },
-        bodyStyles: { minCellHeight: 18 },
-        columnStyles: { 2: { cellWidth: 55 }, 3: { cellWidth: 55 }, 4: { cellWidth: 32 }, 5: { cellWidth: 32 }, 6: { cellWidth: 32 } },
-        didDrawCell: function(data) {
-            if (data.section === 'body') {
-                const r = recs[data.row.index];
-                if(data.column.index === 4 && r.firmaEstudiante) pdf.addImage(r.firmaEstudiante, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
-                const fDoc = r.firmaDocente || r.firma;
-                if(data.column.index === 5 && fDoc) pdf.addImage(fDoc, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
-                if(data.column.index === 6 && r.firmaAcudiente) pdf.addImage(r.firmaAcudiente, 'PNG', data.cell.x+1, data.cell.y+1, 30, 15);
-            }
-        }
+  function renderizarObs(items, hayNovedad) {
+    let html = "";
+    items.forEach((r, idx) => {
+        const firmado = !!r.firmaAcudiente;
+        const esNuevo = (idx === 0 && hayNovedad && !firmado);
+        html += `
+            <div class="card ${esNuevo ? 'new-item' : ''}">
+                <div class="top" style="background:${r.colorTema}">
+                    <div>REGISTRO N° ${r.numSec} ${esNuevo ? '<span class="new-tag">¡NUEVO!</span>' : ''}</div>
+                    <div class="badge">${firmado ? "FIRMADO ✅" : "PENDIENTE ✍️"}</div>
+                </div>
+                <div class="body">
+                    <div class="row"><b>Fecha:</b> ${r.fecha}</div>
+                    <div class="row"><b>Comportamiento:</b> ${r.comportamiento}</div>
+                    <div class="row"><b>Descargos:</b> ${r.descargos || 'Ninguno'}</div>
+                    <div class="row"><b>Procedimiento:</b> ${r.procedimiento || ''}</div>
+                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        ${firmado ? `
+                            <div style="text-align:center">
+                                <div style="color:#2e7d32; font-weight:bold; font-size:11px;">✓ Firmado por Acudiente</div>
+                                <img src="${r.firmaAcudiente}" style="max-height:70px;">
+                            </div>
+                        ` : `
+                            <div class="sig-wrap" style="background:#fff9c4;">
+                                <div style="font-size:11px; text-align:center; font-weight:bold; margin-bottom:5px;">✍️ FIRMA RECIBIDO</div>
+                                <canvas id="cv_${r.id}"></canvas>
+                                <div class="sig-actions">
+                                    <button class="btn sec" onclick="limpiarPad('cv_${r.id}')">BORRAR</button>
+                                    <button class="btn" onclick="firmarRegistro('${r.id}')">CONFIRMAR</button>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            </div>`;
     });
-    pdf.save(`Reporte_${recs[0].nombreEstudiante}.pdf`);
-  };
+    document.getElementById("resultadoObs").innerHTML = html;
+    setTimeout(() => { items.forEach(r => { if(!r.firmaAcudiente) initPad("cv_"+r.id); }); }, 200);
+  }
 
-  // --- PDF EXCUSAS - FIX: incluye tipo sin cambiar etiquetas ---
-  window.descargarExcusasPDF = () => {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      pdf.text("Historial de Excusas Recibidas", 14, 15);
+  async function firmarRegistro(id) {
+    const p = pads.get("cv_"+id);
+    if(!p?.hasData) return alert("Firme primero.");
+    await db.collection("registrosComportamentales").doc(id).update({
+        firmaAcudiente: p.c.toDataURL(),
+        fechaFirmaAcudiente: new Date().toISOString()
+    });
+    alert("✅ Firma guardada.");
+  }
 
-      const body = allExcusas.map(exc => {
-          const est = window.estudiantesBase.find(e => e.doc === exc.documentoEstudiante);
+  // --- ASISTENCIA Y ESTADÍSTICAS ---
+  async function activarFormularioExcusa() {
+    const docInput = document.getElementById("docExc").value.trim();
+    const est = estudiantesValidos.find(e => e.doc === docInput);
+    if(!est) return alert("No encontrado");
+    if(document.getElementById("chkRemExc").checked) localStorage.setItem("padres_doc_estudiante", docInput);
+    document.getElementById("btnInitExc").style.display="none";
+    document.getElementById("contenedorFormExc").style.display="block";
+    document.getElementById("nombreExc").innerText = est.nombre;
+    consultarEstadisticas(docInput);
+    setTimeout(() => initPad('sigExc'), 200);
+  }
 
-          const tipo = (exc.tipoMotivo || exc.motivoTipo || exc.tipoInasistencia || exc.motivo || '').toString().trim();
-          const detalle = (exc.motivoDetalle || '').toString().trim();
-          const motivoPDF = (tipo ? `${tipo}${detalle ? ' — ' : ''}` : '') + (detalle || '');
+  async function consultarEstadisticas(docId) {
+    const snap = await db.collection("controlAsistencia").get();
+    let f = 0, e = 0;
+    snap.forEach(d => {
+        const reg = d.data().detalles?.find(x => x.doc === docId);
+        if(reg?.estado === 'I') f++;
+        if(reg?.estado === 'E') e++;
+    });
+    document.getElementById("statFallas").innerText = f;
+    document.getElementById("statExcusas").innerText = e;
+    document.getElementById("statEstado").innerText = f >= 3 ? "ALERTA" : "OK";
+    document.getElementById("statEstado").parentElement.style.background = f >= 3 ? "#d32f2f" : "#22c55e";
+  }
 
-          return [exc.fechaInasistencia || '', est ? est.nombre : (exc.documentoEstudiante || ''), motivoPDF, ""];
-      });
+  async function enviarExcusa() {
+    const p = pads.get("sigExc");
+    if(!p?.hasData) return alert("Firma obligatoria.");
+    await db.collection("excusasInasistencia").add({
+      documentoEstudiante: document.getElementById("docExc").value,
+      fechaInasistencia: document.getElementById("fechaExc").value,
+      motivoTipo: document.getElementById("motivoExc").value,
+      motivoDetalle: document.getElementById("detalleExc").value,
+      firmaAcudiente: p.c.toDataURL(),
+      timestamp: new Date().toISOString()
+    });
+    document.getElementById("successAsistencia").style.display = "flex";
+  }
 
-      pdf.autoTable({
-          startY: 20,
-          head: [['Fecha Inasist.', 'Estudiante', 'Motivo', 'Firma']],
-          body: body,
-          bodyStyles: { minCellHeight: 15 },
-          didDrawCell: (data) => {
-              if(data.section === 'body' && data.column.index === 3) {
-                  const exc = allExcusas[data.row.index];
-                  if(exc && exc.firmaAcudiente) pdf.addImage(exc.firmaAcudiente, 'PNG', data.cell.x+2, data.cell.y+2, 25, 10);
-              }
-          }
-      });
-      pdf.save("Historial_Excusas.pdf");
-  };
+  // --- SOPORTE Y COMUNICACIÓN ---
+  let estActualSoporte = null;
+  function abrirSoporte() { document.getElementById("modalSoporte").style.display = "block"; }
+  function cerrarSoporte() { document.getElementById("modalSoporte").style.display = "none"; }
+  
+  function autenticarSoporte() {
+    const doc = document.getElementById("docSoporte").value.trim();
+    const est = estudiantesValidos.find(e => e.doc === doc);
+    if(est) {
+      estActualSoporte = est;
+      document.getElementById("sop_step_auth").style.display = "none";
+      document.getElementById("sop_step_menu").style.display = "block";
+      document.getElementById("sop_nombre_est").innerText = "Estudiante: " + est.nombre;
+    } else alert("Documento no encontrado.");
+  }
+
+  function irAInfoComunicacion() {
+    document.getElementById("sop_step_menu").style.display = "none";
+    document.getElementById("sop_step_info").style.display = "block";
+  }
+
+  function irAFormularioMsg() { 
+    document.getElementById("sop_step_info").style.display = "none"; 
+    document.getElementById("sop_step_form").style.display = "block"; 
+    document.getElementById("msg_fecha").valueAsDate = new Date();
+    setTimeout(() => initPad('sigSoporte'), 200);
+  }
+
+  async function enviarMensajeSoporte() {
+    const p = pads.get("sigSoporte");
+    const asunto = document.getElementById("msg_asunto").value.trim();
+    const texto = document.getElementById("msg_texto").value.trim();
+    const fecha = document.getElementById("msg_fecha").value;
+
+    if(!asunto || !texto || !p?.hasData) return alert("⚠️ Por favor, complete la fecha, el asunto, el contenido y firme.");
+    
+    document.getElementById("btnEnviarSop").disabled = true;
+    await db.collection("comunicacionPadres").add({
+      documentoEstudiante: estActualSoporte.doc,
+      nombreEstudiante: estActualSoporte.nombre,
+      fechaMsg: fecha,
+      asunto: asunto,
+      mensaje: texto,
+      firma: p.c.toDataURL(),
+      timestamp: new Date().toISOString()
+    });
+    document.getElementById("successMensaje").style.display = "flex";
+  }
+
+  function irAHistorialMensajes() {
+    document.getElementById("sop_step_menu").style.display = "none";
+    document.getElementById("sop_step_history").style.display = "block";
+    db.collection("comunicacionPadres").where("documentoEstudiante", "==", estActualSoporte.doc).onSnapshot(snap => {
+        let html = "";
+        snap.forEach(d => {
+            const m = d.data();
+            html += `<div class="history-card"><div class="history-header"><span>${m.asunto}</span><span>${m.fechaMsg}</span></div><div class="history-body">${m.mensaje}</div>${m.respuestaDocente ? `<div class="teacher-reply">${m.respuestaDocente}</div>` : ''}</div>`;
+        });
+        document.getElementById("listaMensajesRespuestas").innerHTML = html || "Sin mensajes.";
+    });
+  }
+
+  // --- UTILS CANVAS ---
+  const pads = new Map();
+  function initPad(id){
+    const c = document.getElementById(id); if(!c) return;
+    const ctx = c.getContext("2d");
+    const ratio = window.devicePixelRatio || 1;
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width * ratio; c.height = 180 * ratio; ctx.scale(ratio, ratio);
+    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    let drawing=false;
+    const getPos = (e) => { const r = c.getBoundingClientRect(); return { x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left, y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top }; }
+    c.addEventListener("mousedown", (e) => { drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); });
+    c.addEventListener("mousemove", (e) => { if(!drawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id, {ctx, c, hasData:true}); });
+    window.addEventListener("mouseup", () => drawing=false);
+    c.addEventListener("touchstart", (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); }, {passive:false});
+    c.addEventListener("touchmove", (e) => { e.preventDefault(); if(!drawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id, {ctx, c, hasData:true}); }, {passive:false});
+    pads.set(id, {ctx, c, hasData:false});
+  }
+  function limpiarPad(id) { const p = pads.get(id); if(p) { p.ctx.clearRect(0,0,p.c.width,p.c.height); p.hasData=false; } }
+  function verObs(){ document.getElementById("obs").style.display="block"; document.getElementById("exc").style.display="none"; document.getElementById("btnObs").classList.add("active"); document.getElementById("btnExc").classList.remove("active"); }
+  function verExc(){ document.getElementById("obs").style.display="none"; document.getElementById("exc").style.display="block"; document.getElementById("btnExc").classList.add("active"); document.getElementById("btnObs").classList.remove("active"); }
 </script>
 </body>
 </html>
