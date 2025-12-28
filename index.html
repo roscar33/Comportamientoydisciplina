@@ -1,266 +1,225 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
-<title>Seguimiento de Procesos Escolares · Primaria 2026</title>
-<meta name="theme-color" content="#1b5e20" />
+  <meta charset="UTF-8" />
+  <title>Panel Administrativo Docente · Primaria 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Optimización para APK -->
-<meta name="mobile-web-app-capable" content="yes">
+  <!-- Librerías para generación de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-<style>
-  /* Base y Reset */
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; font-family: system-ui, Arial, sans-serif; background: #dff5e1; padding-bottom: 95px; user-select: none; }
-  
-  /* ENCABEZADO */
-  .header { background: #1b5e20; color: #fff; text-align: center; padding: 20px 16px 35px; border-radius: 0 0 30px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-  .header img { width: 90px; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); display: inline-block; }
-  .header h2 { margin: 5px 0; font-size: 22px; letter-spacing: -0.5px; }
-  .header h4 { margin: 5px 0; font-weight: 500; opacity: 0.9; font-size: 14px; }
-  .header strong { display: block; margin-top: 8px; font-size: 15px; color: #a5d6a7; }
-  .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.8; }
+  <style>
+    :root {
+      --primary: #1b5e20;       
+      --primary-light: #2e7d32; 
+      --accent: #0288d1;        
+      --tools-color: #f57c00;
+      --corr-color: #6a1b9a;
+      --bg-body: #c8e6c9;       
+      --text-main: #0f172a;
+      --card-bg: #ffffff;
+      --radius-xl: 24px;
+      --radius-md: 12px;
+      --shadow: 0 4px 15px rgba(27, 94, 32, 0.08);
+    }
 
-  /* MENÚ FLOTANTE */
-  .menu { display: flex; justify-content: space-around; gap: 10px; background: #2e7d32; padding: 8px; margin: -25px auto 20px; width: 92%; border-radius: 999px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); position: relative; z-index: 10; }
-  .menu button { flex: 1; border: none; padding: 12px 14px; border-radius: 999px; font-weight: 800; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.2s; font-size: 14px; }
-  .menu button.active { background: #fff; color: #1b5e20; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg-body); min-height: 100vh; padding: 16px; color: var(--text-main); display: flex; justify-content: center; }
+    .app-shell { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
 
-  /* CONTENEDOR PRINCIPAL */
-  .container { background: #fff; width: 92%; margin: 10px auto; padding: 20px 16px; border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-  
-  /* FORMULARIOS */
-  .input-label { font-weight: 700; color: #1b5e20; font-size: 13px; margin-left: 4px; margin-bottom: 4px; display: block; }
-  input, textarea, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #ddd; font-size: 16px; background: #f9f9f9; transition: border 0.3s; appearance: none; -webkit-appearance: none; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: #1b5e20; background: #fff; }
-  textarea { min-height: 110px; resize: none; }
+    /* ENCABEZADO */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #fff; border-radius: 50px; box-shadow: var(--shadow); border: 1px solid #c8e6c9; }
+    .brand-group { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 45px; height: 45px; }
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-title { font-size: 15px; font-weight: 800; color: var(--primary); }
 
-  /* RECORDAR DOCUMENTO */
-  .remember-box { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 14px; color: #555; }
-  .remember-box input { width: auto; margin: 0; }
+    .conn-indicator { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #e0e0e0; transition: 0.3s; }
+    .conn-online { background-color: #22c55e; }
+    .conn-offline { background-color: #ef4444; }
 
-  /* BOTONES */
-  .btn { width: 100%; padding: 15px; background: #1b5e20; color: #fff; font-weight: 800; border: none; border-radius: 14px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 0 #145018; margin-top: 5px; }
-  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #145018; }
-  .btn.sec { background: #546e7a; box-shadow: 0 4px 0 #37474f; }
-  .btn.blue { background: #0277bd; box-shadow: 0 4px 0 #01579b; }
+    /* NAVEGACIÓN */
+    .nav-tabs { display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px; gap: 5px; flex-wrap: wrap; }
+    .nav-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px; font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 11px; }
+    .nav-btn.active-asis { background: var(--accent); color: white; }
+    .nav-btn.active-obs { background: var(--primary); color: white; }
+    .nav-btn.active-tools { background: var(--tools-color); color: white; }
+    .nav-btn.active-corr { background: var(--corr-color); color: white; }
 
-  /* TARJETAS OBSERVACIONES */
-  .card { margin-top: 15px; border-radius: 16px; overflow: hidden; border: 1px solid #eee; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
-  .card .top { padding: 10px 12px; font-weight: 900; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-  .badge { padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
-  .card .body { padding: 15px; color: #333; font-size: 14px; line-height: 1.5; }
-  .row { margin-top: 10px; }
-  .row b { display: block; margin-bottom: 3px; color: #1b5e20; font-size: 12px; text-transform: uppercase; }
+    /* TARJETAS */
+    .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px; }
+    .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
 
-  /* CUADROS ESTADÍSTICOS ASISTENCIA */
-  .att-summary { display: flex; gap: 10px; margin-bottom: 15px; }
-  .att-box { flex: 1; text-align: center; padding: 10px 5px; border-radius: 12px; color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-  .att-red { background: #ef4444; }
-  .att-orange { background: #f97316; }
-  .att-green { background: #22c55e; }
-  .att-num { font-size: 22px; font-weight: 900; display: block; }
-  .att-lbl { font-size: 10px; text-transform: uppercase; font-weight: 700; opacity: 0.9; }
+    /* FORMULARIOS */
+    .form-group { margin-bottom: 15px; width: 100%; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; padding: 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; }
+    
+    .search-wrapper { position: relative; }
+    .custom-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--primary); border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+    .custom-dropdown.show { display: block; }
+    .dropdown-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 
-  /* FIRMA */
-  .sig-wrap { margin-top: 15px; padding: 10px; border-radius: 14px; background: #f1f5f9; border: 2px dashed #b0bec5; }
-  canvas { width: 100%; height: 180px; border-radius: 8px; background: #fff; touch-action: none; display: block; }
-  .sig-actions { display: flex; gap: 10px; margin-top: 10px; }
-  .sig-actions button { flex: 1; padding: 10px; font-size: 13px; margin-top: 0; box-shadow: none !important; }
+    /* ASISTENCIA CARDS */
+    .att-card { background: #fff; border: 1px solid #eee; border-radius: 18px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .att-header { font-weight: 800; color: #1e293b; font-size: 15px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+    .att-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .att-btn { border: 1px solid #cbd5e1; background: #f8fafc; padding: 12px 5px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; text-align: center; }
+    .att-btn.active-p { background: #1b5e20; color: #fff; }
+    .att-btn.active-e { background: #f57c00; color: #fff; }
+    .att-btn.active-i { background: #d32f2f; color: #fff; }
 
-  /* ESTILO PARA NUEVO ITEM */
-  .new-item { border: 2px solid #d32f2f; animation: pulse 2s infinite; }
-  .new-tag { background: #d32f2f; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 5px; vertical-align: middle; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
+    /* CORRESPONDENCIA */
+    .msg-item { background: #fff; border-radius: 18px; border-left: 6px solid var(--corr-color); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #f3e5f5; margin-bottom: 15px; position: relative; }
+    .msg-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .btn-delete-corr { position: absolute; top: 15px; right: 15px; background: #fee2e2; border: none; padding: 8px; border-radius: 10px; cursor: pointer; }
+    .msg-body { font-size: 14px; line-height: 1.5; color: #444; background: #fafafa; padding: 12px; border-radius: 10px; margin: 10px 0; border: 1px solid #f0f0f0; }
 
-  /* MODAL SOPORTE */
-  #modalSoporte { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: none; overflow-y: auto; }
-  .modal-header { background: #263238; color: #fff; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 10; }
-  .modal-header .close { position: absolute; left: 15px; top: 18px; font-size: 24px; background: none; border: none; color: #fff; }
-  .modal-body { padding: 20px; max-width: 500px; margin: 0 auto; }
+    /* HERRAMIENTAS */
+    .btn-tools { background: var(--tools-color); color: white; font-size: 16px; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
 
-  /* TEXTO BIENVENIDA SOPORTE */
-  .welcome-soporte { background: #e3f2fd; border-left: 5px solid #0288d1; padding: 20px; border-radius: 12px; margin-bottom: 20px; color: #01579b; line-height: 1.6; font-size: 15px; }
+    /* FIRMAS */
+    .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 12px; margin-bottom: 5px; overflow: hidden; position: relative; }
+    canvas.signature-pad { width: 100%; height: 150px; cursor: crosshair; touch-action: none; display: block; }
+    .clear-btn { background: none; border: none; color: #d32f2f; font-size: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; }
 
-  /* HISTORIAL DE MENSAJES */
-  .history-card { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid #455a64; }
-  .history-header { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
-  .history-body { font-size: 14px; color: #333; line-height: 1.4; }
-  .teacher-reply { background: #f3e5f5; border-left: 5px solid #6a1b9a; padding: 12px; border-radius: 8px; margin-top: 12px; color: #4a148c; font-size: 13px; }
+    /* BOTONES ACCIÓN */
+    .btn-save { background: var(--primary); padding: 15px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 15px; width: 100%; margin-top: 10px; }
+    .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; padding: 12px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; }
+    .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; }
 
-  /* OVERLAYS ÉXITO */
-  .success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; color: white; text-align: center; padding: 40px 20px; justify-content: center; align-items: center; flex-direction: column; }
+    /* MODAL ELIMINAR */
+    #deleteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
+    .btn-confirm-del { background: #dc2626; color: white; padding: 12px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
 
-  #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-  #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 4.5s; }
-  @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-  @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-  .footer { margin: 30px 18px 10px; text-align: center; font-size: 13px; font-weight: 600; color: #145018; opacity: 0.8; padding-bottom: 20px; line-height: 1.4; }
-  .btn-support-trigger { display: block; width: auto; min-width: 240px; padding: 15px 25px; background: #455a64; color: #fff; font-weight: 800; border: none; border-radius: 50px; font-size: 14px; box-shadow: 0 4px 0 #263238; cursor: pointer; margin: 20px auto; }
-</style>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-<script>
-  firebase.initializeApp({
-    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
-    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-    projectId: "diariodeprocesos-6f78d"
-  });
-  const db = firebase.firestore();
-</script>
+    @media(max-width: 600px) {
+      .nav-tabs { flex-wrap: nowrap; overflow-x: auto; padding: 5px; }
+      .nav-btn { min-width: 110px; }
+    }
+  </style>
 </head>
-
 <body>
 
-  <div class="header">
-    <img src="escudo.png" alt="Escudo I.E. De María" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE+De+Maria';">
-    <h2>Institución Educativa de María</h2>
-    <h4>Sede Rural Santa Juana · Primaria 2026</h4>
-    <strong>Docente: Oscar Barrientos</strong>
-    <p>Seguimiento de Procesos Escolares</p>
-  </div>
-
-  <div class="menu">
-    <button id="btnObs" class="active" onclick="verObs()">Observaciones</button>
-    <button id="btnExc" onclick="verExc()">Excusas / Asistencia</button>
-  </div>
-
-  <!-- SECCIÓN 1: OBSERVACIONES -->
-  <div id="obs" class="container">
-    <span class="input-label">DOCUMENTO DEL ESTUDIANTE</span>
-    <input id="docObs" type="number" placeholder="Digite documento..." inputmode="numeric">
-    
-    <div class="remember-box">
-        <input type="checkbox" id="chkRemObs">
-        <label for="chkRemObs">Recordar documento en este dispositivo</label>
-    </div>
-
-    <button id="btnBuscar" class="btn" onclick="buscarObservaciones()">VER OBSERVACIONES</button>
-    <div id="resultadoObs" style="margin-top:20px;"></div>
-  </div>
-
-  <!-- SECCIÓN 2: ASISTENCIA Y EXCUSAS -->
-  <div id="exc" class="container" style="display:none;">
-    <span class="input-label">DOCUMENTO DEL ESTUDIANTE</span>
-    <input id="docExc" type="number" placeholder="Digite documento..." inputmode="numeric">
-    
-    <div class="remember-box">
-        <input type="checkbox" id="chkRemExc">
-        <label for="chkRemExc">Recordar documento en este dispositivo</label>
-    </div>
-
-    <button id="btnInitExc" class="btn" onclick="activarFormularioExcusa()">CONTINUAR</button>
-    
-    <div id="contenedorFormExc" style="display:none; border-top:1px solid #eee; padding-top:20px; margin-top:20px;">
-        <div id="nombreExc" style="font-weight:bold; color:#1b5e20; margin-bottom:15px; text-align:center; background:#e8f5e9; padding:10px; border-radius:8px;"></div>
-        
-        <div class="att-summary">
-            <div class="att-box att-red"><span class="att-num" id="statFallas">0</span><span class="att-lbl">Fallas</span></div>
-            <div class="att-box att-orange"><span class="att-num" id="statExcusas">0</span><span class="att-lbl">Excusas</span></div>
-            <div class="att-box att-green"><span class="att-num" id="statEstado">OK</span><span class="att-lbl">Estado</span></div>
+<div class="app-shell">
+  
+  <header class="top-bar">
+    <div class="brand-group">
+        <div class="brand-logo"><img src="escudo.png" alt="Escudo" onerror="this.src='https://placehold.co/100x100/1b5e20/ffffff?text=IE';"></div>
+        <div class="brand-text">
+          <div class="brand-title">Panel Administrativo Docente</div>
+          <div class="brand-subtitle">Santa Juana · Gestión 2026</div>
         </div>
-
-        <h3 style="margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">Enviar Excusa</h3>
-        <span class="input-label">FECHA DE INASISTENCIA</span>
-        <input id="fechaExc" type="date">
-        <span class="input-label">MOTIVO</span>
-        <select id="motivoExc">
-            <option value="Enfermedad">Enfermedad</option>
-            <option value="Cita médica">Cita médica</option>
-            <option value="Calamidad">Calamidad</option>
-            <option value="Otro">Otro</option>
-        </select>
-        <span class="input-label">DETALLES</span>
-        <textarea id="detalleExc" placeholder="Describa el motivo detalladamente..."></textarea>
-        <span class="input-label">FIRMA DEL ACUDIENTE (OBLIGATORIA)</span>
-        <div class="sig-wrap"><canvas id="sigExc"></canvas><button class="btn sec" style="margin-top:10px" onclick="limpiarPad('sigExc')">Borrar Firma</button></div>
-        <button id="btnEnviarExc" class="btn" onclick="enviarExcusa()">ENVIAR EXCUSA</button>
     </div>
-  </div>
+    <div id="connStatus" class="conn-indicator conn-offline" title="Desconectado"></div>
+  </header>
 
-  <!-- PORTAL DE SOPORTE -->
-  <div id="modalSoporte">
-    <div class="modal-header"><button class="close" onclick="cerrarSoporte()">✕</button>Soporte y Comunicación</div>
-    <div class="modal-body">
-      <!-- PASO A: LOGIN -->
-      <div id="sop_step_auth">
-        <h3 style="text-align:center">Autenticación</h3>
-        <input id="docSoporte" type="number" placeholder="Documento del estudiante..." inputmode="numeric">
-        <button class="btn" onclick="autenticarSoporte()">INGRESAR</button>
-      </div>
+  <nav class="nav-tabs">
+    <button id="btnTabAsis" class="nav-btn active-asis" onclick="switchTab('asis')">Asistencia</button>
+    <button id="btnTabObs" class="nav-btn" onclick="switchTab('obs')">Observaciones</button>
+    <button id="btnTabHerramientas" class="nav-btn" onclick="switchTab('herramientas')">Herramientas</button>
+    <button id="btnTabCorr" class="nav-btn" onclick="switchTab('corr')">Correspondencia</button>
+  </nav>
 
-      <!-- PASO B: MENÚ SOPORTE -->
-      <div id="sop_step_menu" style="display:none">
-        <div id="sop_nombre_est" style="font-weight:800; color:#1b5e20; text-align:center; margin-bottom:20px;"></div>
-        <button class="btn blue" style="margin-bottom:12px" onclick="alert('Descargando Horario Escolar...')">📅 HORARIO ESCOLAR</button>
-        <button class="btn blue" style="margin-bottom:12px" onclick="alert('Lista de Útiles 2026...')">📚 ÚTILES ESCOLARES 2026</button>
-        <button class="btn" style="margin-bottom:12px" onclick="irAInfoComunicacion()">✉️ COMUNICARSE CON EL DOCENTE</button>
-        <button class="btn sec" style="background:#6a1b9a;" onclick="irAHistorialMensajes()">📬 VER RESPUESTAS DEL DOCENTE</button>
-      </div>
-
-      <!-- PASO C: PANTALLAZO DE ENTRADA (BIENVENIDA) -->
-      <div id="sop_step_info" style="display:none">
-        <div class="welcome-soporte">
-            <strong>Bienvenido, padre de familia.</strong><br><br>
-            Este espacio le permite comunicarse directamente con el docente.<br>
-            Aquí puede escribir inquietudes, dudas, sugerencias o informar cualquier novedad relacionada con la vida escolar de su hijo.<br><br>
-            Le invitamos a expresarse con respeto y claridad.
+  <!-- VISTA 1: ASISTENCIA -->
+  <div id="view-asis">
+      <section class="card" style="border-left: 5px solid var(--accent);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 class="card-title" style="color:var(--accent); margin:0;">Asistencia Diaria</h2>
+            <input type="date" id="fechaAsistencia" style="width: auto; padding: 8px;" onchange="cargarAsistenciaDelDia()">
         </div>
-        <button class="btn" onclick="irAFormularioMsg()">ENTENDIDO</button>
-      </div>
+        <div id="attendanceList"></div>
+        <button class="btn-save" style="background:var(--accent);" onclick="guardarAsistencia()">💾 GUARDAR ASISTENCIA</button>
+        <button type="button" class="btn-historial" style="background:var(--accent);" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
+        <div id="historialExc" class="hidden-section"><div id="listaExcusas"></div></div>
+      </section>
+  </div>
 
-      <!-- PASO D: FORMULARIO MENSAJE -->
-      <div id="sop_step_form" style="display:none">
-        <h3 style="border-bottom:2px solid #263238; padding-bottom:10px; margin-bottom:15px;">Nuevo Mensaje</h3>
-        
-        <span class="input-label">FECHA</span>
-        <input id="msg_fecha" type="date">
-        
-        <span class="input-label">ASUNTO</span>
-        <input id="msg_asunto" type="text" placeholder="Inquietud, duda, sugerencia...">
-        
-        <span class="input-label">CONTENIDO DEL MENSAJE</span>
-        <textarea id="msg_texto" placeholder="Escriba aquí su mensaje detallado..."></textarea>
-        
-        <span class="input-label">FIRMA (OBLIGATORIA)</span>
-        <div class="sig-wrap"><canvas id="sigSoporte"></canvas><button class="btn sec" style="margin-top:10px" onclick="limpiarPad('sigSoporte')">Borrar Firma</button></div>
-        <button class="btn" id="btnEnviarSop" onclick="enviarMensajeSoporte()">ENVIAR AL DOCENTE</button>
-      </div>
+  <!-- VISTA 2: OBSERVACIONES -->
+  <div id="view-obs" style="display:none;">
+      <section class="card">
+        <h2 class="card-title">📝 Nuevo Registro</h2>
+        <form id="formRegistro">
+          <div class="form-group"><label>Tipo de Registro</label><select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select></div>
+          <div class="form-group"><label>Fecha</label><input type="date" id="fecha" required></div>
+          <div class="form-group">
+              <label>Seleccionar Estudiante</label>
+              <div class="search-wrapper">
+                  <input type="text" id="inputBusquedaEstudiante" placeholder="Escriba el nombre..." autocomplete="off" required>
+                  <input type="hidden" id="idEstudianteSeleccionado">
+                  <div id="dropdownEstudiantes" class="custom-dropdown"></div>
+              </div>
+          </div>
+          <div class="form-group"><label>Descripción</label><textarea id="comportamiento" placeholder="Novedad..."></textarea></div>
+          <div class="form-group"><label>Descargos</label><textarea id="descargos"></textarea></div>
+          <div class="form-group"><label>Procedimiento</label><textarea id="procedimiento"></textarea></div>
+          
+          <div class="form-group">
+              <label>Firma Estudiante</label>
+              <div class="signature-container"><canvas id="sigStudent" class="signature-pad"></canvas></div>
+              <button type="button" class="clear-btn" onclick="limpiarPad('sigStudent')">BORRAR FIRMA</button>
+          </div>
+          <div class="form-group">
+              <label>Firma Docente</label>
+              <div class="signature-container"><canvas id="sigTeacher" class="signature-pad"></canvas></div>
+              <button type="button" class="clear-btn" onclick="limpiarPad('sigTeacher')">BORRAR FIRMA</button>
+          </div>
+          <button type="submit" class="btn-save">GUARDAR REGISTRO</button>
+          <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL</button>
+        </form>
+        <div id="historialObs" class="hidden-section"><div id="listaRegistros"></div></div>
+      </section>
+  </div>
 
-      <!-- PASO E: VER RESPUESTAS (HISTORIAL) -->
-      <div id="sop_step_history" style="display:none">
-        <h3 style="color:#6a1b9a;">Mis Mensajes y Respuestas</h3>
-        <button class="btn sec" style="margin-bottom:15px; font-size:12px; padding:8px;" onclick="document.getElementById('sop_step_history').style.display='none'; document.getElementById('sop_step_menu').style.display='block';">← VOLVER</button>
-        <div id="listaMensajesRespuestas"></div>
-      </div>
+  <!-- VISTA 3: HERRAMIENTAS -->
+  <div id="view-herramientas" style="display:none;">
+    <section class="card" style="border-left: 5px solid var(--tools-color);">
+        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas</h2>
+        <div style="margin-top: 20px;">
+            <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" class="btn-tools">📓 DIARIO DE PROCESOS</a>
+            <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tools">📊 PLANILLA DE NOTAS</a>
+            <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" class="btn-tools">📚 TEMARIOS</a>
+            <a href="https://roscar33.github.io/Horario/" target="_blank" class="btn-tools">🕒 HORARIO DE CLASES</a>
+        </div>
+    </section>
+  </div>
+
+  <!-- VISTA 4: CORRESPONDENCIA -->
+  <div id="view-corr" style="display:none;">
+      <section class="card" style="border-left: 5px solid var(--corr-color);">
+        <h2 class="card-title" style="color:var(--corr-color);">📨 Buzón de Correspondencia</h2>
+        <div id="listaCorrespondencia">Cargando mensajes...</div>
+      </section>
+  </div>
+
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div id="deleteModal">
+    <div class="modal-box">
+        <h3 style="color:#dc2626">¿Eliminar registro?</h3>
+        <p style="margin:10px 0; font-size:14px; color:#666">Esta acción es irreversible.</p>
+        <button class="btn-confirm-del" id="confirmDeleteBtn">Eliminar ahora</button>
+        <button onclick="closeDeleteModal()" style="border:none; background:none; color:#666; margin-top:15px; cursor:pointer; font-weight:bold">Cancelar</button>
     </div>
-  </div>
+</div>
 
-  <button class="btn-support-trigger" onclick="abrirSoporte()">💬 Comunicación y Soporte</button>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  <!-- PANTALLAZOS ÉXITO -->
-  <div id="successAsistencia" class="success-overlay" style="background: rgba(27, 94, 32, 0.98);">
-    <h2>✅ ¡Envío Exitoso!</h2>
-    <p>“Recuerda que es responsabilidad del estudiante ponerse al día con las actividades correspondientes a la jornada que No asistió.”</p>
-    <button class="btn" style="background:white; color:#1b5e20; width:200px" onclick="location.reload()">ENTENDIDO</button>
-  </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+    projectId: "diariodeprocesos-6f78d",
+    storageBucket: "diariodeprocesos-6f78d.firebasestorage.app"
+  };
 
-  <div id="successMensaje" class="success-overlay" style="background: rgba(2, 119, 189, 0.98);">
-    <h2>✅ Mensaje Enviado</h2>
-    <p>“Apreciado Padre de familia, gracias por comunicarse, procuraré responder a su solicitud lo más pronto posible.”</p>
-    <button class="btn" style="background:white; color:#0277bd; width:200px" onclick="location.reload()">ENTENDIDO</button>
-  </div>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  <div class="footer">“Familia y escuela caminamos juntos”</div>
-  <div id="toast">🔔 ¡Atención! Tienes nuevas observaciones recientes.</div>
-
-<script>
-  // ESTUDIANTES OFICIALES
-  const estudiantesValidos = [
+  const estudiantesBase = [
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
     { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
@@ -268,257 +227,212 @@
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
-  // CARGAR DOCUMENTO GUARDADO
-  window.onload = function() {
-    const savedDoc = localStorage.getItem("padres_doc_estudiante");
-    if(savedDoc) {
-        document.getElementById("docObs").value = savedDoc;
-        document.getElementById("docExc").value = savedDoc;
-        document.getElementById("docSoporte").value = savedDoc;
-        document.getElementById("chkRemObs").checked = true;
-        document.getElementById("chkRemExc").checked = true;
-    }
-  };
-
-  // --- LÓGICA OBSERVACIONES (RESTAURADA) ---
-  let unsubscribeObs = null;
-  const audioNotif = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3');
-
-  function notificarNovedad() {
-    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    audioNotif.play().catch(e => {});
-    const x = document.getElementById("toast");
-    x.className = "show";
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
-  }
-
-  function buscarObservaciones() {
-    const docInput = document.getElementById("docObs").value.trim();
-    const remember = document.getElementById("chkRemObs").checked;
-    const out = document.getElementById("resultadoObs");
-    const btn = document.getElementById("btnBuscar");
-
-    if(!docInput) { alert("Digite documento."); return; }
-    
-    if(remember) localStorage.setItem("padres_doc_estudiante", docInput);
-    else localStorage.removeItem("padres_doc_estudiante");
-
-    if(unsubscribeObs) unsubscribeObs();
-
-    btn.disabled = true;
-    btn.textContent = "CONECTANDO...";
-    out.innerHTML = "<div style='text-align:center; padding:20px;'>Sincronizando...</div>";
-
-    const storageKey = 'count_' + docInput;
-    let lastCount = parseInt(localStorage.getItem(storageKey) || "0");
-
-    unsubscribeObs = db.collection("registrosComportamentales")
-      .where("documentoEstudiante", "==", docInput)
-      .onSnapshot(snapshot => {
-        btn.disabled = false;
-        btn.textContent = "ACTUALIZAR ESTADO";
-
-        if(snapshot.empty) { out.innerHTML = "<p style='text-align:center'>No hay registros.</p>"; return; }
-
-        const currentCount = snapshot.size;
-        if (currentCount > lastCount) {
-           notificarNovedad();
-           localStorage.setItem(storageKey, currentCount);
-        } else if (lastCount === 0) {
-           localStorage.setItem(storageKey, currentCount);
-        }
-
-        let docs = [];
-        snapshot.forEach(d => docs.push({ id:d.id, ...d.data() }));
-        docs.sort((a,b) => (a.timestamp || a.fecha).localeCompare(b.timestamp || b.fecha));
-
-        docs = docs.map((r, index) => {
-            const num = index + 1;
-            let color = "#4caf50"; 
-            if(num === 2) color = "#ff9800"; 
-            else if(num >= 3) color = "#f44336"; 
-            return { ...r, numSec: num, colorTema: color };
-        });
-
-        docs.reverse();
-        renderizarObs(docs, currentCount > lastCount);
-      });
-  }
-
-  function renderizarObs(items, hayNovedad) {
-    let html = "";
-    items.forEach((r, idx) => {
-        const firmado = !!r.firmaAcudiente;
-        const esNuevo = (idx === 0 && hayNovedad && !firmado);
-        html += `
-            <div class="card ${esNuevo ? 'new-item' : ''}">
-                <div class="top" style="background:${r.colorTema}">
-                    <div>REGISTRO N° ${r.numSec} ${esNuevo ? '<span class="new-tag">¡NUEVO!</span>' : ''}</div>
-                    <div class="badge">${firmado ? "FIRMADO ✅" : "PENDIENTE ✍️"}</div>
-                </div>
-                <div class="body">
-                    <div class="row"><b>Fecha:</b> ${r.fecha}</div>
-                    <div class="row"><b>Comportamiento:</b> ${r.comportamiento}</div>
-                    <div class="row"><b>Descargos:</b> ${r.descargos || 'Ninguno'}</div>
-                    <div class="row"><b>Procedimiento:</b> ${r.procedimiento || ''}</div>
-                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                        ${firmado ? `
-                            <div style="text-align:center">
-                                <div style="color:#2e7d32; font-weight:bold; font-size:11px;">✓ Firmado por Acudiente</div>
-                                <img src="${r.firmaAcudiente}" style="max-height:70px;">
-                            </div>
-                        ` : `
-                            <div class="sig-wrap" style="background:#fff9c4;">
-                                <div style="font-size:11px; text-align:center; font-weight:bold; margin-bottom:5px;">✍️ FIRMA RECIBIDO</div>
-                                <canvas id="cv_${r.id}"></canvas>
-                                <div class="sig-actions">
-                                    <button class="btn sec" onclick="limpiarPad('cv_${r.id}')">BORRAR</button>
-                                    <button class="btn" onclick="firmarRegistro('${r.id}')">CONFIRMAR</button>
-                                </div>
-                            </div>
-                        `}
-                    </div>
-                </div>
-            </div>`;
-    });
-    document.getElementById("resultadoObs").innerHTML = html;
-    setTimeout(() => { items.forEach(r => { if(!r.firmaAcudiente) initPad("cv_"+r.id); }); }, 200);
-  }
-
-  async function firmarRegistro(id) {
-    const p = pads.get("cv_"+id);
-    if(!p?.hasData) return alert("Firme primero.");
-    await db.collection("registrosComportamentales").doc(id).update({
-        firmaAcudiente: p.c.toDataURL(),
-        fechaFirmaAcudiente: new Date().toISOString()
-    });
-    alert("✅ Firma guardada.");
-  }
-
-  // --- ASISTENCIA Y ESTADÍSTICAS ---
-  async function activarFormularioExcusa() {
-    const docInput = document.getElementById("docExc").value.trim();
-    const est = estudiantesValidos.find(e => e.doc === docInput);
-    if(!est) return alert("No encontrado");
-    if(document.getElementById("chkRemExc").checked) localStorage.setItem("padres_doc_estudiante", docInput);
-    document.getElementById("btnInitExc").style.display="none";
-    document.getElementById("contenedorFormExc").style.display="block";
-    document.getElementById("nombreExc").innerText = est.nombre;
-    consultarEstadisticas(docInput);
-    setTimeout(() => initPad('sigExc'), 200);
-  }
-
-  async function consultarEstadisticas(docId) {
-    const snap = await db.collection("controlAsistencia").get();
-    let f = 0, e = 0;
-    snap.forEach(d => {
-        const reg = d.data().detalles?.find(x => x.doc === docId);
-        if(reg?.estado === 'I') f++;
-        if(reg?.estado === 'E') e++;
-    });
-    document.getElementById("statFallas").innerText = f;
-    document.getElementById("statExcusas").innerText = e;
-    document.getElementById("statEstado").innerText = f >= 3 ? "ALERTA" : "OK";
-    document.getElementById("statEstado").parentElement.style.background = f >= 3 ? "#d32f2f" : "#22c55e";
-  }
-
-  async function enviarExcusa() {
-    const p = pads.get("sigExc");
-    if(!p?.hasData) return alert("Firma obligatoria.");
-    await db.collection("excusasInasistencia").add({
-      documentoEstudiante: document.getElementById("docExc").value,
-      fechaInasistencia: document.getElementById("fechaExc").value,
-      motivoTipo: document.getElementById("motivoExc").value,
-      motivoDetalle: document.getElementById("detalleExc").value,
-      firmaAcudiente: p.c.toDataURL(),
-      timestamp: new Date().toISOString()
-    });
-    document.getElementById("successAsistencia").style.display = "flex";
-  }
-
-  // --- SOPORTE Y COMUNICACIÓN ---
-  let estActualSoporte = null;
-  function abrirSoporte() { document.getElementById("modalSoporte").style.display = "block"; }
-  function cerrarSoporte() { document.getElementById("modalSoporte").style.display = "none"; }
-  
-  function autenticarSoporte() {
-    const doc = document.getElementById("docSoporte").value.trim();
-    const est = estudiantesValidos.find(e => e.doc === doc);
-    if(est) {
-      estActualSoporte = est;
-      document.getElementById("sop_step_auth").style.display = "none";
-      document.getElementById("sop_step_menu").style.display = "block";
-      document.getElementById("sop_nombre_est").innerText = "Estudiante: " + est.nombre;
-    } else alert("Documento no encontrado.");
-  }
-
-  function irAInfoComunicacion() {
-    document.getElementById("sop_step_menu").style.display = "none";
-    document.getElementById("sop_step_info").style.display = "block";
-  }
-
-  function irAFormularioMsg() { 
-    document.getElementById("sop_step_info").style.display = "none"; 
-    document.getElementById("sop_step_form").style.display = "block"; 
-    document.getElementById("msg_fecha").valueAsDate = new Date();
-    setTimeout(() => initPad('sigSoporte'), 200);
-  }
-
-  async function enviarMensajeSoporte() {
-    const p = pads.get("sigSoporte");
-    const asunto = document.getElementById("msg_asunto").value.trim();
-    const texto = document.getElementById("msg_texto").value.trim();
-    const fecha = document.getElementById("msg_fecha").value;
-
-    if(!asunto || !texto || !p?.hasData) return alert("⚠️ Por favor, complete la fecha, el asunto, el contenido y firme.");
-    
-    document.getElementById("btnEnviarSop").disabled = true;
-    await db.collection("comunicacionPadres").add({
-      documentoEstudiante: estActualSoporte.doc,
-      nombreEstudiante: estActualSoporte.nombre,
-      fechaMsg: fecha,
-      asunto: asunto,
-      mensaje: texto,
-      firma: p.c.toDataURL(),
-      timestamp: new Date().toISOString()
-    });
-    document.getElementById("successMensaje").style.display = "flex";
-  }
-
-  function irAHistorialMensajes() {
-    document.getElementById("sop_step_menu").style.display = "none";
-    document.getElementById("sop_step_history").style.display = "block";
-    db.collection("comunicacionPadres").where("documentoEstudiante", "==", estActualSoporte.doc).onSnapshot(snap => {
-        let html = "";
-        snap.forEach(d => {
-            const m = d.data();
-            html += `<div class="history-card"><div class="history-header"><span>${m.asunto}</span><span>${m.fechaMsg}</span></div><div class="history-body">${m.mensaje}</div>${m.respuestaDocente ? `<div class="teacher-reply">${m.respuestaDocente}</div>` : ''}</div>`;
-        });
-        document.getElementById("listaMensajesRespuestas").innerHTML = html || "Sin mensajes.";
-    });
-  }
-
-  // --- UTILS CANVAS ---
   const pads = new Map();
-  function initPad(id){
-    const c = document.getElementById(id); if(!c) return;
+
+  // --- FUNCIÓN DE FIRMA MEJORADA ---
+  function initPad(id) {
+    const c = document.getElementById(id);
+    if (!c) return;
     const ctx = c.getContext("2d");
     const ratio = window.devicePixelRatio || 1;
     const rect = c.getBoundingClientRect();
-    c.width = rect.width * ratio; c.height = 180 * ratio; ctx.scale(ratio, ratio);
-    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
-    let drawing=false;
-    const getPos = (e) => { const r = c.getBoundingClientRect(); return { x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left, y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top }; }
-    c.addEventListener("mousedown", (e) => { drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); });
-    c.addEventListener("mousemove", (e) => { if(!drawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id, {ctx, c, hasData:true}); });
-    window.addEventListener("mouseup", () => drawing=false);
-    c.addEventListener("touchstart", (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y); }, {passive:false});
-    c.addEventListener("touchmove", (e) => { e.preventDefault(); if(!drawing)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id, {ctx, c, hasData:true}); }, {passive:false});
-    pads.set(id, {ctx, c, hasData:false});
+    c.width = rect.width * ratio;
+    c.height = 150 * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+
+    let drawing = false;
+    const getPos = (e) => {
+        const r = c.getBoundingClientRect();
+        const tx = e.touches ? e.touches[0].clientX : e.clientX;
+        const ty = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: tx - r.left, y: ty - r.top };
+    };
+
+    const start = (e) => { if(e.target === c) e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
+    const move = (e) => { if (!drawing) return; if(e.target === c) e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData: true, canvas: c}); };
+    const end = () => { drawing = false; };
+
+    c.addEventListener("mousedown", start); c.addEventListener("mousemove", move); window.addEventListener("mouseup", end);
+    c.addEventListener("touchstart", start, {passive: false}); c.addEventListener("touchmove", move, {passive: false}); c.addEventListener("touchend", end);
+
+    pads.set(id, {hasData: false, canvas: c});
   }
-  function limpiarPad(id) { const p = pads.get(id); if(p) { p.ctx.clearRect(0,0,p.c.width,p.c.height); p.hasData=false; } }
-  function verObs(){ document.getElementById("obs").style.display="block"; document.getElementById("exc").style.display="none"; document.getElementById("btnObs").classList.add("active"); document.getElementById("btnExc").classList.remove("active"); }
-  function verExc(){ document.getElementById("obs").style.display="none"; document.getElementById("exc").style.display="block"; document.getElementById("btnExc").classList.add("active"); document.getElementById("btnObs").classList.remove("active"); }
+
+  window.limpiarPad = (id) => {
+    const p = pads.get(id);
+    if (p) { p.canvas.getContext("2d").clearRect(0, 0, p.canvas.width, p.canvas.height); pads.set(id, {hasData: false, canvas: p.canvas}); }
+  };
+
+  // --- NAVEGACIÓN ---
+  window.switchTab = (t) => {
+      ['view-asis', 'view-obs', 'view-herramientas', 'view-corr'].forEach(v => document.getElementById(v).style.display = 'none');
+      ['btnTabAsis', 'btnTabObs', 'btnTabHerramientas', 'btnTabCorr'].forEach(b => document.getElementById(b).className = 'nav-btn');
+      document.getElementById('view-' + t).style.display = 'block';
+      document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).className = 'nav-btn active-' + t;
+      if (t === 'obs') setTimeout(() => { initPad('sigStudent'); initPad('sigTeacher'); }, 200);
+      if (t === 'corr') cargarCorrespondencia();
+  };
+
+  // --- BUSCADOR ---
+  const inputSearch = document.getElementById("inputBusquedaEstudiante");
+  const dropdown = document.getElementById("dropdownEstudiantes");
+  inputSearch.addEventListener("input", (e) => {
+    const txt = e.target.value.toUpperCase();
+    dropdown.innerHTML = "";
+    if(!txt) { dropdown.classList.remove("show"); return; }
+    const filtered = estudiantesBase.filter(est => est.nombre.includes(txt) || est.doc.includes(txt));
+    filtered.forEach(est => {
+        const item = document.createElement("div");
+        item.className = "dropdown-item";
+        item.innerText = est.nombre;
+        item.onclick = () => { inputSearch.value = est.nombre; document.getElementById("idEstudianteSeleccionado").value = est.doc; dropdown.classList.remove("show"); };
+        dropdown.appendChild(item);
+    });
+    dropdown.classList.add("show");
+  });
+
+  // --- ASISTENCIA ---
+  let asistenciaTemp = {};
+  function renderAsistencia() {
+      const list = document.getElementById('attendanceList');
+      let html = '';
+      estudiantesBase.forEach(e => {
+          const s = asistenciaTemp[e.doc] || 'P';
+          html += `<div class="att-card"><div class="att-header">👤 ${e.nombre}</div><div class="att-options">
+            <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">Asistió</button>
+            <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">Excusa</button>
+            <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">Inasist.</button>
+          </div></div>`;
+      });
+      list.innerHTML = html;
+  }
+  window.setAtt = (d, s) => { asistenciaTemp[d] = s; renderAsistencia(); };
+  window.cargarAsistenciaDelDia = async () => {
+      const f = document.getElementById('fechaAsistencia').value;
+      const snap = await getDoc(doc(db, "controlAsistencia", f));
+      asistenciaTemp = (snap.exists() && snap.data().detalles) ? snap.data().detalles.reduce((acc,d)=>({...acc,[d.doc]:d.estado}),{}) : {};
+      renderAsistencia();
+  };
+  window.guardarAsistencia = async () => {
+      const f = document.getElementById('fechaAsistencia').value;
+      const detalles = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'}));
+      await setDoc(doc(db, "controlAsistencia", f), {fecha:f, detalles});
+      alert("✅ Asistencia guardada.");
+  };
+
+  // --- CORRESPONDENCIA ---
+  let msgToDeleteId = null;
+  window.openDeleteModal = (id) => { msgToDeleteId = id; document.getElementById('deleteModal').style.display = 'flex'; };
+  window.closeDeleteModal = () => { msgToDeleteId = null; document.getElementById('deleteModal').style.display = 'none'; };
+  document.getElementById('confirmDeleteBtn').onclick = async () => {
+      if(!msgToDeleteId) return;
+      await deleteDoc(doc(db, "comunicacionPadres", msgToDeleteId));
+      closeDeleteModal();
+  };
+
+  function cargarCorrespondencia() {
+      onSnapshot(query(collection(db, "comunicacionPadres"), orderBy("timestamp", "desc")), (snap) => {
+          const list = document.getElementById('listaCorrespondencia');
+          if (snap.empty) { list.innerHTML = '<p style="text-align:center; padding:20px;">Sin mensajes.</p>'; return; }
+          let html = '';
+          snap.forEach(d => {
+              const m = d.data(); const id = d.id;
+              html += `
+                <div class="msg-item">
+                    <button class="btn-delete-corr" onclick="openDeleteModal('${id}')">🗑️</button>
+                    <div class="msg-header"><strong>👤 ${m.nombreEstudiante}</strong><span>📅 ${m.fechaMsg}</span></div>
+                    <div style="font-weight:bold; margin-bottom:5px;">Asunto: ${m.asunto}</div>
+                    <div class="msg-body">${m.mensaje}</div>
+                    <div style="text-align:right"><img src="${m.firma}" style="max-height:45px; border:1px dashed #ce93d8;"></div>
+                    
+                    <div style="background:#f8f0ff; padding:15px; border-radius:10px; margin-top:10px; border:1px solid #e1bee7;">
+                        ${m.respuestaDocente ? `<div style="font-size:13px; color:var(--corr-color);"><strong>Respuesta Enviada:</strong><br>${m.respuestaDocente}</div>` : 
+                        `<div>
+                            <textarea id="rep_txt_${id}" placeholder="Escribir respuesta..." style="width:100%; height:60px; padding:10px; border-radius:8px; border:1px solid #ce93d8; font-size:13px;"></textarea>
+                            <label style="font-size:11px; font-weight:bold;">Firma Docente Obligatoria:</label>
+                            <div class="signature-container"><canvas id="rep_sig_${id}" class="signature-pad" style="height:100px;"></canvas></div>
+                            <button onclick="responderMsg('${id}')" style="background:var(--corr-color); color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px; font-size:11px;">ENVIAR RESPUESTA</button>
+                        </div>`}
+                    </div>
+                </div>`;
+          });
+          list.innerHTML = html;
+          // Inicializar firmas para los mensajes sin respuesta
+          snap.forEach(d => { if(!d.data().respuestaDocente) setTimeout(() => initPad(`rep_sig_${d.id}`), 300); });
+      });
+  }
+
+  window.responderMsg = async (id) => {
+      const txt = document.getElementById(`rep_txt_${id}`).value;
+      const p = pads.get(`rep_sig_${id}`);
+      if(!txt || !p?.hasData) return alert("Escriba la respuesta y firme.");
+      await updateDoc(doc(db, "comunicacionPadres", id), { respuestaDocente: txt, firmaDocRes: p.canvas.toDataURL(), fechaRespuesta: new Date().toLocaleString() });
+      alert("✅ Respuesta enviada.");
+  };
+
+  // --- HISTORIALES ---
+  function iniciarEscuchas() {
+      onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
+          let html = '';
+          snap.forEach(d => {
+              const e = d.data(); const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
+              html += `<div class="list-card" style="border-left:5px solid var(--accent)">
+                <div class="msg-header"><b>👤 ${est ? est.nombre : e.documentoEstudiante}</b><span>📅 ${e.fechaInasistencia}</span></div>
+                <div style="font-size:13px"><strong>Motivo:</strong> ${e.motivoTipo}</div>
+                <div style="text-align:right; margin-top:5px;">${e.firmaAcudiente ? `<img src="${e.firmaAcudiente}" style="height:40px">` : ''}</div>
+              </div>`;
+          });
+          document.getElementById('listaExcusas').innerHTML = html || 'Sin excusas.';
+      });
+      onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
+          let html = '';
+          snap.forEach(d => {
+              const r = d.data();
+              html += `<div class="list-card" style="border-left:5px solid var(--primary)">
+                <div class="msg-header"><b>👤 ${r.nombreEstudiante}</b><span>📅 ${r.fecha}</span></div>
+                <div style="font-size:13px">${r.comportamiento}</div>
+              </div>`;
+          });
+          document.getElementById('listaRegistros').innerHTML = html || 'Sin registros.';
+      });
+  }
+
+  // --- FORMULARIO OBSERVACIONES ---
+  document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pEst = pads.get('sigStudent');
+      const pDoc = pads.get('sigTeacher');
+      if(!pEst?.hasData || !pDoc?.hasData) return alert("Ambas firmas son obligatorias.");
+      const data = {
+          tipoRegistro: document.getElementById('tipoRegistro').value,
+          fecha: document.getElementById('fecha').value,
+          nombreEstudiante: inputSearch.value,
+          documentoEstudiante: document.getElementById("idEstudianteSeleccionado").value,
+          comportamiento: document.getElementById('comportamiento').value,
+          descargos: document.getElementById('descargos').value,
+          procedimiento: document.getElementById('procedimiento').value,
+          timestamp: new Date().toISOString(),
+          firmaEstudiante: pEst.canvas.toDataURL(),
+          firmaDocente: pDoc.canvas.toDataURL()
+      };
+      await addDoc(collection(db, "registrosComportamentales"), data);
+      alert("✅ Registro guardado."); e.target.reset();
+      limpiarPad('sigStudent'); limpiarPad('sigTeacher');
+  });
+
+  window.onload = () => {
+      document.getElementById('fechaAsistencia').valueAsDate = new Date();
+      document.getElementById('fecha').valueAsDate = new Date();
+      renderAsistencia();
+      iniciarEscuchas();
+      cargarCorrespondencia();
+      const el = document.getElementById('connStatus');
+      window.addEventListener('online', () => el.className = 'conn-indicator conn-online');
+      window.addEventListener('offline', () => el.className = 'conn-indicator conn-offline');
+      if(navigator.onLine) el.className = 'conn-indicator conn-online';
+  };
+  window.toggleHistorial = (id) => { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
 </script>
 </body>
 </html>
