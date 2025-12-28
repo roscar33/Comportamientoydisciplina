@@ -51,7 +51,7 @@
     .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px; }
     .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
 
-    /* ASISTENCIA (ESTILO ORIGINAL RESTAURADO) */
+    /* ASISTENCIA GRID */
     .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
     .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
     .att-name { font-weight: 600; font-size: 14px; color: #334155; }
@@ -61,32 +61,28 @@
     .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
     .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
-    /* BUSCADOR DE EXCUSAS (ESTILO ORIGINAL) */
+    /* BUSCADOR CON LUPA */
     .search-box-container { margin-bottom: 15px; position: relative; }
-    .search-box-container input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 14px; outline: none; }
+    .search-box-container input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 14px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .search-box-container .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; }
 
-    /* HISTORIAL CARDS (ESTILO ORIGINAL PARA EXCUSAS) */
+    /* HISTORIAL EXCUSAS */
     .excusa-card { background: #fff; border-radius: 18px; border-left: 6px solid var(--accent); padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; }
     .excusa-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
     .excusa-name { font-weight: 800; color: #1e293b; font-size: 14px; }
     .excusa-date { font-size: 10px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
-    .excusa-body { font-size: 13px; color: #475569; line-height: 1.5; }
-    .excusa-firma-wrap { text-align: right; margin-top: 10px; border-top: 1px dashed #eee; padding-top: 10px; }
-    .excusa-firma-img { max-height: 50px; border: 1px solid #eee; background: #fff; }
-    .excusa-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .excusa-body { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 10px; }
+    .excusa-firma-wrap { text-align: right; border-top: 1px dashed #eee; padding-top: 10px; }
+    .excusa-firma-img { max-height: 50px; border: 1px solid #eee; background: #fff; max-width: 100%; object-fit: contain; }
 
-    /* OBSERVACIONES: HISTORIAL CON LUPITA Y FIRMAS (ÚLTIMA MEJORA) */
-    .obs-list-card { background: #fff; border-radius: 18px; border-left: 6px solid var(--primary); padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e8f5e9; }
-    .sigs-row { display: flex; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; overflow-x: auto; }
-    .sig-preview { flex: 1; text-align: center; min-width: 80px; }
-    .sig-preview span { display: block; font-size: 8px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 4px; }
-    .sig-img-view { max-height: 40px; border: 1px solid #eee; background: #fff; max-width: 100%; object-fit: contain; }
+    /* OBSERVACIONES CARDS */
+    .obs-list-card { background: #fff; border-radius: 18px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; border-left: 6px solid var(--primary); }
+    .sigs-history-row { display: flex; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; overflow-x: auto; }
+    .sig-view-box { flex: 1; text-align: center; min-width: 90px; }
+    .sig-view-box span { display: block; font-size: 8px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+    .sig-img-history { max-height: 40px; border: 1px solid #f0f0f0; background: #fff; max-width: 100%; object-fit: contain; }
 
-    /* FORMULARIOS Y OTROS */
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
-    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; outline: none; }
+    /* BOTONES */
     .btn-save { background: var(--primary); padding: 15px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 15px; width: 100%; margin-top: 10px; }
     .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; padding: 12px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; }
     .btn-mini { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
@@ -95,24 +91,22 @@
     .btn-edit-obs { background: #0288d1; color: white; }
     .btn-del { background: #fee2e2; color: #dc2626; }
 
-    /* FIRMA PAD */
+    /* FORMULARIOS */
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; outline: none; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    
     .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 12px; overflow: hidden; }
     canvas.signature-pad { width: 100%; height: 150px; cursor: crosshair; touch-action: none; display: block; }
     .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; }
 
-    /* MODAL */
+    /* HERRAMIENTAS */
+    .btn-tools { background: var(--tools-color); color: white; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+
     #deleteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
     .modal-box { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
-
-    /* DROPDOWN */
-    .search-wrapper { position: relative; }
-    .custom-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--primary); border-top: none; border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-    .custom-dropdown.show { display: block; }
-    .dropdown-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
-
-    /* CORRESPONDENCIA Y HERRAMIENTAS */
-    .msg-item { background: #fff; border-radius: 18px; border-left: 6px solid var(--corr-color); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #f3e5f5; margin-bottom: 15px; position: relative; }
-    .btn-tools { background: var(--tools-color); color: white; font-size: 16px; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
 
     @media(max-width: 600px) { .nav-tabs { flex-wrap: nowrap; overflow-x: auto; } .nav-btn { min-width: 110px; } }
   </style>
@@ -129,7 +123,7 @@
           <div class="brand-subtitle">Gestión Escolar · 2026</div>
         </div>
     </div>
-    <div id="connStatus" class="conn-indicator conn-offline" title="Desconectado"></div>
+    <div id="connStatus" class="conn-indicator conn-offline"></div>
   </header>
 
   <nav class="nav-tabs">
@@ -139,7 +133,7 @@
     <button id="btnTabCorr" class="nav-btn" onclick="switchTab('corr')">Correspondencia</button>
   </nav>
 
-  <!-- VISTA 1: ASISTENCIA (Original Restaurada) -->
+  <!-- VISTA 1: ASISTENCIA -->
   <div id="view-asis">
       <section class="card" style="border-left: 5px solid var(--accent);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -156,16 +150,28 @@
         <button type="button" class="btn-historial" style="background:var(--accent);" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS (PADRES)</button>
         
         <div id="historialExc" class="hidden-section">
+            <!-- BUSCADOR LUPITA PARA EXCUSAS -->
             <div class="search-box-container">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchExcusaInput" placeholder="Buscar estudiante o motivo..." oninput="window.filtrarExcusas()">
             </div>
             <div id="listaExcusas">Cargando...</div>
         </div>
+
+        <div style="margin:25px 0 15px; border-top:2px dashed #eee; padding-top:20px; text-align:center;">
+          <h3 style="font-size:12px; color:var(--accent); margin-bottom:10px;">Compilación Mensual</h3>
+          <select id="mesCompilacion" style="width:100%; padding:10px; border-radius:10px; margin-bottom:10px;">
+            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+          <button class="btn-mini btn-pdf-exc" style="width:100%; padding:12px; border-radius:30px;" onclick="window.descargarReporteMensualAsistencia()">📊 DESCARGAR COMPILACIÓN MENSUAL (PDF)</button>
+        </div>
       </section>
   </div>
 
-  <!-- VISTA 2: OBSERVACIONES (Con todas las mejoras recientes) -->
+  <!-- VISTA 2: OBSERVACIONES -->
   <div id="view-obs" style="display:none;">
       <section class="card">
         <h2 class="card-title">📝 Registro de Observaciones</h2>
@@ -178,15 +184,15 @@
           <div class="form-group">
               <label>Buscar Estudiante</label>
               <div class="search-wrapper">
-                  <input type="text" id="inputBusquedaEstudiante" placeholder="Nombre para el registro..." autocomplete="off" required>
+                  <input type="text" id="inputBusquedaEstudiante" placeholder="Nombre del estudiante..." autocomplete="off" required>
                   <input type="hidden" id="idEstudianteSeleccionado">
                   <div id="dropdownEstudiantes" class="custom-dropdown"></div>
               </div>
           </div>
-          <div class="form-group"><label>Observación / Novedad</label><textarea id="comportamiento" placeholder="Escriba aquí la novedad presentada..."></textarea></div>
+          <div class="form-group"><label>Descripción</label><textarea id="comportamiento" placeholder="Novedad presentada..."></textarea></div>
           <div class="form-grid">
             <div class="form-group"><label>Descargos</label><textarea id="descargos"></textarea></div>
-            <div class="form-group"><label>Compromisos</label><textarea id="procedimiento"></textarea></div>
+            <div class="form-group"><label>Procedimiento</label><textarea id="procedimiento"></textarea></div>
           </div>
           <div class="form-grid">
              <div class="form-group">
@@ -200,47 +206,46 @@
                 <button type="button" style="border:none; background:none; color:red; font-size:10px; cursor:pointer;" onclick="limpiarPad('sigTeacher')">Limpiar</button>
              </div>
           </div>
-          <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR REGISTRO</button>
+          <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR OBSERVACIÓN</button>
           <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL</button>
         </form>
-        
         <div id="historialObs" class="hidden-section">
             <div class="search-box-container">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchHistoryInput" placeholder="Buscar en historial de observaciones..." oninput="window.filtrarHistorialObs()">
+                <input type="text" id="searchHistoryInput" placeholder="Buscar observación..." oninput="window.filtrarHistorialObs()">
             </div>
             <div id="listaRegistros"></div>
         </div>
       </section>
   </div>
 
-  <!-- HERRAMIENTAS -->
+  <!-- VISTA 3: HERRAMIENTAS -->
   <div id="view-herramientas" style="display:none;">
     <section class="card" style="border-left: 5px solid var(--tools-color);">
-        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas</h2>
+        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas Docentes</h2>
         <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" class="btn-tools">📓 DIARIO DE PROCESOS</a>
         <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tools">📊 PLANILLA DE NOTAS</a>
         <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" class="btn-tools">📚 TEMARIOS</a>
-        <a href="https://roscar33.github.io/Horario/" target="_blank" class="btn-tools">🕒 HORARIO</a>
+        <a href="https://roscar33.github.io/Horario/" target="_blank" class="btn-tools">🕒 HORARIO DE CLASES</a>
     </section>
   </div>
 
-  <!-- CORRESPONDENCIA -->
+  <!-- VISTA 4: CORRESPONDENCIA -->
   <div id="view-corr" style="display:none;">
       <section class="card" style="border-left: 5px solid var(--corr-color);">
-        <h2 class="card-title" style="color:var(--corr-color);">📨 Buzón de Mensajes</h2>
-        <div id="listaCorrespondencia">Cargando...</div>
+        <h2 class="card-title" style="color:var(--corr-color);">📨 Buzón de Correspondencia</h2>
+        <div id="listaCorrespondencia">Cargando mensajes...</div>
       </section>
   </div>
 
 </div>
 
 <!-- MODAL ELIMINAR -->
-<div id="deleteModal"><div class="modal-box"><h3 style="color:#dc2626">¿Eliminar registro?</h3><p style="margin:10px 0; font-size:14px; color:#666">Esta acción es irreversible.</p><button class="btn-save" id="confirmDeleteBtn" style="background:#dc2626; width:100%">ELIMINAR AHORA</button><button onclick="closeDeleteModal()" style="border:none; background:none; color:#666; margin-top:15px; cursor:pointer; font-weight:bold">CANCELAR</button></div></div>
+<div id="deleteModal"><div class="modal-box"><h3 style="color:#dc2626">¿Eliminar registro?</h3><p style="margin:10px 0; font-size:14px; color:#666">Esta acción es irreversible.</p><button class="btn-save" id="confirmDeleteBtn" style="background:#dc2626; width:100%">Eliminar ahora</button><button onclick="closeDeleteModal()" style="border:none; background:none; color:#666; margin-top:15px; cursor:pointer; font-weight:bold">Cancelar</button></div></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
@@ -286,9 +291,9 @@
     let drawing = false;
     const getPos = (e) => {
         const r = c.getBoundingClientRect();
-        const tx = e.touches ? e.touches[0].clientX : e.clientX;
-        const ty = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: tx - r.left, y: ty - r.top };
+        const tx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+        const ty = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+        return { x: tx, y: ty };
     };
     c.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
     c.onmousemove = (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData: true, canvas: c}); };
@@ -301,7 +306,7 @@
     const p = pads.get(id); if (p) { p.canvas.getContext("2d").clearRect(0, 0, p.canvas.width, p.canvas.height); pads.set(id, {hasData: false, canvas: p.canvas}); }
   };
 
-  // --- ASISTENCIA (LÓGICA ORIGINAL) ---
+  // --- ASISTENCIA ---
   let asistenciaTemp = {};
   window.renderAsistencia = () => {
       const list = document.getElementById('attendanceList');
@@ -328,96 +333,149 @@
       const f = document.getElementById('fechaAsistencia').value;
       const detalles = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'}));
       await setDoc(doc(db, "controlAsistencia", f), {fecha:f, detalles});
-      alert("✅ Asistencia del día guardada.");
+      alert("✅ Asistencia guardada.");
   };
 
-  // --- EXCUSAS (LÓGICA ORIGINAL) ---
-  window.filtrarExcusas = () => {
-      const term = document.getElementById('searchExcusaInput').value.toUpperCase();
-      const filtered = localExcusas.filter(e => {
-          const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
-          const nombre = est ? est.nombre : e.documentoEstudiante;
-          return nombre.includes(term) || (e.motivoTipo && e.motivoTipo.toUpperCase().includes(term));
-      });
-      renderizarListaExcusas(filtered);
-  };
-  function renderizarListaExcusas(data) {
-      const list = document.getElementById('listaExcusas');
-      let html = '';
-      data.forEach(e => {
-          const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
-          const nombreEst = est ? est.nombre : e.documentoEstudiante;
-          html += `
-            <div class="excusa-card">
-                <div class="excusa-header"><span class="excusa-name">👤 ${nombreEst}</span><span class="excusa-date">📅 ${e.fechaInasistencia || e.fecha}</span></div>
-                <div class="excusa-body"><p><b>Tipo:</b> ${e.motivoTipo}</p><p><b>Motivo:</b> ${e.motivoDetalle || "---"}</p></div>
-                <div class="excusa-firma-wrap">${e.firmaAcudiente ? `<img src="${e.firmaAcudiente}" class="excusa-firma-img">` : '<em>Sin firma</em>'}</div>
-                <div class="excusa-actions">
-                    <button class="btn-mini btn-pdf-exc" onclick="window.descargarPDFExcusa('${e.id}')">📄 PDF</button>
-                    <button class="btn-mini btn-del" onclick="window.openDeleteModal('${e.id}','excusasInasistencia')">🗑️ BORRAR</button>
-                </div>
-            </div>`;
-      });
-      list.innerHTML = html || '<p style="text-align:center; padding:20px; color:#888;">No se encontraron registros.</p>';
-  }
+  // --- REPORTE MENSUAL ASISTENCIA ---
+  window.descargarReporteMensualAsistencia = async () => {
+    const mes = document.getElementById('mesCompilacion').value;
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF('l', 'mm', 'a4');
 
-  // --- OBSERVACIONES (LÓGICA CON MEJORAS) ---
-  function iniciarEscuchasObservaciones() {
-    onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
-      localRegistrosObs = []; snap.forEach(d => localRegistrosObs.push({ id: d.id, ...d.data() }));
-      renderizarListaObs(localRegistrosObs);
+    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 297, 30, 'F');
+    const logoImg = document.getElementById('schoolLogo');
+    if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 3, 24, 24); } catch(e){}
+    docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(15); docPDF.setFont("helvetica", "bold");
+    docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 155, 12, { align: "center" });
+    docPDF.setFontSize(11); docPDF.text(`Consolidado Mensual de Asistencia - Mes ${mes} - Año 2026`, 155, 22, { align: "center" });
+
+    const snap = await getDocs(collection(db, "controlAsistencia"));
+    const dias = [];
+    snap.forEach(d => { if(d.id.startsWith(`2026-${mes}`)) dias.push({f: d.id, d: d.data()}); });
+    dias.sort((a,b) => a.f.localeCompare(b.f));
+    
+    if(dias.length === 0) return alert("Sin datos registrados para este mes.");
+
+    const head = [["Estudiante", ...dias.map(x => x.f.split("-")[2]), "P", "E", "I"]];
+    const body = estudiantesBase.map(est => {
+        let p=0, e=0, i=0;
+        const row = [est.nombre];
+        dias.forEach(dia => {
+            const st = dia.d.detalles.find(x => x.doc === est.doc)?.estado || '-';
+            row.push(st);
+            if(st==='P') p++; if(st==='E') e++; if(st==='I') i++;
+        });
+        return [...row, p, e, i];
     });
-  }
 
-  function renderizarListaObs(data) {
-    let html = '';
-    data.forEach(r => {
-      html += `
-        <div class="obs-list-card">
-          <div class="excusa-header"><b class="excusa-name">👤 ${r.nombreEstudiante}</b><span class="excusa-date">📅 ${r.fecha}</span></div>
-          <p style="font-size:13px; color:#444;">${r.comportamiento}</p>
-          <div class="sigs-row">
-            <div class="sig-preview"><span>Estudiante</span>${r.firmaEstudiante ? `<img src="${r.firmaEstudiante}" class="sig-img-view">` : '<small>N/A</small>'}</div>
-            <div class="sig-preview"><span>Docente</span>${r.firmaDocente ? `<img src="${r.firmaDocente}" class="sig-img-view">` : '<small>N/A</small>'}</div>
-            <div class="sig-preview"><span>Acudiente</span>${r.firmaAcudiente ? `<img src="${r.firmaAcudiente}" class="sig-img-view">` : '<small>Pte</small>'}</div>
+    docPDF.autoTable({ startY: 35, head: head, body: body, theme: 'grid', styles: {fontSize: 7}, headStyles: {fillColor: [27,94,32]} });
+    docPDF.save(`Reporte_Mensual_Asistencia_${mes}_2026.pdf`);
+  };
+
+  // --- PDF EXCUSA (ORGANIZADO Y FUNCIONAL) ---
+  window.descargarPDFExcusa = (id) => {
+    const data = localExcusas.find(x => x.id === id); if(!data) return;
+    const est = estudiantesBase.find(x => x.doc === data.documentoEstudiante);
+    const { jsPDF } = window.jspdf;
+    try {
+        const docPDF = new jsPDF('p', 'mm', 'a4');
+        docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
+        const logoImg = document.getElementById('schoolLogo');
+        if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
+        docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(13); docPDF.text("Institución Educativa de María - Sede Santa Juana", 105, 15, {align: "center"});
+        docPDF.setFontSize(10); docPDF.text("Justificación de Inasistencia Escolar 2026", 105, 25, {align: "center"});
+        docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(12);
+        let y = 55;
+        docPDF.text(`Estudiante: ${est ? est.nombre : data.documentoEstudiante}`, 14, y); y+=10;
+        docPDF.text(`Fecha inasistencia: ${data.fechaInasistencia || data.fecha}`, 14, y); y+=10;
+        docPDF.text(`Motivo: ${data.motivoTipo}`, 14, y); y+=12;
+        docPDF.setFont("helvetica", "bold"); docPDF.text("Detalle:", 14, y); docPDF.setFont("helvetica", "normal"); y+=7;
+        docPDF.text(docPDF.splitTextToSize(data.motivoDetalle || "No se adjuntó detalle.", 180), 14, y);
+        if(data.firmaAcudiente) {
+            docPDF.text("Firma del Padre/Acudiente:", 14, 150);
+            docPDF.addImage(data.firmaAcudiente, 'PNG', 14, 155, 60, 20);
+        }
+        docPDF.save(`Excusa_${data.documentoEstudiante}.pdf`);
+    } catch(err) { alert("Error al generar PDF."); }
+  };
+
+  // --- FILTRADO EXCUSAS ---
+  window.filtrarExcusas = () => {
+    const t = document.getElementById('searchExcusaInput').value.toUpperCase();
+    renderizarExcusas(localExcusas.filter(e => {
+        const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
+        return (est?.nombre || "").includes(t) || (e.motivoTipo || "").toUpperCase().includes(t);
+    }));
+  };
+  function renderizarExcusas(data) {
+    const list = document.getElementById('listaExcusas');
+    list.innerHTML = data.map(e => {
+        const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
+        return `
+        <div class="excusa-card">
+          <div class="excusa-header"><span class="excusa-name">👤 ${est ? est.nombre : "N/A"}</span><span class="excusa-date">📅 ${e.fechaInasistencia || e.fecha}</span></div>
+          <div class="excusa-body">
+            <b>Tipo:</b> ${e.motivoTipo}<br>
+            <b>Explicación:</b> ${e.motivoDetalle || "Sin detalle"}<br>
+          </div>
+          <div class="excusa-firma-wrap">
+            ${e.firmaAcudiente ? `<img src="${e.firmaAcudiente}" class="excusa-firma-img">` : '<em>Firma pendiente</em>'}
           </div>
           <div class="excusa-actions">
-            <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFObservacion('${r.id}')">📄 PDF</button>
-            <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️ EDITAR</button>
-            <button class="btn-mini btn-del" onclick="window.openDeleteModal('${r.id}','registrosComportamentales')">🗑️</button>
+            <button class="btn-mini btn-pdf-exc" onclick="window.descargarPDFExcusa('${e.id}')">📄 PDF</button>
+            <button class="btn-mini btn-del" onclick="window.openDeleteModal('${e.id}','excusasInasistencia')">🗑️</button>
           </div>
         </div>`;
-    });
-    const container = document.getElementById('listaRegistros');
-    if(container) container.innerHTML = html || '<p style="text-align:center;color:#999;padding:20px;">Sin registros.</p>';
+    }).join('');
   }
 
+  // --- OBSERVACIONES (LÓGICA CONSERVADA) ---
+  function iniciarEscuchasObs() {
+    onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
+      localRegistrosObs = []; snap.forEach(d => localRegistrosObs.push({ id: d.id, ...d.data() }));
+      renderRegistrosObs(localRegistrosObs);
+    });
+  }
+  function renderRegistrosObs(data) {
+    const list = document.getElementById('listaRegistros');
+    list.innerHTML = data.map(r => `
+      <div class="obs-list-card">
+        <div class="excusa-header"><b class="excusa-name">👤 ${r.nombreEstudiante}</b><span class="excusa-date">${r.fecha}</span></div>
+        <p style="font-size:12px; color:#444;">${r.comportamiento}</p>
+        <div class="sigs-history-row">
+          <div class="sig-view-box"><span>Estud.</span>${r.firmaEstudiante ? `<img src="${r.firmaEstudiante}" class="sig-img-history">` : 'N/A'}</div>
+          <div class="sig-view-box"><span>Docen.</span>${r.firmaDocente ? `<img src="${r.firmaDocente}" class="sig-img-history">` : 'N/A'}</div>
+          <div class="sig-view-box"><span>Acud.</span>${r.firmaAcudiente ? `<img src="${r.firmaAcudiente}" class="sig-img-history">` : 'Pte'}</div>
+        </div>
+        <div class="excusa-actions">
+          <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFObs('${r.id}')">📄 PDF</button>
+          <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️ EDITAR</button>
+          <button class="btn-mini btn-del" onclick="window.openDeleteModal('${r.id}','registrosComportamentales')">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
   window.filtrarHistorialObs = () => {
-    const term = document.getElementById('searchHistoryInput').value.toUpperCase();
-    const filtered = localRegistrosObs.filter(r => r.nombreEstudiante.toUpperCase().includes(term));
-    renderizarListaObs(filtered);
+    const t = document.getElementById('searchHistoryInput').value.toUpperCase();
+    renderRegistrosObs(localRegistrosObs.filter(r => r.nombreEstudiante.toUpperCase().includes(t)));
   };
-
-  window.descargarPDFObservacion = (id) => {
+  window.descargarPDFObs = (id) => {
     const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
     const { jsPDF } = window.jspdf; const docPDF = new jsPDF('p', 'mm', 'a4');
     docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
     const logoImg = document.getElementById('schoolLogo');
     if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
-    docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(12); docPDF.setFont("helvetica", "bold");
-    docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 120, 16, { align: "center" });
-    docPDF.setFontSize(10); docPDF.text("Seguimiento comportamental y académico de primaria año 2026", 120, 26, { align: "center" });
-    docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(11); let y = 50;
-    docPDF.text(`ESTUDIANTE: ${r.nombreEstudiante}`, 14, y); y += 10;
-    docPDF.text(`TIPO: ${r.tipoRegistro} | FECHA: ${r.fecha}`, 14, y); y += 15;
-    docPDF.setFont("helvetica", "bold"); docPDF.text("OBSERVACIÓN:", 14, y); y += 6;
-    docPDF.setFont("helvetica", "normal"); docPDF.text(docPDF.splitTextToSize(r.comportamiento, 180), 14, y); y += 35;
+    docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(12); docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 105, 15, {align: "center"});
+    docPDF.setFontSize(10); docPDF.text("Seguimiento comportamental y académico 2026", 105, 25, {align: "center"});
+    docPDF.setTextColor(0,0,0); docPDF.setFontSize(11); let y = 55;
+    docPDF.text(`Estudiante: ${r.nombreEstudiante}`, 14, y); y+=10;
+    docPDF.text(`Fecha: ${r.fecha} | Tipo: ${r.tipoRegistro}`, 14, y); y+=15;
+    docPDF.setFont("helvetica", "bold"); docPDF.text("Descripción:", 14, y); y+=6;
+    docPDF.setFont("helvetica", "normal"); docPDF.text(docPDF.splitTextToSize(r.comportamiento, 180), 14, y);
     if(r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, 245, 45, 15);
     if(r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 85, 245, 45, 15);
     if(r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 155, 245, 45, 15);
-    docPDF.save(`Seguimiento_${r.nombreEstudiante}.pdf`);
+    docPDF.save(`Obs_${r.nombreEstudiante}.pdf`);
   };
-
   window.cargarParaEditarObs = (id) => {
     const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
     document.getElementById('editObsId').value = r.id;
@@ -429,73 +487,72 @@
     document.getElementById('descargos').value = r.descargos || "";
     document.getElementById('procedimiento').value = r.procedimiento || "";
     document.getElementById('btnSubmitObs').innerText = "ACTUALIZAR REGISTRO";
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({top: 0, behavior: 'smooth'});
   };
-
   document.getElementById('formRegistro').onsubmit = async (e) => {
     e.preventDefault();
-    const pEst = pads.get('sigStudent'); const pDoc = pads.get('sigTeacher');
-    if(!pEst?.hasData || !pDoc?.hasData) return alert("Firmas obligatorias.");
+    const pE = pads.get('sigStudent'); const pT = pads.get('sigTeacher');
+    if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
     const editId = document.getElementById('editObsId').value;
     const data = {
       tipoRegistro: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value,
       nombreEstudiante: document.getElementById("inputBusquedaEstudiante").value, documentoEstudiante: document.getElementById("idEstudianteSeleccionado").value,
       comportamiento: document.getElementById('comportamiento').value, descargos: document.getElementById('descargos').value,
       procedimiento: document.getElementById('procedimiento').value, timestamp: new Date().toISOString(),
-      firmaEstudiante: pEst.canvas.toDataURL(), firmaDocente: pDoc.canvas.toDataURL()
+      firmaEstudiante: pE.canvas.toDataURL(), firmaDocente: pT.canvas.toDataURL()
     };
     if(editId) await updateDoc(doc(db, "registrosComportamentales", editId), data);
     else await addDoc(collection(db, "registrosComportamentales"), data);
-    alert("✅ Operación exitosa."); e.target.reset(); document.getElementById('editObsId').value = ""; document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
+    alert("✅ Operación exitosa."); e.target.reset(); document.getElementById('editObsId').value = "";
+    document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
     window.limpiarPad('sigStudent'); window.limpiarPad('sigTeacher');
   };
 
-  // --- OTROS COMPONENTES ---
+  // --- OTROS ---
   function cargarCorrespondencia() {
     onSnapshot(query(collection(db, "comunicacionPadres"), orderBy("timestamp", "desc")), (snap) => {
       let html = ''; snap.forEach(d => {
         const m = d.data(); const id = d.id;
-        html += `<div class="msg-item"><button onclick="window.openDeleteModal('${id}','comunicacionPadres')" style="position:absolute; top:10px; right:10px; border:none; background:none; cursor:pointer;">🗑️</button>
+        html += `<div class="excusa-card">
           <strong>👤 ${m.nombreEstudiante}</strong><div style="font-size:13px; margin:8px 0;">${m.mensaje}</div>
-          ${m.respuestaDocente ? `<div style="color:green; font-size:12px;"><b>Tu Respuesta:</b> ${m.respuestaDocente}</div>` : `<textarea id="rep_txt_${id}" placeholder="Escribir respuesta..."></textarea><button onclick="responderMsg('${id}')" class="btn-mini btn-edit-obs" style="width:100%; margin-top:5px;">Responder</button>`}
+          ${m.respuestaDocente ? `<div style="color:green; font-size:12px;"><b>Resp:</b> ${m.respuestaDocente}</div>` : `<textarea id="rep_txt_${id}"></textarea><button onclick="responderMsg('${id}')">Responder</button>`}
         </div>`;
       });
       document.getElementById('listaCorrespondencia').innerHTML = html || 'Sin mensajes.';
     });
   }
-
-  // MODAL ELIMINAR
   window.openDeleteModal = (id, col) => { currentDeleteInfo = { id, collection: col }; document.getElementById('deleteModal').style.display = 'flex'; };
   window.closeDeleteModal = () => { document.getElementById('deleteModal').style.display = 'none'; };
   document.getElementById('confirmDeleteBtn').onclick = async () => {
     await deleteDoc(doc(db, currentDeleteInfo.collection, currentDeleteInfo.id)); window.closeDeleteModal();
   };
 
-  // BUSCADOR DE REGISTRO
-  const inputSearch = document.getElementById("inputBusquedaEstudiante");
-  const dropdown = document.getElementById("dropdownEstudiantes");
-  inputSearch.oninput = (e) => {
-    const txt = e.target.value.toUpperCase(); dropdown.innerHTML = ""; if(!txt) { dropdown.classList.remove("show"); return; }
-    estudiantesBase.filter(est => est.nombre.includes(txt)).forEach(est => {
+  const inpS = document.getElementById("inputBusquedaEstudiante");
+  const dropS = document.getElementById("dropdownEstudiantes");
+  inpS.oninput = (e) => {
+    const v = e.target.value.toUpperCase(); dropS.innerHTML = ""; if(!v) { dropS.classList.remove("show"); return; }
+    estudiantesBase.filter(est => est.nombre.includes(v)).forEach(est => {
       const item = document.createElement("div"); item.className = "dropdown-item"; item.innerText = est.nombre;
-      item.onclick = () => { inputSearch.value = est.nombre; document.getElementById("idEstudianteSeleccionado").value = est.doc; dropdown.classList.remove("show"); };
+      item.onclick = () => { inpS.value = est.nombre; document.getElementById("idEstudianteSeleccionado").value = est.doc; dropS.classList.remove("show"); };
       dropdown.appendChild(item);
-    }); dropdown.classList.add("show");
+    }); dropS.classList.add("show");
   };
 
   window.onload = () => {
     document.getElementById('fechaAsistencia').valueAsDate = new Date();
     document.getElementById('fecha').valueAsDate = new Date();
     window.renderAsistencia();
-    iniciarEscuchasObservaciones();
+    iniciarEscuchasObs();
     onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
       localExcusas = []; snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
       window.filtrarExcusas();
     });
-    const el = document.getElementById('connStatus');
-    if(navigator.onLine) el.className = 'conn-indicator conn-online';
+    const st = document.getElementById('connStatus');
+    if(navigator.onLine) st.className = 'conn-indicator conn-online';
   };
   window.toggleHistorial = (id) => { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
 </script>
 </body>
 </html>
+
+
