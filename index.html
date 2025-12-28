@@ -51,7 +51,7 @@
     .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px; }
     .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
 
-    /* ASISTENCIA GRID */
+    /* ASISTENCIA */
     .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
     .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
     .att-name { font-weight: 600; font-size: 14px; color: #334155; }
@@ -61,28 +61,31 @@
     .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
     .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
-    /* BUSCADOR CON LUPA */
-    .search-box-container { margin-bottom: 15px; position: relative; }
-    .search-box-container input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 14px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .search-box-container .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; }
+    .compilation-monthly { margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 20px; border: 1px solid #bae6fd; text-align: center; }
+    .comp-select { padding: 10px; width: 100%; border-radius: 12px; border: 1px solid #7dd3fc; margin-bottom: 10px; font-weight: bold; color: var(--accent); }
 
-    /* HISTORIAL EXCUSAS */
+    /* EXCUSAS CARDS */
     .excusa-card { background: #fff; border-radius: 18px; border-left: 6px solid var(--accent); padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; }
     .excusa-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
     .excusa-name { font-weight: 800; color: #1e293b; font-size: 14px; }
     .excusa-date { font-size: 10px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
-    .excusa-body { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 10px; }
-    .excusa-firma-wrap { text-align: right; border-top: 1px dashed #eee; padding-top: 10px; }
-    .excusa-firma-img { max-height: 50px; border: 1px solid #eee; background: #fff; max-width: 100%; object-fit: contain; }
+    .excusa-body { font-size: 13px; color: #475569; line-height: 1.5; }
+    .excusa-firma-wrap { text-align: right; margin-top: 10px; border-top: 1px dashed #eee; padding-top: 10px; }
+    .excusa-firma-img { max-height: 50px; border: 1px solid #eee; background: #fff; }
 
-    /* OBSERVACIONES CARDS */
+    /* OBSERVACIONES LIST CARDS */
     .obs-list-card { background: #fff; border-radius: 18px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; border-left: 6px solid var(--primary); }
     .sigs-history-row { display: flex; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; overflow-x: auto; }
     .sig-view-box { flex: 1; text-align: center; min-width: 90px; }
     .sig-view-box span { display: block; font-size: 8px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 4px; }
     .sig-img-history { max-height: 40px; border: 1px solid #f0f0f0; background: #fff; max-width: 100%; object-fit: contain; }
 
-    /* BOTONES */
+    /* BUSCADORES CON LUPA */
+    .search-box-container { margin-bottom: 15px; position: relative; }
+    .search-box-container input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 14px; outline: none; }
+    .search-box-container .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; }
+
+    /* BOTONES ACCIÓN */
     .btn-save { background: var(--primary); padding: 15px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 15px; width: 100%; margin-top: 10px; }
     .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; padding: 12px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; }
     .btn-mini { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
@@ -94,19 +97,20 @@
     /* FORMULARIOS */
     .form-group { margin-bottom: 12px; }
     label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
-    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; outline: none; }
+    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid #ccc; background: #fafafa; font-size: 14px; }
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
     @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-    
+
     .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 12px; overflow: hidden; }
     canvas.signature-pad { width: 100%; height: 150px; cursor: crosshair; touch-action: none; display: block; }
     .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; }
 
-    /* HERRAMIENTAS */
-    .btn-tools { background: var(--tools-color); color: white; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-
+    /* MODAL */
     #deleteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
     .modal-box { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
+
+    /* HERRAMIENTAS */
+    .btn-tools { background: var(--tools-color); color: white; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
 
     @media(max-width: 600px) { .nav-tabs { flex-wrap: nowrap; overflow-x: auto; } .nav-btn { min-width: 110px; } }
   </style>
@@ -137,7 +141,7 @@
   <div id="view-asis">
       <section class="card" style="border-left: 5px solid var(--accent);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 class="card-title" style="color:var(--accent); margin:0;">Registro de Asistencia</h2>
+            <h2 class="card-title" style="color:var(--accent); margin:0;">Registro Diario</h2>
             <input type="date" id="fechaAsistencia" style="width: auto; padding: 8px;" onchange="window.cargarAsistenciaDelDia()">
         </div>
         
@@ -145,33 +149,33 @@
 
         <button class="btn-save" style="background:var(--accent);" onclick="window.guardarAsistencia()">💾 GUARDAR ASISTENCIA</button>
 
-        <div style="margin:25px 0 15px; border-bottom:2px dashed #e0e0e0; color:var(--accent); font-weight:700; font-size:14px; text-transform:uppercase;">Gestión de Excusas</div>
-        
-        <button type="button" class="btn-historial" style="background:var(--accent);" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS (PADRES)</button>
+        <div class="compilation-monthly">
+            <h3 style="font-size: 13px; color: var(--accent); margin-bottom: 8px;">Reporte Mensual</h3>
+            <select id="mesSeleccionadoAsis" class="comp-select">
+                <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+                <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+                <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+                <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+            <button class="btn-mini btn-pdf-exc" style="width: 100%; padding: 14px; border-radius: 30px;" onclick="window.descargarReporteMensualAsis()">
+                📊 DESCARGAR COMPILACIÓN (PDF)
+            </button>
+        </div>
+
+        <div style="margin:25px 0 15px; border-bottom:2px dashed #e0e0e0; color:var(--accent); font-weight:700; font-size:14px;">Gestión de Excusas</div>
+        <button type="button" class="btn-historial" style="background:var(--accent);" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
         
         <div id="historialExc" class="hidden-section">
-            <!-- BUSCADOR LUPITA PARA EXCUSAS -->
             <div class="search-box-container">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchExcusaInput" placeholder="Buscar estudiante o motivo..." oninput="window.filtrarExcusas()">
             </div>
             <div id="listaExcusas">Cargando...</div>
         </div>
-
-        <div style="margin:25px 0 15px; border-top:2px dashed #eee; padding-top:20px; text-align:center;">
-          <h3 style="font-size:12px; color:var(--accent); margin-bottom:10px;">Compilación Mensual</h3>
-          <select id="mesCompilacion" style="width:100%; padding:10px; border-radius:10px; margin-bottom:10px;">
-            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
-            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-          <button class="btn-mini btn-pdf-exc" style="width:100%; padding:12px; border-radius:30px;" onclick="window.descargarReporteMensualAsistencia()">📊 DESCARGAR COMPILACIÓN MENSUAL (PDF)</button>
-        </div>
       </section>
   </div>
 
-  <!-- VISTA 2: OBSERVACIONES -->
+  <!-- VISTA 2: OBSERVACIONES (FORMULARIO CON MENÚ DESPLEGABLE) -->
   <div id="view-obs" style="display:none;">
       <section class="card">
         <h2 class="card-title">📝 Registro de Observaciones</h2>
@@ -181,14 +185,16 @@
             <div class="form-group"><label>Tipo</label><select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select></div>
             <div class="form-group"><label>Fecha</label><input type="date" id="fecha" required></div>
           </div>
+          
+          <!-- MENÚ DESPLEGABLE DE ESTUDIANTES -->
           <div class="form-group">
-              <label>Buscar Estudiante</label>
-              <div class="search-wrapper">
-                  <input type="text" id="inputBusquedaEstudiante" placeholder="Nombre del estudiante..." autocomplete="off" required>
-                  <input type="hidden" id="idEstudianteSeleccionado">
-                  <div id="dropdownEstudiantes" class="custom-dropdown"></div>
-              </div>
+              <label>Seleccionar Estudiante</label>
+              <select id="selectEstudianteObs" required>
+                  <option value="" disabled selected>Elija un estudiante de la lista...</option>
+                  <!-- Cargado dinámicamente -->
+              </select>
           </div>
+
           <div class="form-group"><label>Descripción</label><textarea id="comportamiento" placeholder="Novedad presentada..."></textarea></div>
           <div class="form-grid">
             <div class="form-group"><label>Descargos</label><textarea id="descargos"></textarea></div>
@@ -206,23 +212,24 @@
                 <button type="button" style="border:none; background:none; color:red; font-size:10px; cursor:pointer;" onclick="limpiarPad('sigTeacher')">Limpiar</button>
              </div>
           </div>
-          <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR OBSERVACIÓN</button>
+          <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR REGISTRO</button>
           <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL</button>
         </form>
+        
         <div id="historialObs" class="hidden-section">
             <div class="search-box-container">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchHistoryInput" placeholder="Buscar observación..." oninput="window.filtrarHistorialObs()">
+                <input type="text" id="searchHistoryInput" placeholder="Buscar en observaciones..." oninput="window.filtrarHistorialObs()">
             </div>
             <div id="listaRegistros"></div>
         </div>
       </section>
   </div>
 
-  <!-- VISTA 3: HERRAMIENTAS -->
+  <!-- HERRAMIENTAS -->
   <div id="view-herramientas" style="display:none;">
     <section class="card" style="border-left: 5px solid var(--tools-color);">
-        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas Docentes</h2>
+        <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas</h2>
         <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" class="btn-tools">📓 DIARIO DE PROCESOS</a>
         <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tools">📊 PLANILLA DE NOTAS</a>
         <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" class="btn-tools">📚 TEMARIOS</a>
@@ -230,11 +237,11 @@
     </section>
   </div>
 
-  <!-- VISTA 4: CORRESPONDENCIA -->
+  <!-- CORRESPONDENCIA -->
   <div id="view-corr" style="display:none;">
       <section class="card" style="border-left: 5px solid var(--corr-color);">
-        <h2 class="card-title" style="color:var(--corr-color);">📨 Buzón de Correspondencia</h2>
-        <div id="listaCorrespondencia">Cargando mensajes...</div>
+        <h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2>
+        <div id="listaCorrespondencia">Cargando...</div>
       </section>
   </div>
 
@@ -333,21 +340,21 @@
       const f = document.getElementById('fechaAsistencia').value;
       const detalles = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'}));
       await setDoc(doc(db, "controlAsistencia", f), {fecha:f, detalles});
-      alert("✅ Asistencia guardada.");
+      alert("✅ Registro guardado.");
   };
 
   // --- REPORTE MENSUAL ASISTENCIA ---
-  window.descargarReporteMensualAsistencia = async () => {
-    const mes = document.getElementById('mesCompilacion').value;
+  window.descargarReporteMensualAsis = async () => {
+    const mes = document.getElementById('mesSeleccionadoAsis').value;
     const { jsPDF } = window.jspdf;
-    const docPDF = new jsPDF('l', 'mm', 'a4');
+    const docPDF = new jsPDF('l', 'mm', 'a4'); 
 
     docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 297, 30, 'F');
     const logoImg = document.getElementById('schoolLogo');
     if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 3, 24, 24); } catch(e){}
     docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(15); docPDF.setFont("helvetica", "bold");
     docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 155, 12, { align: "center" });
-    docPDF.setFontSize(11); docPDF.text(`Consolidado Mensual de Asistencia - Mes ${mes} - Año 2026`, 155, 22, { align: "center" });
+    docPDF.setFontSize(11); docPDF.text(`Reporte Mensual de Asistencia - Mes ${mes} - 2026`, 155, 22, { align: "center" });
 
     const snap = await getDocs(collection(db, "controlAsistencia"));
     const dias = [];
@@ -372,7 +379,7 @@
     docPDF.save(`Reporte_Mensual_Asistencia_${mes}_2026.pdf`);
   };
 
-  // --- PDF EXCUSA (ORGANIZADO Y FUNCIONAL) ---
+  // --- PDF EXCUSA ---
   window.descargarPDFExcusa = (id) => {
     const data = localExcusas.find(x => x.id === id); if(!data) return;
     const est = estudiantesBase.find(x => x.doc === data.documentoEstudiante);
@@ -389,7 +396,7 @@
         docPDF.text(`Estudiante: ${est ? est.nombre : data.documentoEstudiante}`, 14, y); y+=10;
         docPDF.text(`Fecha inasistencia: ${data.fechaInasistencia || data.fecha}`, 14, y); y+=10;
         docPDF.text(`Motivo: ${data.motivoTipo}`, 14, y); y+=12;
-        docPDF.setFont("helvetica", "bold"); docPDF.text("Detalle:", 14, y); docPDF.setFont("helvetica", "normal"); y+=7;
+        docPDF.setFont("helvetica", "bold"); docPDF.text("Detalle:", 14, y); docPDF.setFont("helvetica", "normal"); y+=6;
         docPDF.text(docPDF.splitTextToSize(data.motivoDetalle || "No se adjuntó detalle.", 180), 14, y);
         if(data.firmaAcudiente) {
             docPDF.text("Firma del Padre/Acudiente:", 14, 150);
@@ -399,7 +406,6 @@
     } catch(err) { alert("Error al generar PDF."); }
   };
 
-  // --- FILTRADO EXCUSAS ---
   window.filtrarExcusas = () => {
     const t = document.getElementById('searchExcusaInput').value.toUpperCase();
     renderizarExcusas(localExcusas.filter(e => {
@@ -413,14 +419,9 @@
         const est = estudiantesBase.find(x => x.doc === e.documentoEstudiante);
         return `
         <div class="excusa-card">
-          <div class="excusa-header"><span class="excusa-name">👤 ${est ? est.nombre : "N/A"}</span><span class="excusa-date">📅 ${e.fechaInasistencia || e.fecha}</span></div>
-          <div class="excusa-body">
-            <b>Tipo:</b> ${e.motivoTipo}<br>
-            <b>Explicación:</b> ${e.motivoDetalle || "Sin detalle"}<br>
-          </div>
-          <div class="excusa-firma-wrap">
-            ${e.firmaAcudiente ? `<img src="${e.firmaAcudiente}" class="excusa-firma-img">` : '<em>Firma pendiente</em>'}
-          </div>
+          <div class="excusa-header"><span class="excusa-name">👤 ${est ? est.nombre : "N/A"}</span><span class="excusa-date">📅 ${e.fecha}</span></div>
+          <div class="excusa-body"><b>Tipo:</b> ${e.motivoTipo} | <b>Nota:</b> ${e.motivoDetalle || "---"}</div>
+          <div class="excusa-firma-wrap">${e.firmaAcudiente ? `<img src="${e.firmaAcudiente}" class="excusa-firma-img">` : '<em>Pendiente firma</em>'}</div>
           <div class="excusa-actions">
             <button class="btn-mini btn-pdf-exc" onclick="window.descargarPDFExcusa('${e.id}')">📄 PDF</button>
             <button class="btn-mini btn-del" onclick="window.openDeleteModal('${e.id}','excusasInasistencia')">🗑️</button>
@@ -429,7 +430,7 @@
     }).join('');
   }
 
-  // --- OBSERVACIONES (LÓGICA CONSERVADA) ---
+  // --- OBSERVACIONES (FUNCIONALIDADES RECIENTES) ---
   function iniciarEscuchasObs() {
     onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
       localRegistrosObs = []; snap.forEach(d => localRegistrosObs.push({ id: d.id, ...d.data() }));
@@ -440,7 +441,7 @@
     const list = document.getElementById('listaRegistros');
     list.innerHTML = data.map(r => `
       <div class="obs-list-card">
-        <div class="excusa-header"><b class="excusa-name">👤 ${r.nombreEstudiante}</b><span class="excusa-date">${r.fecha}</span></div>
+        <div class="excusa-header"><b class="card-name">👤 ${r.nombreEstudiante}</b><span class="card-date">${r.fecha}</span></div>
         <p style="font-size:12px; color:#444;">${r.comportamiento}</p>
         <div class="sigs-history-row">
           <div class="sig-view-box"><span>Estud.</span>${r.firmaEstudiante ? `<img src="${r.firmaEstudiante}" class="sig-img-history">` : 'N/A'}</div>
@@ -449,7 +450,7 @@
         </div>
         <div class="excusa-actions">
           <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFObs('${r.id}')">📄 PDF</button>
-          <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️ EDITAR</button>
+          <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️</button>
           <button class="btn-mini btn-del" onclick="window.openDeleteModal('${r.id}','registrosComportamentales')">🗑️</button>
         </div>
       </div>`).join('');
@@ -476,27 +477,33 @@
     if(r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 155, 245, 45, 15);
     docPDF.save(`Obs_${r.nombreEstudiante}.pdf`);
   };
+
   window.cargarParaEditarObs = (id) => {
     const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
     document.getElementById('editObsId').value = r.id;
     document.getElementById('tipoRegistro').value = r.tipoRegistro;
     document.getElementById('fecha').value = r.fecha;
-    document.getElementById('inputBusquedaEstudiante').value = r.nombreEstudiante;
-    document.getElementById('idEstudianteSeleccionado').value = r.documentoEstudiante;
+    document.getElementById('selectEstudianteObs').value = r.documentoEstudiante;
     document.getElementById('comportamiento').value = r.comportamiento;
     document.getElementById('descargos').value = r.descargos || "";
     document.getElementById('procedimiento').value = r.procedimiento || "";
     document.getElementById('btnSubmitObs').innerText = "ACTUALIZAR REGISTRO";
     window.scrollTo({top: 0, behavior: 'smooth'});
   };
+
   document.getElementById('formRegistro').onsubmit = async (e) => {
     e.preventDefault();
     const pE = pads.get('sigStudent'); const pT = pads.get('sigTeacher');
+    const selectE = document.getElementById('selectEstudianteObs');
+    const studentName = selectE.options[selectE.selectedIndex].text;
+    const studentDoc = selectE.value;
+
     if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
+    
     const editId = document.getElementById('editObsId').value;
     const data = {
       tipoRegistro: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value,
-      nombreEstudiante: document.getElementById("inputBusquedaEstudiante").value, documentoEstudiante: document.getElementById("idEstudianteSeleccionado").value,
+      nombreEstudiante: studentName, documentoEstudiante: studentDoc,
       comportamiento: document.getElementById('comportamiento').value, descargos: document.getElementById('descargos').value,
       procedimiento: document.getElementById('procedimiento').value, timestamp: new Date().toISOString(),
       firmaEstudiante: pE.canvas.toDataURL(), firmaDocente: pT.canvas.toDataURL()
@@ -521,26 +528,26 @@
       document.getElementById('listaCorrespondencia').innerHTML = html || 'Sin mensajes.';
     });
   }
+
   window.openDeleteModal = (id, col) => { currentDeleteInfo = { id, collection: col }; document.getElementById('deleteModal').style.display = 'flex'; };
   window.closeDeleteModal = () => { document.getElementById('deleteModal').style.display = 'none'; };
   document.getElementById('confirmDeleteBtn').onclick = async () => {
     await deleteDoc(doc(db, currentDeleteInfo.collection, currentDeleteInfo.id)); window.closeDeleteModal();
   };
 
-  const inpS = document.getElementById("inputBusquedaEstudiante");
-  const dropS = document.getElementById("dropdownEstudiantes");
-  inpS.oninput = (e) => {
-    const v = e.target.value.toUpperCase(); dropS.innerHTML = ""; if(!v) { dropS.classList.remove("show"); return; }
-    estudiantesBase.filter(est => est.nombre.includes(v)).forEach(est => {
-      const item = document.createElement("div"); item.className = "dropdown-item"; item.innerText = est.nombre;
-      item.onclick = () => { inpS.value = est.nombre; document.getElementById("idEstudianteSeleccionado").value = est.doc; dropS.classList.remove("show"); };
-      dropdown.appendChild(item);
-    }); dropS.classList.add("show");
-  };
-
   window.onload = () => {
     document.getElementById('fechaAsistencia').valueAsDate = new Date();
     document.getElementById('fecha').valueAsDate = new Date();
+    
+    // CARGAR SELECT DE OBSERVACIONES
+    const selectObs = document.getElementById('selectEstudianteObs');
+    estudiantesBase.forEach(est => {
+        const opt = document.createElement('option');
+        opt.value = est.doc;
+        opt.textContent = est.nombre;
+        selectObs.appendChild(opt);
+    });
+
     window.renderAsistencia();
     iniciarEscuchasObs();
     onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
