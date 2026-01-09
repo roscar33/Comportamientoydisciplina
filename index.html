@@ -379,31 +379,103 @@
     docPDF.save(`Reporte_Mensual_Asistencia_${mes}_2026.pdf`);
   };
 
-  // --- PDF EXCUSA ---
+  // --- NUEVA LÓGICA DE PDF TIPO CARTA PARA EXCUSAS (CORREGIDO V2) ---
   window.descargarPDFExcusa = (id) => {
     const data = localExcusas.find(x => x.id === id); if(!data) return;
     const est = estudiantesBase.find(x => x.doc === data.documentoEstudiante);
     const { jsPDF } = window.jspdf;
     try {
         const docPDF = new jsPDF('p', 'mm', 'a4');
-        docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
+
+        // 1. Encabezado Institucional (Verde)
+        docPDF.setFillColor(27, 94, 32); 
+        docPDF.rect(0, 0, 210, 38, 'F');
+        
         const logoImg = document.getElementById('schoolLogo');
         if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
-        docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(13); docPDF.text("Institución Educativa de María - Sede Santa Juana", 105, 15, {align: "center"});
-        docPDF.setFontSize(10); docPDF.text("Justificación de Inasistencia Escolar 2026", 105, 25, {align: "center"});
-        docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(12);
-        let y = 55;
-        docPDF.text(`Estudiante: ${est ? est.nombre : data.documentoEstudiante}`, 14, y); y+=10;
-        docPDF.text(`Fecha inasistencia: ${data.fechaInasistencia || data.fecha}`, 14, y); y+=10;
-        docPDF.text(`Motivo: ${data.motivoTipo}`, 14, y); y+=12;
-        docPDF.setFont("helvetica", "bold"); docPDF.text("Detalle:", 14, y); docPDF.setFont("helvetica", "normal"); y+=6;
-        docPDF.text(docPDF.splitTextToSize(data.motivoDetalle || "No se adjuntó detalle.", 180), 14, y);
+        
+        docPDF.setTextColor(255, 255, 255); 
+        docPDF.setFontSize(14); 
+        docPDF.text("Institución Educativa de María - Sede Santa Juana", 105, 15, {align: "center"});
+        docPDF.setFontSize(10); 
+        docPDF.text("Justificación de Inasistencia Escolar 2026", 105, 25, {align: "center"});
+
+        const margenIzq = 20;
+        let y = 50;
+
+        // 2. Ciudad y Fecha (Alineado a la izquierda)
+        // Usamos data.fecha que es la fecha de registro en el sistema
+        docPDF.setTextColor(0, 0, 0); 
+        docPDF.setFontSize(11);
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text(`Yarumal, ${data.fecha || ""}`, margenIzq, y);
+        y += 10; 
+
+        // 3. Destinatario Formal
+        // Cambio solicitado: Quitar "Docente" y dejar solo "Señor:"
+        docPDF.text("Señor:", margenIzq, y); y += 6;
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("OSCAR BARRIENTOS", margenIzq, y); y += 6;
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text("Profesor Sede Rural Santa Juana", margenIzq, y); y += 15;
+        
+        // 4. Asunto / Referencia
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text(`Ref: Justificación de inasistencia - Estudiante ${est ? est.nombre : "N/A"}`, margenIzq, y);
+        y += 15;
+
+        // 5. Saludo
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text("Cordial saludo,", margenIzq, y); y += 15;
+
+        // 6. Cuerpo (Motivo, Fecha Inasistencia, Detalle)
+        // Motivo
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("Motivo:", margenIzq, y);
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text(data.motivoTipo || "---", margenIzq + 45, y); 
+        y += 8;
+
+        // Fecha Inasistencia
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("Fecha de inasistencia:", margenIzq, y);
+        docPDF.setFont("helvetica", "normal");
+        docPDF.text(data.fechaInasistencia || data.fecha || "---", margenIzq + 45, y);
+        y += 12;
+
+        // Detalle
+        docPDF.setFont("helvetica", "bold");
+        docPDF.text("Detalle:", margenIzq, y);
+        docPDF.setFont("helvetica", "normal");
+        
+        y += 6; 
+        const detalleTexto = docPDF.splitTextToSize(data.motivoDetalle || "Sin detalles adicionales.", 170);
+        docPDF.text(detalleTexto, margenIzq, y);
+        
+        y += (detalleTexto.length * 6) + 20;
+
+        // 7. Firma (Centrada al final)
         if(data.firmaAcudiente) {
-            docPDF.text("Firma del Padre/Acudiente:", 14, 150);
-            docPDF.addImage(data.firmaAcudiente, 'PNG', 14, 155, 60, 20);
+            // Asegurar que la firma no quede fuera de pagina
+            if (y > 230) { docPDF.addPage(); y = 40; }
+            
+            const firmaY = y; 
+            docPDF.addImage(data.firmaAcudiente, 'PNG', 80, firmaY, 50, 20);
+            
+            docPDF.setLineWidth(0.5);
+            docPDF.line(70, firmaY + 22, 140, firmaY + 22);
+            
+            docPDF.setFont("helvetica", "bold");
+            docPDF.setFontSize(10);
+            docPDF.text("Firma del Padre/Acudiente", 105, firmaY + 27, { align: "center" });
+        } else {
+             if (y > 230) { docPDF.addPage(); y = 40; }
+            docPDF.text("__________________________", 105, y + 20, { align: "center" });
+            docPDF.text("Firma Pendiente", 105, y + 25, { align: "center" });
         }
-        docPDF.save(`Excusa_${data.documentoEstudiante}.pdf`);
-    } catch(err) { alert("Error al generar PDF."); }
+
+        docPDF.save(`Excusa_Carta_${est ? est.nombre : data.documentoEstudiante}.pdf`);
+    } catch(err) { alert("Error al generar PDF: " + err.message); }
   };
 
   window.filtrarExcusas = () => {
@@ -561,5 +633,4 @@
 </script>
 </body>
 </html>
-
 
