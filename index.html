@@ -379,11 +379,33 @@
     docPDF.save(`Reporte_Mensual_Asistencia_${mes}_2026.pdf`);
   };
 
-  // --- NUEVA LÓGICA DE PDF TIPO CARTA PARA EXCUSAS (CORREGIDO V2) ---
+  // --- NUEVA LÓGICA DE PDF TIPO CARTA PARA EXCUSAS (CORREGIDO FINAL CON FECHA ROBUSTA) ---
   window.descargarPDFExcusa = (id) => {
     const data = localExcusas.find(x => x.id === id); if(!data) return;
     const est = estudiantesBase.find(x => x.doc === data.documentoEstudiante);
     const { jsPDF } = window.jspdf;
+    
+    // --- BLOQUE PARA ASEGURAR QUE SIEMPRE HAYA FECHA ---
+    let fechaFinal = data.fecha;
+    if (!fechaFinal || fechaFinal === "undefined") {
+        if (data.timestamp) {
+             try {
+                // Si es un objeto Timestamp de Firebase
+                if(typeof data.timestamp.toDate === 'function') {
+                    fechaFinal = data.timestamp.toDate().toLocaleDateString('es-CO');
+                } else {
+                    // Si es un string ISO o fecha JS
+                    fechaFinal = new Date(data.timestamp).toLocaleDateString('es-CO');
+                }
+             } catch(err) {
+                 fechaFinal = new Date().toLocaleDateString('es-CO');
+             }
+        } else {
+             fechaFinal = new Date().toLocaleDateString('es-CO');
+        }
+    }
+    // ----------------------------------------------------
+
     try {
         const docPDF = new jsPDF('p', 'mm', 'a4');
 
@@ -403,16 +425,16 @@
         const margenIzq = 20;
         let y = 50;
 
-        // 2. Ciudad y Fecha (Alineado a la izquierda)
-        // Usamos data.fecha que es la fecha de registro en el sistema
+        // 2. Ciudad y Fecha (Alineado a la izquierda con fecha robusta)
         docPDF.setTextColor(0, 0, 0); 
         docPDF.setFontSize(11);
         docPDF.setFont("helvetica", "normal");
-        docPDF.text(`Yarumal, ${data.fecha || ""}`, margenIzq, y);
+        
+        docPDF.text(`Yarumal, ${fechaFinal}`, margenIzq, y);
         y += 10; 
 
         // 3. Destinatario Formal
-        // Cambio solicitado: Quitar "Docente" y dejar solo "Señor:"
+        // "Señor:" y luego el nombre
         docPDF.text("Señor:", margenIzq, y); y += 6;
         docPDF.setFont("helvetica", "bold");
         docPDF.text("OSCAR BARRIENTOS", margenIzq, y); y += 6;
