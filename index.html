@@ -93,6 +93,8 @@
     .btn-pdf-obs { background: #1b5e20; color: white; }
     .btn-edit-obs { background: #0288d1; color: white; }
     .btn-del { background: #fee2e2; color: #dc2626; }
+    
+    .btn-reset-ciclo { background: #f57c00; color: white; width: 100%; margin-top: 5px; padding: 10px; border-radius: 30px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; }
 
     /* FORMULARIOS */
     .form-group { margin-bottom: 12px; }
@@ -175,7 +177,7 @@
       </section>
   </div>
 
-  <!-- VISTA 2: OBSERVACIONES (FORMULARIO CON MENÚ DESPLEGABLE) -->
+  <!-- VISTA 2: OBSERVACIONES -->
   <div id="view-obs" style="display:none;">
       <section class="card">
         <h2 class="card-title">📝 Registro de Observaciones</h2>
@@ -186,12 +188,10 @@
             <div class="form-group"><label>Fecha</label><input type="date" id="fecha" required></div>
           </div>
           
-          <!-- MENÚ DESPLEGABLE DE ESTUDIANTES -->
           <div class="form-group">
               <label>Seleccionar Estudiante</label>
-              <select id="selectEstudianteObs" required>
+              <select id="selectEstudianteObs" required onchange="window.actualizarCicloVista()">
                   <option value="" disabled selected>Elija un estudiante de la lista...</option>
-                  <!-- Cargado dinámicamente -->
               </select>
           </div>
 
@@ -213,7 +213,14 @@
              </div>
           </div>
           <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR REGISTRO</button>
-          <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL</button>
+          
+          <div style="background: #fff3e0; padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid #ffe0b2;">
+              <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #e65100;">Controles de Ciclo:</p>
+              <button type="button" class="btn-reset-ciclo" onclick="window.resetearCicloEstudiante()">🔄 REINICIAR CICLO PARA ESTE ESTUDIANTE</button>
+              <button type="button" class="btn-save" style="background: #43a047; margin-top: 10px;" onclick="window.descargarPDFUnificado()">📄 DESCARGAR PDF UNIFICADO (CICLO ACTUAL)</button>
+          </div>
+
+          <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL COMPLETO</button>
         </form>
         
         <div id="historialObs" class="hidden-section">
@@ -252,7 +259,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
@@ -379,124 +386,41 @@
     docPDF.save(`Reporte_Mensual_Asistencia_${mes}_2026.pdf`);
   };
 
-  // --- NUEVA LÓGICA DE PDF TIPO CARTA PARA EXCUSAS (CORREGIDO FINAL CON FECHA ROBUSTA) ---
+  // --- EXCUSAS ---
   window.descargarPDFExcusa = (id) => {
     const data = localExcusas.find(x => x.id === id); if(!data) return;
     const est = estudiantesBase.find(x => x.doc === data.documentoEstudiante);
     const { jsPDF } = window.jspdf;
     
-    // --- BLOQUE PARA ASEGURAR QUE SIEMPRE HAYA FECHA ---
-    let fechaFinal = data.fecha;
-    if (!fechaFinal || fechaFinal === "undefined") {
-        if (data.timestamp) {
-             try {
-                // Si es un objeto Timestamp de Firebase
-                if(typeof data.timestamp.toDate === 'function') {
-                    fechaFinal = data.timestamp.toDate().toLocaleDateString('es-CO');
-                } else {
-                    // Si es un string ISO o fecha JS
-                    fechaFinal = new Date(data.timestamp).toLocaleDateString('es-CO');
-                }
-             } catch(err) {
-                 fechaFinal = new Date().toLocaleDateString('es-CO');
-             }
-        } else {
-             fechaFinal = new Date().toLocaleDateString('es-CO');
-        }
-    }
-    // ----------------------------------------------------
+    let fechaFinal = data.fecha || new Date().toLocaleDateString('es-CO');
 
     try {
         const docPDF = new jsPDF('p', 'mm', 'a4');
-
-        // 1. Encabezado Institucional (Verde)
-        docPDF.setFillColor(27, 94, 32); 
-        docPDF.rect(0, 0, 210, 38, 'F');
-        
+        docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
         const logoImg = document.getElementById('schoolLogo');
         if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
-        
-        docPDF.setTextColor(255, 255, 255); 
-        docPDF.setFontSize(14); 
-        docPDF.text("Institución Educativa de María - Sede Santa Juana", 105, 15, {align: "center"});
-        docPDF.setFontSize(10); 
-        docPDF.text("Justificación de Inasistencia Escolar 2026", 105, 25, {align: "center"});
+        docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(14); docPDF.text("Institución Educativa de María - Sede Santa Juana", 105, 15, {align: "center"});
+        docPDF.setFontSize(10); docPDF.text("Justificación de Inasistencia Escolar 2026", 105, 25, {align: "center"});
 
-        const margenIzq = 20;
-        let y = 50;
-
-        // 2. Ciudad y Fecha (Alineado a la izquierda con fecha robusta)
-        docPDF.setTextColor(0, 0, 0); 
-        docPDF.setFontSize(11);
-        docPDF.setFont("helvetica", "normal");
-        
-        docPDF.text(`Yarumal, ${fechaFinal}`, margenIzq, y);
-        y += 10; 
-
-        // 3. Destinatario Formal
-        // "Señor:" y luego el nombre
-        docPDF.text("Señor:", margenIzq, y); y += 6;
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("OSCAR BARRIENTOS", margenIzq, y); y += 6;
-        docPDF.setFont("helvetica", "normal");
-        docPDF.text("Profesor Sede Rural Santa Juana", margenIzq, y); y += 15;
-        
-        // 4. Asunto / Referencia
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text(`Ref: Justificación de inasistencia - Estudiante ${est ? est.nombre : "N/A"}`, margenIzq, y);
-        y += 15;
-
-        // 5. Saludo
-        docPDF.setFont("helvetica", "normal");
-        docPDF.text("Cordial saludo,", margenIzq, y); y += 15;
-
-        // 6. Cuerpo (Motivo, Fecha Inasistencia, Detalle)
-        // Motivo
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("Motivo:", margenIzq, y);
-        docPDF.setFont("helvetica", "normal");
-        docPDF.text(data.motivoTipo || "---", margenIzq + 45, y); 
-        y += 8;
-
-        // Fecha Inasistencia
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("Fecha de inasistencia:", margenIzq, y);
-        docPDF.setFont("helvetica", "normal");
-        docPDF.text(data.fechaInasistencia || data.fecha || "---", margenIzq + 45, y);
-        y += 12;
-
-        // Detalle
-        docPDF.setFont("helvetica", "bold");
-        docPDF.text("Detalle:", margenIzq, y);
-        docPDF.setFont("helvetica", "normal");
-        
-        y += 6; 
+        docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(11);
+        docPDF.text(`Yarumal, ${fechaFinal}`, 20, 50);
+        docPDF.text("Señor:", 20, 60);
+        docPDF.setFont("helvetica", "bold"); docPDF.text("OSCAR BARRIENTOS", 20, 66);
+        docPDF.setFont("helvetica", "normal"); docPDF.text("Profesor Sede Rural Santa Juana", 20, 72);
+        docPDF.setFont("helvetica", "bold"); docPDF.text(`Ref: Justificación de inasistencia - Estudiante ${est ? est.nombre : "N/A"}`, 20, 87);
+        docPDF.setFont("helvetica", "normal"); docPDF.text("Cordial saludo,", 20, 102);
+        docPDF.setFont("helvetica", "bold"); docPDF.text("Motivo:", 20, 117); docPDF.setFont("helvetica", "normal"); docPDF.text(data.motivoTipo || "---", 65, 117); 
+        docPDF.setFont("helvetica", "bold"); docPDF.text("Fecha de inasistencia:", 20, 125); docPDF.setFont("helvetica", "normal"); docPDF.text(data.fechaInasistencia || data.fecha || "---", 65, 125);
+        docPDF.setFont("helvetica", "bold"); docPDF.text("Detalle:", 20, 137); docPDF.setFont("helvetica", "normal");
         const detalleTexto = docPDF.splitTextToSize(data.motivoDetalle || "Sin detalles adicionales.", 170);
-        docPDF.text(detalleTexto, margenIzq, y);
+        docPDF.text(detalleTexto, 20, 143);
         
-        y += (detalleTexto.length * 6) + 20;
-
-        // 7. Firma (Centrada al final)
         if(data.firmaAcudiente) {
-            // Asegurar que la firma no quede fuera de pagina
-            if (y > 230) { docPDF.addPage(); y = 40; }
-            
-            const firmaY = y; 
-            docPDF.addImage(data.firmaAcudiente, 'PNG', 80, firmaY, 50, 20);
-            
-            docPDF.setLineWidth(0.5);
-            docPDF.line(70, firmaY + 22, 140, firmaY + 22);
-            
-            docPDF.setFont("helvetica", "bold");
-            docPDF.setFontSize(10);
-            docPDF.text("Firma del Padre/Acudiente", 105, firmaY + 27, { align: "center" });
-        } else {
-             if (y > 230) { docPDF.addPage(); y = 40; }
-            docPDF.text("__________________________", 105, y + 20, { align: "center" });
-            docPDF.text("Firma Pendiente", 105, y + 25, { align: "center" });
+            docPDF.addImage(data.firmaAcudiente, 'PNG', 80, 200, 50, 20);
+            docPDF.line(70, 222, 140, 222);
+            docPDF.setFont("helvetica", "bold"); docPDF.text("Firma del Padre/Acudiente", 105, 227, { align: "center" });
         }
-
-        docPDF.save(`Excusa_Carta_${est ? est.nombre : data.documentoEstudiante}.pdf`);
+        docPDF.save(`Excusa_${est ? est.nombre : data.documentoEstudiante}.pdf`);
     } catch(err) { alert("Error al generar PDF: " + err.message); }
   };
 
@@ -524,35 +448,156 @@
     }).join('');
   }
 
-  // --- OBSERVACIONES (FUNCIONALIDADES RECIENTES) ---
+  // --- OBSERVACIONES (LÓGICA UNIFICADA Y CICLOS) ---
+
+  // Obtener ciclo actual de un estudiante
+  async function getCicloActual(docEst) {
+      const snap = await getDoc(doc(db, "configuracionCiclos", docEst));
+      if (snap.exists()) return snap.data().cicloActual || 1;
+      return 1;
+  }
+
+  window.actualizarCicloVista = async () => {
+      const docEst = document.getElementById('selectEstudianteObs').value;
+      const ciclo = await getCicloActual(docEst);
+      console.log(`Estudiante ${docEst} está en ciclo ${ciclo}`);
+  };
+
+  window.resetearCicloEstudiante = async () => {
+      const docEst = document.getElementById('selectEstudianteObs').value;
+      if (!docEst) return alert("Seleccione un estudiante primero.");
+      
+      const conf = await getCicloActual(docEst);
+      const nuevoCiclo = conf + 1;
+      
+      if (confirm(`¿Desea cerrar el ciclo actual (${conf}) e iniciar un nuevo ciclo para este estudiante? Las observaciones anteriores se mantendrán archivadas.`)) {
+          await setDoc(doc(db, "configuracionCiclos", docEst), { cicloActual: nuevoCiclo });
+          alert(`✅ Ciclo reiniciado. Ahora las nuevas observaciones serán parte del ciclo ${nuevoCiclo}.`);
+      }
+  };
+
+  window.descargarPDFUnificado = async () => {
+      const docEst = document.getElementById('selectEstudianteObs').value;
+      if (!docEst) return alert("Seleccione un estudiante primero.");
+      
+      const ciclo = await getCicloActual(docEst);
+      const est = estudiantesBase.find(x => x.doc === docEst);
+      
+      // Filtrar observaciones del estudiante y del ciclo actual
+      const obsCiclo = localRegistrosObs
+        .filter(r => r.documentoEstudiante === docEst && (r.ciclo || 1) === ciclo)
+        .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+
+      if (obsCiclo.length === 0) return alert("No hay observaciones registradas para el ciclo actual de este estudiante.");
+
+      const { jsPDF } = window.jspdf;
+      const docPDF = new jsPDF('p', 'mm', 'a4');
+      const logoImg = document.getElementById('schoolLogo');
+
+      obsCiclo.forEach((r, index) => {
+          if (index > 0) docPDF.addPage();
+          
+          // Encabezado
+          docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
+          if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
+          docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(12); docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 105, 15, {align: "center"});
+          docPDF.setFontSize(10); docPDF.text(`Seguimiento de Convivencia - Ciclo Actual (#${ciclo})`, 105, 25, {align: "center"});
+          
+          docPDF.setTextColor(0,0,0);
+          let y = 50;
+          
+          // Título de la Anotación solicitado
+          docPDF.setFont("helvetica", "bold");
+          docPDF.setFontSize(14);
+          const titulosNumeros = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
+          const numTxt = titulosNumeros[index] || (index + 1);
+          docPDF.text(`Anotación número ${numTxt}`, 105, y, { align: "center" });
+          y += 12;
+
+          docPDF.setFontSize(11);
+          docPDF.setFont("helvetica", "normal");
+          docPDF.text(`Estudiante: ${r.nombreEstudiante}`, 14, y); y += 8;
+          docPDF.text(`Fecha de registro: ${r.fecha} | Tipo: ${r.tipoRegistro}`, 14, y); y += 12;
+          
+          docPDF.setFont("helvetica", "bold"); docPDF.text("Descripción de la novedad:", 14, y); y += 6;
+          docPDF.setFont("helvetica", "normal");
+          const linesDesc = docPDF.splitTextToSize(r.comportamiento, 180);
+          docPDF.text(linesDesc, 14, y);
+          y += (linesDesc.length * 6) + 10;
+
+          if(r.descargos) {
+            docPDF.setFont("helvetica", "bold"); docPDF.text("Descargos del estudiante:", 14, y); y += 6;
+            docPDF.setFont("helvetica", "normal");
+            const linesDes = docPDF.splitTextToSize(r.descargos, 180);
+            docPDF.text(linesDes, 14, y);
+            y += (linesDes.length * 6) + 10;
+          }
+
+          if(r.procedimiento) {
+            docPDF.setFont("helvetica", "bold"); docPDF.text("Procedimiento / Compromisos:", 14, y); y += 6;
+            docPDF.setFont("helvetica", "normal");
+            const linesProc = docPDF.splitTextToSize(r.procedimiento, 180);
+            docPDF.text(linesProc, 14, y);
+            y += (linesProc.length * 6) + 15;
+          }
+
+          // Firmas específicas para esta anotación
+          const firmaY = 240;
+          docPDF.setFontSize(8);
+          if(r.firmaEstudiante) {
+              docPDF.addImage(r.firmaEstudiante, 'PNG', 15, firmaY, 45, 15);
+              docPDF.text("Firma Estudiante", 37, firmaY + 18, {align:"center"});
+          }
+          if(r.firmaDocente) {
+              docPDF.addImage(r.firmaDocente, 'PNG', 82, firmaY, 45, 15);
+              docPDF.text("Firma Docente", 105, firmaY + 18, {align:"center"});
+          }
+          if(r.firmaAcudiente) {
+              docPDF.addImage(r.firmaAcudiente, 'PNG', 150, firmaY, 45, 15);
+              docPDF.text("Firma Acudiente", 172, firmaY + 18, {align:"center"});
+          } else {
+              docPDF.text("___________________", 172, firmaY + 14, {align:"center"});
+              docPDF.text("Firma Acudiente (Pte)", 172, firmaY + 18, {align:"center"});
+          }
+      });
+
+      docPDF.save(`Seguimiento_Unificado_${est.nombre}_Ciclo_${ciclo}.pdf`);
+  };
+
   function iniciarEscuchasObs() {
     onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
       localRegistrosObs = []; snap.forEach(d => localRegistrosObs.push({ id: d.id, ...d.data() }));
       renderRegistrosObs(localRegistrosObs);
     });
   }
+
   function renderRegistrosObs(data) {
     const list = document.getElementById('listaRegistros');
     list.innerHTML = data.map(r => `
-      <div class="obs-list-card">
-        <div class="excusa-header"><b class="card-name">👤 ${r.nombreEstudiante}</b><span class="card-date">${r.fecha}</span></div>
-        <p style="font-size:12px; color:#444;">${r.comportamiento}</p>
+      <div class="obs-list-card" style="${(r.ciclo > 1) ? 'border-left-color: #f57c00;' : ''}">
+        <div class="excusa-header">
+            <b class="card-name">👤 ${r.nombreEstudiante}</b>
+            <span class="card-date" style="background:#e8f5e9">${r.fecha} (Ciclo ${r.ciclo || 1})</span>
+        </div>
+        <p style="font-size:12px; color:#444;">${r.comportamiento.substring(0, 100)}${r.comportamiento.length > 100 ? '...' : ''}</p>
         <div class="sigs-history-row">
           <div class="sig-view-box"><span>Estud.</span>${r.firmaEstudiante ? `<img src="${r.firmaEstudiante}" class="sig-img-history">` : 'N/A'}</div>
           <div class="sig-view-box"><span>Docen.</span>${r.firmaDocente ? `<img src="${r.firmaDocente}" class="sig-img-history">` : 'N/A'}</div>
           <div class="sig-view-box"><span>Acud.</span>${r.firmaAcudiente ? `<img src="${r.firmaAcudiente}" class="sig-img-history">` : 'Pte'}</div>
         </div>
         <div class="excusa-actions">
-          <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFObs('${r.id}')">📄 PDF</button>
+          <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFObs('${r.id}')">📄 PDF Individual</button>
           <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️</button>
           <button class="btn-mini btn-del" onclick="window.openDeleteModal('${r.id}','registrosComportamentales')">🗑️</button>
         </div>
       </div>`).join('');
   }
+
   window.filtrarHistorialObs = () => {
     const t = document.getElementById('searchHistoryInput').value.toUpperCase();
     renderRegistrosObs(localRegistrosObs.filter(r => r.nombreEstudiante.toUpperCase().includes(t)));
   };
+
   window.descargarPDFObs = (id) => {
     const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
     const { jsPDF } = window.jspdf; const docPDF = new jsPDF('p', 'mm', 'a4');
@@ -563,13 +608,13 @@
     docPDF.setFontSize(10); docPDF.text("Seguimiento comportamental y académico 2026", 105, 25, {align: "center"});
     docPDF.setTextColor(0,0,0); docPDF.setFontSize(11); let y = 55;
     docPDF.text(`Estudiante: ${r.nombreEstudiante}`, 14, y); y+=10;
-    docPDF.text(`Fecha: ${r.fecha} | Tipo: ${r.tipoRegistro}`, 14, y); y+=15;
+    docPDF.text(`Fecha: ${r.fecha} | Tipo: ${r.tipoRegistro} | Ciclo: ${r.ciclo || 1}`, 14, y); y+=15;
     docPDF.setFont("helvetica", "bold"); docPDF.text("Descripción:", 14, y); y+=6;
     docPDF.setFont("helvetica", "normal"); docPDF.text(docPDF.splitTextToSize(r.comportamiento, 180), 14, y);
     if(r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, 245, 45, 15);
     if(r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 85, 245, 45, 15);
     if(r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 155, 245, 45, 15);
-    docPDF.save(`Obs_${r.nombreEstudiante}.pdf`);
+    docPDF.save(`Obs_${r.nombreEstudiante}_Individual.pdf`);
   };
 
   window.cargarParaEditarObs = (id) => {
@@ -594,13 +639,17 @@
 
     if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
     
+    // Obtener ciclo actual para guardar con el registro
+    const ciclo = await getCicloActual(studentDoc);
+
     const editId = document.getElementById('editObsId').value;
     const data = {
       tipoRegistro: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value,
       nombreEstudiante: studentName, documentoEstudiante: studentDoc,
       comportamiento: document.getElementById('comportamiento').value, descargos: document.getElementById('descargos').value,
       procedimiento: document.getElementById('procedimiento').value, timestamp: new Date().toISOString(),
-      firmaEstudiante: pE.canvas.toDataURL(), firmaDocente: pT.canvas.toDataURL()
+      firmaEstudiante: pE.canvas.toDataURL(), firmaDocente: pT.canvas.toDataURL(),
+      ciclo: ciclo // Nuevo campo para agrupar por reset
     };
     if(editId) await updateDoc(doc(db, "registrosComportamentales", editId), data);
     else await addDoc(collection(db, "registrosComportamentales"), data);
@@ -609,7 +658,7 @@
     window.limpiarPad('sigStudent'); window.limpiarPad('sigTeacher');
   };
 
-  // --- OTROS ---
+  // --- CORRESPONDENCIA ---
   function cargarCorrespondencia() {
     onSnapshot(query(collection(db, "comunicacionPadres"), orderBy("timestamp", "desc")), (snap) => {
       let html = ''; snap.forEach(d => {
@@ -633,7 +682,6 @@
     document.getElementById('fechaAsistencia').valueAsDate = new Date();
     document.getElementById('fecha').valueAsDate = new Date();
     
-    // CARGAR SELECT DE OBSERVACIONES
     const selectObs = document.getElementById('selectEstudianteObs');
     estudiantesBase.forEach(est => {
         const opt = document.createElement('option');
@@ -655,4 +703,3 @@
 </script>
 </body>
 </html>
-
