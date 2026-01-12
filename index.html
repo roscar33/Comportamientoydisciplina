@@ -53,7 +53,9 @@
     /* ASISTENCIA */
     .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
     .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+    .att-info { display: flex; flex-direction: column; gap: 2px; }
     .att-name { font-weight: 600; font-size: 14px; color: #334155; }
+    .att-counter { font-size: 10px; font-weight: bold; color: #dc2626; background: #fee2e2; padding: 1px 6px; border-radius: 4px; align-self: flex-start; }
     .att-options { display: flex; gap: 5px; }
     .att-btn { border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; }
@@ -128,7 +130,7 @@
           <div class="brand-subtitle">Gestión Escolar · 2026</div>
         </div>
     </div>
-    <div id="connStatus" class="conn-indicator conn-offline"></div>
+    <div id="connStatus" class="conn-indicator conn-online"></div>
   </header>
 
   <nav class="nav-tabs">
@@ -141,7 +143,10 @@
   <div id="view-asis">
       <section class="card" style="border-left: 5px solid var(--accent);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 class="card-title" style="color:var(--accent); margin:0;">Registro Diario</h2>
+            <div class="att-info">
+                <h2 class="card-title" style="color:var(--accent); margin:0;">Registro Diario</h2>
+                <span id="periodoActualLabel" style="font-size:11px; color:#666; font-weight:bold;">Periodo: Cargando...</span>
+            </div>
             <input type="date" id="fechaAsistencia" style="width: auto; padding: 8px;" onchange="window.cargarAsistenciaDelDia()">
         </div>
         
@@ -151,6 +156,7 @@
 
         <div class="compilation-monthly">
             <h3 style="font-size: 13px; color: var(--accent); margin-bottom: 8px;">Reporte Mensual</h3>
+            <p style="font-size: 11px; color: #666; margin-bottom: 10px;">(El reporte mensual siempre mostrará los datos del mes elegido, sin importar los reseteos de periodo)</p>
             <select id="mesSeleccionadoAsis" class="comp-select">
                 <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
                 <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
@@ -159,6 +165,10 @@
             </select>
             <button class="btn-mini btn-pdf-exc" style="width: 100%; padding: 14px; border-radius: 30px;" onclick="window.descargarReporteMensualAsis()">
                 📊 DESCARGAR COMPILACIÓN (PDF)
+            </button>
+
+            <button class="btn-reset-ciclo" style="background: #2e7d32; border: 2px solid #1b5e20; margin-top: 15px; padding: 12px; width: 100%;" onclick="window.resetearFaltasPeriodo()">
+                🔄 INICIAR NUEVO PERIODO (BORRÓN Y CUENTA NUEVA)
             </button>
         </div>
 
@@ -277,6 +287,8 @@
   let currentDeleteInfo = { id: null, collection: null };
   let localExcusas = [];
   let localRegistrosObs = [];
+  let localAsistenciaCompleta = [];
+  let periodoActualAsis = 1;
 
   // --- NAVEGACIÓN ---
   window.switchTab = (t) => {
@@ -314,7 +326,31 @@
     const p = pads.get(id); if (p) { p.canvas.getContext("2d").clearRect(0, 0, p.canvas.width, p.canvas.height); pads.set(id, {hasData: false, canvas: p.canvas}); }
   };
 
-  // --- ASISTENCIA ---
+  // --- ASISTENCIA (NUEVA LÓGICA DE PERIODOS) ---
+
+  async function cargarConfiguracionPeriodo() {
+    const snap = await getDoc(doc(db, "configuracionGlobal", "asistencia"));
+    if (snap.exists()) {
+        periodoActualAsis = snap.data().periodoActual || 1;
+    } else {
+        await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: 1 });
+    }
+    document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
+  }
+
+  window.obtenerFaltasPeriodo = (docEst) => {
+    let faltas = 0;
+    localAsistenciaCompleta.forEach(registro => {
+        if (registro.periodo === periodoActualAsis) {
+            const detalle = registro.detalles.find(d => d.doc === docEst);
+            if (detalle && (detalle.estado === 'I' || detalle.estado === 'E')) {
+                faltas++;
+            }
+        }
+    });
+    return faltas;
+  }
+
   let asistenciaTemp = {};
   window.renderAsistencia = () => {
       const list = document.getElementById('attendanceList');
@@ -322,27 +358,74 @@
       let html = '';
       estudiantesBase.forEach(e => {
           const s = asistenciaTemp[e.doc] || 'P';
-          html += `<div class="att-row"><span class="att-name">${e.nombre}</span><div class="att-options">
-            <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
-            <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button>
-            <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button>
-          </div></div>`;
+          const totalFaltas = window.obtenerFaltasPeriodo(e.doc);
+          
+          html += `
+          <div class="att-row">
+            <div class="att-info">
+                <span class="att-name">${e.nombre}</span>
+                <span class="att-counter">${totalFaltas} faltas este periodo</span>
+            </div>
+            <div class="att-options">
+                <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
+                <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button>
+                <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button>
+            </div>
+          </div>`;
       });
       list.innerHTML = html;
   }
+
   window.setAtt = (d, s) => { asistenciaTemp[d] = s; window.renderAsistencia(); };
+  
   window.cargarAsistenciaDelDia = async () => {
       const f = document.getElementById('fechaAsistencia').value;
       const snap = await getDoc(doc(db, "controlAsistencia", f));
       asistenciaTemp = (snap.exists() && snap.data().detalles) ? snap.data().detalles.reduce((acc,d)=>({...acc,[d.doc]:d.estado}),{}) : {};
       window.renderAsistencia();
   };
+
   window.guardarAsistencia = async () => {
       const f = document.getElementById('fechaAsistencia').value;
       const detalles = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'}));
-      await setDoc(doc(db, "controlAsistencia", f), {fecha:f, detalles});
+      // Guardamos con el periodo actual
+      await setDoc(doc(db, "controlAsistencia", f), {
+          fecha:f, 
+          detalles, 
+          periodo: periodoActualAsis 
+      });
       alert("✅ Registro guardado.");
   };
+
+  // BORRÓN Y CUENTA NUEVA (RESET DE CONTEOS)
+  window.resetearFaltasPeriodo = async () => {
+    const passwordInput = prompt("🔑 Ingrese la contraseña (9218) para iniciar un nuevo periodo de conteo:");
+    
+    if (passwordInput === "9218") {
+        if (confirm(`¿Desea cerrar el periodo #${periodoActualAsis}? Los conteos volverán a 0, pero podrá seguir bajando los reportes mensuales de meses anteriores.`)) {
+            try {
+                const nuevoPeriodo = periodoActualAsis + 1;
+                await updateDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: nuevoPeriodo });
+                periodoActualAsis = nuevoPeriodo;
+                document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
+                alert(`✅ Periodo #${nuevoPeriodo} iniciado. Conteos reiniciados.`);
+                window.renderAsistencia();
+            } catch (e) {
+                alert("Error al actualizar el periodo.");
+            }
+        }
+    } else {
+        alert("❌ Contraseña incorrecta.");
+    }
+  };
+
+  function escucharAsistencia() {
+    onSnapshot(collection(db, "controlAsistencia"), (snap) => {
+        localAsistenciaCompleta = [];
+        snap.forEach(doc => localAsistenciaCompleta.push(doc.data()));
+        window.renderAsistencia();
+    });
+  }
 
   // --- GESTIÓN DE EXCUSAS ---
   window.filtrarExcusas = () => {
@@ -385,79 +468,50 @@
     }).join('');
   };
 
-  // GENERACIÓN DE PDF ESTILO CARTA PARA EXCUSA (MODIFICADO)
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
     const { jsPDF } = window.jspdf;
     const docPDF = new jsPDF('p', 'mm', 'a4');
     const logoImg = document.getElementById('schoolLogo');
-
     const margin = 25;
-    // Usar la fecha del timestamp del registro del padre
     const fechaDiligenciado = new Date(ex.timestamp).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    
-    // Encabezado
     docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
     if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 22, 22); } catch(e){}
     docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(14); docPDF.setFont("helvetica", "bold");
     docPDF.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 12, { align: "center" });
     docPDF.setFontSize(10); docPDF.setFont("helvetica", "normal");
     docPDF.text("Sede Rural Santa Juana · Gestión de Procesos 2026", 105, 18, { align: "center" });
-
     docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(11);
     let y = 50;
-
-    // Ciudad y Fecha ajustada
     docPDF.text(`Yarumal, Antioquia. ${fechaDiligenciado}`, margin, y); y += 15;
-
-    // Destinatario
     docPDF.setFont("helvetica", "bold");
     docPDF.text("Respetado Docente:", margin, y); y += 6;
     docPDF.text("OSCAR BARRIENTOS", margin, y); y += 6;
     docPDF.setFont("helvetica", "normal");
     docPDF.text("I.E. de María - Sede Santa Juana", margin, y); y += 15;
-
-    // Asunto ajustado
     docPDF.setFont("helvetica", "bold");
     const nombreE = est ? est.nombre : "___________________________";
     docPDF.text(`ASUNTO: EXCUSA POR INASISTENCIA ESCOLAR - ${nombreE}`, margin, y); y += 15;
-
-    // Cuerpo estructurado (SOLICITUD: Cambio de etiquetas y campo Motivo)
-    docPDF.setFont("helvetica", "bold");
     docPDF.text(`Fecha de inasistencia: ${ex.fechaInasistencia}`, margin, y); y += 10;
-    
     docPDF.text(`Motivo: ${ex.motivoTipo}`, margin, y); y += 10;
-    
     docPDF.text("Detalle de la justificación:", margin, y); y += 6;
     docPDF.setFont("helvetica", "italic");
     const detalleLines = docPDF.splitTextToSize(`"${ex.motivoDetalle}"`, 160);
     docPDF.text(detalleLines, margin, y); y += (detalleLines.length * 6) + 15;
-
     docPDF.setFont("helvetica", "normal");
     const despedida = `Agradezco de antemano su comprensión y colaboración para que el estudiante pueda ponerse al día con las actividades académicas realizadas durante su ausencia.`;
     const lineasDespedida = docPDF.splitTextToSize(despedida, 160);
     docPDF.text(lineasDespedida, margin, y); y += (lineasDespedida.length * 6) + 25;
-
-    // Firma
     docPDF.text("Cordialmente,", margin, y); y += 10;
     if (ex.firmaAcudiente) {
-        try {
-            docPDF.addImage(ex.firmaAcudiente, 'PNG', margin, y, 50, 20);
-            y += 22;
-        } catch(e){ y += 10; }
-    } else {
-        y += 20;
-    }
-    
+        try { docPDF.addImage(ex.firmaAcudiente, 'PNG', margin, y, 50, 20); y += 22; } catch(e){ y += 10; }
+    } else { y += 20; }
     docPDF.setDrawColor(0); docPDF.line(margin, y, margin + 60, y); y += 5;
     docPDF.setFont("helvetica", "bold");
     docPDF.text("FIRMA DEL ACUDIENTE", margin, y);
-
-    // Pie de página
     docPDF.setFontSize(8); docPDF.setTextColor(150);
     docPDF.text("Documento generado automáticamente · Sistema de Gestión Primaria 2026", 105, 285, { align: "center" });
-
     docPDF.save(`Excusa_${nombreE}_${ex.fechaInasistencia}.pdf`);
   };
 
@@ -472,24 +526,26 @@
     docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(15); docPDF.setFont("helvetica", "bold");
     docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 155, 12, { align: "center" });
     docPDF.setFontSize(11); docPDF.text(`Reporte Mensual de Asistencia - Mes ${mes} - 2026`, 155, 22, { align: "center" });
-    const snap = await getDocs(collection(db, "controlAsistencia"));
-    const dias = [];
-    snap.forEach(d => { if(d.id.startsWith(`2026-${mes}`)) dias.push({f: d.id, d: d.data()}); });
-    dias.sort((a,b) => a.f.localeCompare(b.f));
+    
+    // Filtrar por fecha (Mes), sin importar el periodo
+    const dias = localAsistenciaCompleta.filter(d => d.fecha.startsWith(`2026-${mes}`));
+    dias.sort((a,b) => a.fecha.localeCompare(b.fecha));
+
     if(dias.length === 0) return alert("Sin datos.");
-    const head = [["Estudiante", ...dias.map(x => x.f.split("-")[2]), "P", "E", "I"]];
+    
+    const head = [["Estudiante", ...dias.map(x => x.fecha.split("-")[2]), "P", "E", "I"]];
     const body = estudiantesBase.map(est => {
         let p=0, e=0, i=0;
         const row = [est.nombre];
         dias.forEach(dia => {
-            const st = dia.d.detalles.find(x => x.doc === est.doc)?.estado || '-';
+            const st = dia.detalles.find(x => x.doc === est.doc)?.estado || '-';
             row.push(st);
             if(st==='P') p++; if(st==='E') e++; if(st==='I') i++;
         });
         return [...row, p, e, i];
     });
     docPDF.autoTable({ startY: 35, head: head, body: body, theme: 'grid', styles: {fontSize: 7}, headStyles: {fillColor: [27,94,32]} });
-    docPDF.save(`Asistencia_${mes}.pdf`);
+    docPDF.save(`Asistencia_Mes_${mes}_Reporte.pdf`);
   };
 
   // --- OBSERVACIONES Y CICLOS ---
@@ -520,19 +576,13 @@
       if (!docEst) return alert("Seleccione un estudiante.");
       const ciclo = await getCicloActual(docEst);
       const est = estudiantesBase.find(x => x.doc === docEst);
-      
-      const obsCiclo = localRegistrosObs
-        .filter(r => r.documentoEstudiante === docEst && (r.ciclo || 1) === ciclo)
-        .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-
+      const obsCiclo = localRegistrosObs.filter(r => r.documentoEstudiante === docEst && (r.ciclo || 1) === ciclo).sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
       if (obsCiclo.length === 0) return alert("No hay observaciones en este ciclo.");
-
       const { jsPDF } = window.jspdf;
       const docPDF = new jsPDF('p', 'mm', 'a4');
       const logoImg = document.getElementById('schoolLogo');
       let y = 10;
       const pageHeight = docPDF.internal.pageSize.height;
-
       const header = () => {
           docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
           if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 8, 3, 24, 24); } catch(e){}
@@ -541,58 +591,43 @@
           docPDF.setFontSize(8); docPDF.text(`Estudiante: ${est.nombre} | CICLO #${ciclo}`, 105, 18, {align: "center"});
           y = 38;
       };
-
       header();
-
       obsCiclo.forEach((r, index) => {
           docPDF.setTextColor(0,0,0);
           const titulosNumeros = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
           const numTxt = titulosNumeros[index] || (index + 1);
           const advertenciaTxt = ADVERTENCIAS[index] || "Seguimiento continuo de compromisos.";
-
           const textComportamiento = docPDF.splitTextToSize(`Descripción: ${r.comportamiento}`, 180);
           const textDescargos = r.descargos ? docPDF.splitTextToSize(`Descargos: ${r.descargos}`, 180) : [];
           const textProc = r.procedimiento ? docPDF.splitTextToSize(`Procedimiento: ${r.procedimiento}`, 180) : [];
           const textAdv = docPDF.splitTextToSize(`NOTA DE ADVERTENCIA: ${advertenciaTxt}`, 180);
-          
           const blockHeight = 15 + (textComportamiento.length * 5) + (textDescargos.length * 5) + (textProc.length * 5) + (textAdv.length * 5) + 35;
-
-          if (y + blockHeight > pageHeight - 15) {
-              docPDF.addPage();
-              header();
-          }
-
+          if (y + blockHeight > pageHeight - 15) { docPDF.addPage(); header(); }
           docPDF.setFont("helvetica", "bold"); docPDF.setFontSize(11);
           docPDF.text(`Anotación número ${numTxt}`, 14, y); y += 6;
           docPDF.setFontSize(9); docPDF.setFont("helvetica", "normal");
           docPDF.text(`Fecha: ${r.fecha} | Tipo: ${r.tipoRegistro}`, 14, y); y += 6;
-          
           docPDF.text(textComportamiento, 14, y); y += (textComportamiento.length * 5);
           if(textDescargos.length > 0) { docPDF.text(textDescargos, 14, y); y += (textDescargos.length * 5); }
           if(textProc.length > 0) { docPDF.text(textProc, 14, y); y += (textProc.length * 5); }
-
           y += 2;
           docPDF.setFont("helvetica", "bold"); docPDF.setTextColor(200, 0, 0);
           docPDF.text(textAdv, 14, y); y += (textAdv.length * 5);
           docPDF.setTextColor(0,0,0); docPDF.setFont("helvetica", "normal");
-
           y += 5;
           const sigH = 12;
           if(r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, y, 35, sigH);
           if(r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 82, y, 35, sigH);
           if(r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 150, y, 35, sigH);
-          
           y += sigH + 3;
           docPDF.setFontSize(7);
           docPDF.text("Firma Estudiante", 32, y, {align:"center"});
           docPDF.text("Firma Docente", 100, y, {align:"center"});
           docPDF.text("Firma Acudiente", 167, y, {align:"center"});
-          
           y += 8;
           docPDF.setDrawColor(220); docPDF.line(14, y, 196, y);
           y += 10;
       });
-
       docPDF.save(`Seguimiento_${est.nombre}_Ciclo${ciclo}.pdf`);
   };
 
@@ -646,12 +681,10 @@
     if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
     const ciclo = await getCicloActual(studentDoc);
     const editId = document.getElementById('editObsId').value;
-
     if (!editId) {
         const obsEnCiclo = localRegistrosObs.filter(r => r.documentoEstudiante === studentDoc && r.ciclo === ciclo).length;
         if (obsEnCiclo < 3) alert(ADVERTENCIAS[obsEnCiclo]);
     }
-
     const data = {
       tipoRegistro: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value,
       nombreEstudiante: studentName, documentoEstudiante: studentDoc,
@@ -694,7 +727,7 @@
     await deleteDoc(doc(db, currentDeleteInfo.collection, currentDeleteInfo.id)); window.closeDeleteModal();
   };
 
-  window.onload = () => {
+  window.onload = async () => {
     document.getElementById('fechaAsistencia').valueAsDate = new Date();
     document.getElementById('fecha').valueAsDate = new Date();
     const selectObs = document.getElementById('selectEstudianteObs');
@@ -703,14 +736,15 @@
         opt.value = est.doc; opt.textContent = est.nombre;
         selectObs.appendChild(opt);
     });
-    window.renderAsistencia(); iniciarEscuchasObs();
+    
+    await cargarConfiguracionPeriodo();
+    escucharAsistencia();
+    iniciarEscuchasObs();
     
     onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
-      localExcusas = []; 
-      snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
+      localExcusas = []; snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
       window.filtrarExcusas();
     });
-
     const st = document.getElementById('connStatus');
     if(navigator.onLine) { st.className = 'conn-indicator conn-online'; }
   };
