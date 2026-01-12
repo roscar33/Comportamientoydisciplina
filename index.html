@@ -5,18 +5,17 @@
   <title>Panel Administrativo Docente · Primaria 2026</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Librerías para generación de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
-      --primary: #1b5e20;       
+      --primary: #1b5e20;        
       --primary-light: #2e7d32; 
-      --accent: #0288d1;         
+      --accent: #0288d1;          
       --tools-color: #f57c00;
       --corr-color: #6a1b9a;
-      --bg-body: #c8e6c9;       
+      --bg-body: #c8e6c9;        
       --text-main: #0f172a;
       --card-bg: #ffffff;
       --radius-xl: 24px;
@@ -139,7 +138,6 @@
     <button id="btnTabCorr" class="nav-btn" onclick="switchTab('corr')">Correspondencia</button>
   </nav>
 
-  <!-- VISTA 1: ASISTENCIA -->
   <div id="view-asis">
       <section class="card" style="border-left: 5px solid var(--accent);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -177,7 +175,6 @@
       </section>
   </div>
 
-  <!-- VISTA 2: OBSERVACIONES -->
   <div id="view-obs" style="display:none;">
       <section class="card">
         <h2 class="card-title">📝 Registro de Observaciones</h2>
@@ -233,7 +230,6 @@
       </section>
   </div>
 
-  <!-- HERRAMIENTAS -->
   <div id="view-herramientas" style="display:none;">
     <section class="card" style="border-left: 5px solid var(--tools-color);">
         <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas</h2>
@@ -244,7 +240,6 @@
     </section>
   </div>
 
-  <!-- CORRESPONDENCIA -->
   <div id="view-corr" style="display:none;">
       <section class="card" style="border-left: 5px solid var(--corr-color);">
         <h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2>
@@ -254,7 +249,6 @@
 
 </div>
 
-<!-- MODAL ELIMINAR -->
 <div id="deleteModal"><div class="modal-box"><h3 style="color:#dc2626">¿Eliminar registro?</h3><p style="margin:10px 0; font-size:14px; color:#666">Esta acción es irreversible.</p><button class="btn-save" id="confirmDeleteBtn" style="background:#dc2626; width:100%">Eliminar ahora</button><button onclick="closeDeleteModal()" style="border:none; background:none; color:#666; margin-top:15px; cursor:pointer; font-weight:bold">Cancelar</button></div></div>
 
 <script type="module">
@@ -350,6 +344,123 @@
       alert("✅ Registro guardado.");
   };
 
+  // --- GESTIÓN DE EXCUSAS ---
+  window.filtrarExcusas = () => {
+    const queryTxt = document.getElementById('searchExcusaInput').value.toLowerCase();
+    const list = document.getElementById('listaExcusas');
+    
+    const filtradas = localExcusas.filter(ex => {
+        const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+        const nombre = est ? est.nombre.toLowerCase() : "";
+        return nombre.includes(queryTxt) || ex.motivoTipo.toLowerCase().includes(queryTxt);
+    });
+
+    if (filtradas.length === 0) {
+        list.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>No hay excusas que coincidan.</p>";
+        return;
+    }
+
+    list.innerHTML = filtradas.map(ex => {
+        const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+        return `
+            <div class="excusa-card">
+                <div class="excusa-header">
+                    <span class="excusa-name">${est ? est.nombre : 'Desconocido (' + ex.documentoEstudiante + ')'}</span>
+                    <span class="excusa-date">${ex.fechaInasistencia}</span>
+                </div>
+                <div class="excusa-body">
+                    <b>Motivo:</b> ${ex.motivoTipo}<br>
+                    <b>Detalle:</b> ${ex.motivoDetalle}
+                </div>
+                <div class="excusa-firma-wrap">
+                    <span style="font-size:9px; color:#888; display:block; margin-bottom:4px;">FIRMA ACUDIENTE:</span>
+                    <img src="${ex.firmaAcudiente}" class="excusa-firma-img">
+                </div>
+                <div style="margin-top:15px; display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn-mini btn-pdf-obs" style="background:#2e7d32;" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF CARTA</button>
+                    <button class="btn-mini btn-del" onclick="window.openDeleteModal('${ex.id}','excusasInasistencia')">Eliminar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+  };
+
+  // GENERACIÓN DE PDF ESTILO CARTA PARA EXCUSA (MODIFICADO)
+  window.descargarPDFExcusaCarta = (id) => {
+    const ex = localExcusas.find(x => x.id === id); if(!ex) return;
+    const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF('p', 'mm', 'a4');
+    const logoImg = document.getElementById('schoolLogo');
+
+    const margin = 25;
+    // Usar la fecha del timestamp del registro del padre
+    const fechaDiligenciado = new Date(ex.timestamp).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    // Encabezado
+    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
+    if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 22, 22); } catch(e){}
+    docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(14); docPDF.setFont("helvetica", "bold");
+    docPDF.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 12, { align: "center" });
+    docPDF.setFontSize(10); docPDF.setFont("helvetica", "normal");
+    docPDF.text("Sede Rural Santa Juana · Gestión de Procesos 2026", 105, 18, { align: "center" });
+
+    docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(11);
+    let y = 50;
+
+    // Ciudad y Fecha ajustada
+    docPDF.text(`Yarumal, Antioquia. ${fechaDiligenciado}`, margin, y); y += 15;
+
+    // Destinatario
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text("Respetado Docente:", margin, y); y += 6;
+    docPDF.text("OSCAR BARRIENTOS", margin, y); y += 6;
+    docPDF.setFont("helvetica", "normal");
+    docPDF.text("I.E. de María - Sede Santa Juana", margin, y); y += 15;
+
+    // Asunto ajustado
+    docPDF.setFont("helvetica", "bold");
+    const nombreE = est ? est.nombre : "___________________________";
+    docPDF.text(`ASUNTO: EXCUSA POR INASISTENCIA ESCOLAR - ${nombreE}`, margin, y); y += 15;
+
+    // Cuerpo estructurado (SOLICITUD: Cambio de etiquetas y campo Motivo)
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text(`Fecha de inasistencia: ${ex.fechaInasistencia}`, margin, y); y += 10;
+    
+    docPDF.text(`Motivo: ${ex.motivoTipo}`, margin, y); y += 10;
+    
+    docPDF.text("Detalle de la justificación:", margin, y); y += 6;
+    docPDF.setFont("helvetica", "italic");
+    const detalleLines = docPDF.splitTextToSize(`"${ex.motivoDetalle}"`, 160);
+    docPDF.text(detalleLines, margin, y); y += (detalleLines.length * 6) + 15;
+
+    docPDF.setFont("helvetica", "normal");
+    const despedida = `Agradezco de antemano su comprensión y colaboración para que el estudiante pueda ponerse al día con las actividades académicas realizadas durante su ausencia.`;
+    const lineasDespedida = docPDF.splitTextToSize(despedida, 160);
+    docPDF.text(lineasDespedida, margin, y); y += (lineasDespedida.length * 6) + 25;
+
+    // Firma
+    docPDF.text("Cordialmente,", margin, y); y += 10;
+    if (ex.firmaAcudiente) {
+        try {
+            docPDF.addImage(ex.firmaAcudiente, 'PNG', margin, y, 50, 20);
+            y += 22;
+        } catch(e){ y += 10; }
+    } else {
+        y += 20;
+    }
+    
+    docPDF.setDrawColor(0); docPDF.line(margin, y, margin + 60, y); y += 5;
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text("FIRMA DEL ACUDIENTE", margin, y);
+
+    // Pie de página
+    docPDF.setFontSize(8); docPDF.setTextColor(150);
+    docPDF.text("Documento generado automáticamente · Sistema de Gestión Primaria 2026", 105, 285, { align: "center" });
+
+    docPDF.save(`Excusa_${nombreE}_${ex.fechaInasistencia}.pdf`);
+  };
+
   // --- REPORTE MENSUAL ASISTENCIA ---
   window.descargarReporteMensualAsis = async () => {
     const mes = document.getElementById('mesSeleccionadoAsis').value;
@@ -381,12 +492,11 @@
     docPDF.save(`Asistencia_${mes}.pdf`);
   };
 
-  // --- OBSERVACIONES Y LÓGICA DE CICLOS/ADVERTENCIAS ---
-
+  // --- OBSERVACIONES Y CICLOS ---
   const ADVERTENCIAS = [
-    "PRIMER LLAMADO DE ATENCIÓN (Advertencia inicial por conducta o rendimiento).",
-    "SEGUNDO LLAMADO DE ATENCIÓN (Citación obligatoria a padres de familia para acta de compromiso).",
-    "TERCER LLAMADO DE ATENCIÓN (Remisión inmediata a Comité de Convivencia y Rectoría para procesos sancionatorios)."
+    "PRIMER LLAMADO DE ATENCIÓN (Advertencia inicial por conducta o rendimiento). Si su hijo ajusta una tercera anotación será citado a una entrevista directamente con el docente.",
+    "SEGUNDO LLAMADO DE ATENCIÓN (Citación obligatoria a padres de familia para acta de compromiso). Si su hijo ajusta una tercera anotación será citado a una entrevista directamente con el docente.",
+    "TERCER LLAMADO DE ATENCIÓN. El estudiante acumuló las tres anotaciones y por lo tanto será citado el acudiente para una entrevista con el profesor."
   ];
 
   async function getCicloActual(docEst) {
@@ -399,13 +509,12 @@
       if (!docEst) return alert("Seleccione un estudiante.");
       const conf = await getCicloActual(docEst);
       const nuevoCiclo = conf + 1;
-      if (confirm(`¿Desea cerrar el ciclo actual #${conf}? La siguiente observación contará nuevamente como 'Anotación número uno' para el padre.`)) {
+      if (confirm(`¿Desea cerrar el ciclo #${conf}? La siguiente nota será la #1 del ciclo #${nuevoCiclo}.`)) {
           await setDoc(doc(db, "configuracionCiclos", docEst), { cicloActual: nuevoCiclo });
           alert(`✅ Ciclo reiniciado al #${nuevoCiclo}.`);
       }
   };
 
-  // GENERACIÓN DE PDF UNIFICADO (ECONÓMICO + ADVERTENCIAS)
   window.descargarPDFUnificado = async () => {
       const docEst = document.getElementById('selectEstudianteObs').value;
       if (!docEst) return alert("Seleccione un estudiante.");
@@ -441,7 +550,6 @@
           const numTxt = titulosNumeros[index] || (index + 1);
           const advertenciaTxt = ADVERTENCIAS[index] || "Seguimiento continuo de compromisos.";
 
-          // Medir textos
           const textComportamiento = docPDF.splitTextToSize(`Descripción: ${r.comportamiento}`, 180);
           const textDescargos = r.descargos ? docPDF.splitTextToSize(`Descargos: ${r.descargos}`, 180) : [];
           const textProc = r.procedimiento ? docPDF.splitTextToSize(`Procedimiento: ${r.procedimiento}`, 180) : [];
@@ -454,24 +562,21 @@
               header();
           }
 
-          // Bloque Título y Fecha
           docPDF.setFont("helvetica", "bold"); docPDF.setFontSize(11);
           docPDF.text(`Anotación número ${numTxt}`, 14, y); y += 6;
           docPDF.setFontSize(9); docPDF.setFont("helvetica", "normal");
           docPDF.text(`Fecha: ${r.fecha} | Tipo: ${r.tipoRegistro}`, 14, y); y += 6;
           
-          // Contenidos
           docPDF.text(textComportamiento, 14, y); y += (textComportamiento.length * 5);
           if(textDescargos.length > 0) { docPDF.text(textDescargos, 14, y); y += (textDescargos.length * 5); }
           if(textProc.length > 0) { docPDF.text(textProc, 14, y); y += (textProc.length * 5); }
 
-          // Advertencia resaltada
           y += 2;
           docPDF.setFont("helvetica", "bold"); docPDF.setTextColor(200, 0, 0);
           docPDF.text(textAdv, 14, y); y += (textAdv.length * 5);
           docPDF.setTextColor(0,0,0); docPDF.setFont("helvetica", "normal");
 
-          y += 5; // Firmas
+          y += 5;
           const sigH = 12;
           if(r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, y, 35, sigH);
           if(r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 82, y, 35, sigH);
@@ -484,7 +589,7 @@
           docPDF.text("Firma Acudiente", 167, y, {align:"center"});
           
           y += 8;
-          docPDF.setDrawColor(220); docPDF.line(14, y, 196, y); // Separador
+          docPDF.setDrawColor(220); docPDF.line(14, y, 196, y);
           y += 10;
       });
 
@@ -519,23 +624,6 @@
       </div>`).join('');
   }
 
-  window.descargarPDFIndividual = (id) => {
-    const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
-    const { jsPDF } = window.jspdf; const docPDF = new jsPDF('p', 'mm', 'a4');
-    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 38, 'F');
-    const logoImg = document.getElementById('schoolLogo');
-    if (logoImg) try { docPDF.addImage(logoImg, 'PNG', 12, 4, 30, 30); } catch(e){}
-    docPDF.setTextColor(255, 255, 255); docPDF.setFontSize(12); docPDF.text("Seguimiento individual", 105, 15, {align: "center"});
-    docPDF.setTextColor(0,0,0); docPDF.setFontSize(11); let y = 55;
-    docPDF.text(`Estudiante: ${r.nombreEstudiante}`, 14, y); y+=10;
-    docPDF.text(`Fecha: ${r.fecha} | Ciclo: ${r.ciclo || 1}`, 14, y); y+=15;
-    docPDF.text(docPDF.splitTextToSize(r.comportamiento, 180), 14, y);
-    if(r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, 245, 45, 15);
-    if(r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 85, 245, 45, 15);
-    if(r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 155, 245, 45, 15);
-    docPDF.save(`Indiv_${r.nombreEstudiante}.pdf`);
-  };
-
   window.cargarParaEditarObs = (id) => {
     const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
     document.getElementById('editObsId').value = r.id;
@@ -558,6 +646,12 @@
     if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
     const ciclo = await getCicloActual(studentDoc);
     const editId = document.getElementById('editObsId').value;
+
+    if (!editId) {
+        const obsEnCiclo = localRegistrosObs.filter(r => r.documentoEstudiante === studentDoc && r.ciclo === ciclo).length;
+        if (obsEnCiclo < 3) alert(ADVERTENCIAS[obsEnCiclo]);
+    }
+
     const data = {
       tipoRegistro: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value,
       nombreEstudiante: studentName, documentoEstudiante: studentDoc,
@@ -567,7 +661,7 @@
     };
     if(editId) await updateDoc(doc(db, "registrosComportamentales", editId), data);
     else await addDoc(collection(db, "registrosComportamentales"), data);
-    alert("✅ Operación exitosa."); e.target.reset(); document.getElementById('editObsId').value = "";
+    alert("✅ Registro guardado."); e.target.reset(); document.getElementById('editObsId').value = "";
     document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
     window.limpiarPad('sigStudent'); window.limpiarPad('sigTeacher');
   };
@@ -585,6 +679,15 @@
     });
   }
 
+  window.filtrarHistorialObs = () => {
+    const queryTxt = document.getElementById('searchHistoryInput').value.toLowerCase();
+    const filtrados = localRegistrosObs.filter(r => 
+        r.nombreEstudiante.toLowerCase().includes(queryTxt) || 
+        r.comportamiento.toLowerCase().includes(queryTxt)
+    );
+    renderRegistrosObs(filtrados);
+  };
+
   window.openDeleteModal = (id, col) => { currentDeleteInfo = { id, collection: col }; document.getElementById('deleteModal').style.display = 'flex'; };
   window.closeDeleteModal = () => { document.getElementById('deleteModal').style.display = 'none'; };
   document.getElementById('confirmDeleteBtn').onclick = async () => {
@@ -601,12 +704,15 @@
         selectObs.appendChild(opt);
     });
     window.renderAsistencia(); iniciarEscuchasObs();
+    
     onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
-      localExcusas = []; snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
+      localExcusas = []; 
+      snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
       window.filtrarExcusas();
     });
+
     const st = document.getElementById('connStatus');
-    if(navigator.onLine) st.className = 'conn-indicator conn-online';
+    if(navigator.onLine) { st.className = 'conn-indicator conn-online'; }
   };
   window.toggleHistorial = (id) => { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
 </script>
