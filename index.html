@@ -342,34 +342,114 @@
     if (t === 'corr') cargarCorrespondencia();
   };
 
-  // ------- Firmas -------
+  // =========================================================
+  // ✅ FIRMAS (CORREGIDO): evita trazos accidentales con stylus
+  // =========================================================
   function initPad(id) {
-    const c = document.getElementById(id); if (!c) return;
-    const ctx = c.getContext("2d");
-    const ratio = window.devicePixelRatio || 1;
-    const rect = c.getBoundingClientRect();
-    c.width = rect.width * ratio;
-    c.height = 150 * ratio;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(ratio, ratio);
-    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    const c = document.getElementById(id);
+    if (!c) return;
 
-    let drawing = false;
-    const getPos = (e) => {
-      const r = c.getBoundingClientRect();
-      const tx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-      const ty = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-      return { x: tx, y: ty };
+    // Evitar doble inicialización si cambias de pestaña
+    if (c.dataset.padReady === "1") return;
+    c.dataset.padReady = "1";
+
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+
+    const resize = () => {
+      const ratio = window.devicePixelRatio || 1;
+      const rect = c.getBoundingClientRect();
+
+      c.width = Math.floor(rect.width * ratio);
+      c.height = Math.floor(150 * ratio);
+
+      // Coordenadas en CSS pixels
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#000";
     };
 
-    c.onmousedown = (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-    c.onmousemove = (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData:true, canvas:c}); };
-    window.addEventListener("mouseup", () => drawing = false);
+    resize();
+    window.addEventListener("resize", resize);
 
-    c.ontouchstart = (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-    c.ontouchmove = (e) => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData:true, canvas:c}); };
+    let drawing = false;
+    let lastX = null;
+    let lastY = null;
 
-    pads.set(id, {hasData:false, canvas:c});
+    const getPos = (e) => {
+      const r = c.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+
+    const endStroke = () => {
+      drawing = false;
+      lastX = null;
+      lastY = null;
+      ctx.beginPath(); // rompe el path para que no conecte
+    };
+
+    c.addEventListener("pointerdown", (e) => {
+      c.setPointerCapture?.(e.pointerId);
+
+      // Stylus: si no hay presión es hover -> no iniciar
+      if (e.pointerType === "pen" && e.pressure === 0) return;
+
+      // Mouse: solo si botón presionado
+      if (e.pointerType === "mouse" && e.buttons !== 1) return;
+
+      drawing = true;
+
+      const { x, y } = getPos(e);
+      lastX = x;
+      lastY = y;
+
+      // Punto inicial
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 0.01, y + 0.01);
+      ctx.stroke();
+
+      pads.set(id, { hasData: true, canvas: c });
+    });
+
+    c.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+
+      // Stylus: hover (pressure 0) no dibuja
+      if (e.pointerType === "pen" && e.pressure === 0) return;
+
+      // Mouse: si se soltó el botón, no dibuja
+      if (e.pointerType === "mouse" && e.buttons !== 1) return;
+
+      const { x, y } = getPos(e);
+
+      // Si se perdió el último punto, reiniciar sin unir
+      if (lastX === null || lastY === null) {
+        lastX = x;
+        lastY = y;
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      lastX = x;
+      lastY = y;
+
+      pads.set(id, { hasData: true, canvas: c });
+    });
+
+    // Cortar trazo en todos los finales posibles
+    c.addEventListener("pointerup", endStroke);
+    c.addEventListener("pointercancel", endStroke);
+    c.addEventListener("pointerleave", endStroke);
+    c.addEventListener("lostpointercapture", endStroke);
+
+    pads.set(id, { hasData: false, canvas: c });
   }
 
   window.limpiarPad = (id) => {
@@ -652,7 +732,7 @@
     }
   };
 
-  // ✅ PDF INDIVIDUAL (antes lo llamabas y NO existía)
+  // ✅ PDF INDIVIDUAL
   window.descargarPDFIndividual = (id) => {
     const r = localRegistrosObs.find(x => x.id === id);
     if (!r) return alert("No se encontró el registro.");
@@ -689,7 +769,6 @@
       docPDF.text(pp, 14, y); y += pp.length * 6 + 4;
     }
 
-    // Semáforo dentro del ciclo (por índice no lo tenemos aquí, así que solo texto base)
     docPDF.setFont("helvetica","bold");
     docPDF.setTextColor(200,0,0);
     const adv = docPDF.splitTextToSize(`NOTA DE ADVERTENCIA: ${ADVERTENCIAS[0]}`, 180);
@@ -710,7 +789,7 @@
     docPDF.save(`Observacion_${r.nombreEstudiante}_${r.fecha || 'sinf'}.pdf`);
   };
 
-  // ✅ PDF UNIFICADO = TODOS LOS CICLOS (lo que pediste)
+  // ✅ PDF UNIFICADO
   window.descargarPDFUnificado = async () => {
     const docEst = document.getElementById('selectEstudianteObs').value;
     if (!docEst) return alert("Seleccione un estudiante.");
@@ -761,7 +840,6 @@
       }
     };
 
-    // agrupar por ciclo
     const cicloMap = new Map();
     obsAll.forEach(r => {
       const c = r.ciclo || 1;
@@ -819,7 +897,6 @@
         if (textProc.length) { docPDF.text(textProc, 14, y); y += (textProc.length * 5); }
         y += 2;
 
-        // Semáforo (1 verde, 2 naranja, 3 rojo) reinicia en cada ciclo
         let advColor = [200, 0, 0];
         if (index === 0) advColor = [22, 101, 52];
         else if (index === 1) advColor = [154, 52, 18];
@@ -861,7 +938,7 @@
     docPDF.save(`Seguimiento_${nombreEst}_TODOS_LOS_CICLOS.pdf`);
   };
 
-  // ------- Render historial obs (con botón PDF individual funcionando) -------
+  // ------- Render historial obs -------
   function iniciarEscuchasObs() {
     onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
       localRegistrosObs = [];
@@ -965,7 +1042,7 @@
     window.limpiarPad('sigTeacher');
   };
 
-  // ------- Correspondencia (y responderMsg que faltaba) -------
+  // ------- Correspondencia -------
   function cargarCorrespondencia() {
     onSnapshot(query(collection(db, "comunicacionPadres"), orderBy("timestamp", "desc")), (snap) => {
       let html = '';
@@ -1035,7 +1112,6 @@
     const st = document.getElementById('connStatus');
     st.className = navigator.onLine ? 'conn-indicator conn-online' : 'conn-indicator conn-offline';
 
-    // cargar asistencia del día automáticamente
     window.cargarAsistenciaDelDia();
   };
 
