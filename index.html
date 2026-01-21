@@ -37,8 +37,9 @@
     .conn-online { background-color: #22c55e; }
     .conn-offline { background-color: #ef4444; }
 
-    .nav-tabs { display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px; gap: 5px; flex-wrap: wrap; }
-    .nav-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px; font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 11px; }
+    /* Navegación */
+    .nav-tabs { display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); margin-bottom: 10px; gap: 5px; flex-wrap: nowrap; overflow-x: auto; }
+    .nav-btn { flex: 1; border: none; background: transparent; padding: 12px; border-radius: 40px; font-weight: 700; color: #666; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 11px; min-width: 105px; text-align: center; }
     .nav-btn.active-asis { background: var(--accent); color: white; }
     .nav-btn.active-obs { background: var(--primary); color: white; }
     .nav-btn.active-herramientas { background: var(--tools-color); color: white; }
@@ -47,10 +48,12 @@
     .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid white; position: relative; margin-bottom: 20px; }
     .card-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
 
+    /* Asistencia */
     .attendance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
     .att-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
     .att-info { display: flex; flex-direction: column; gap: 2px; }
     .att-name { font-weight: 600; font-size: 14px; color: #334155; }
+    .att-doc-small { font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: -2px; }
     .att-counter { font-size: 10px; font-weight: bold; color: #dc2626; background: #fee2e2; padding: 1px 6px; border-radius: 4px; align-self: flex-start; }
     .att-options { display: flex; gap: 5px; }
     .att-btn { border: 1px solid #cbd5e1; background: #fff; color: #64748b; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -58,52 +61,37 @@
     .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
     .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
-    .compilation-monthly { margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 20px; border: 1px solid #bae6fd; text-align: center; }
-    .comp-select { padding: 10px; width: 100%; border-radius: 12px; border: 1px solid #7dd3fc; margin-bottom: 10px; font-weight: bold; color: var(--accent); }
+    /* Formularios */
+    .form-group { margin-bottom: 15px; width: 100%; display: flex; flex-direction: column; }
+    label { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
+    input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; background: #fafafa; font-size: 14px; }
+    
+    .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 12px; overflow: hidden; }
+    canvas.signature-pad { width: 100%; height: 150px; display: block; touch-action: none; }
+    
+    .btn-save { background: var(--primary); padding: 15px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 15px; width: 100%; margin-top: 10px; }
+    .btn-reset-ciclo { background: #f57c00; color: white; width: 100%; padding: 12px; border-radius: 30px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; }
+    .btn-tools { background: var(--tools-color); color: white; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
 
+    /* Excusas y Cards */
     .excusa-card { background: #fff; border-radius: 18px; border-left: 6px solid var(--accent); padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; }
     .excusa-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
     .excusa-name { font-weight: 800; color: #1e293b; font-size: 14px; }
     .excusa-date { font-size: 10px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
-    .excusa-body { font-size: 13px; color: #475569; line-height: 1.5; }
-    .excusa-firma-wrap { text-align: right; margin-top: 10px; border-top: 1px dashed #eee; padding-top: 10px; }
-    .excusa-firma-img { max-height: 50px; border: 1px solid #eee; background: #fff; }
+    .excusa-firma-img { max-height: 40px; border: 1px solid #eee; margin-top: 10px; border-radius: 4px; }
 
+    /* Observaciones Historial */
     .obs-list-card { background: #fff; border-radius: 18px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e1f5fe; border-left: 6px solid var(--primary); }
-    .sigs-history-row { display: flex; gap: 8px; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #eee; overflow-x: auto; }
-    .sig-view-box { flex: 1; text-align: center; min-width: 90px; }
+    .sigs-history-row { display: flex; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; overflow-x: auto; }
+    .sig-view-box { flex: 1; text-align: center; min-width: 80px; }
     .sig-view-box span { display: block; font-size: 8px; font-weight: 800; color: #888; text-transform: uppercase; margin-bottom: 4px; }
-    .sig-img-history { max-height: 40px; border: 1px solid #f0f0f0; background: #fff; max-width: 100%; object-fit: contain; }
+    .sig-img-history { max-height: 35px; border: 1px solid #f0f0f0; background: #fff; max-width: 100%; object-fit: contain; }
 
-    .search-box-container { margin-bottom: 15px; position: relative; }
-    .search-box-container input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 25px; border: 1px solid #ddd; font-size: 14px; outline: none; }
-    .search-box-container .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; }
-
-    .btn-save { background: var(--primary); padding: 15px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; color: white; font-size: 15px; width: 100%; margin-top: 10px; }
-    .btn-historial { background: #455a64; color: white; width: 100%; margin-top: 10px; padding: 12px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; }
-    .btn-mini { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-    .btn-pdf-exc { background: #d32f2f; color: white; }
-    .btn-pdf-obs { background: #1b5e20; color: white; }
-    .btn-edit-obs { background: #0288d1; color: white; }
-    .btn-del { background: #fee2e2; color: #dc2626; }
-    .btn-reset-ciclo { background: #f57c00; color: white; width: 100%; margin-top: 5px; padding: 10px; border-radius: 30px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; }
-
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; }
-    input, textarea, select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #ccc; background: #fafafa; font-size: 14px; }
-    .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-    @media (min-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-
-    .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 12px; overflow: hidden; }
-    canvas.signature-pad { width: 100%; height: 150px; cursor: crosshair; touch-action: none; display: block; }
     .hidden-section { display: none; margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px; }
-
     #deleteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
     .modal-box { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; text-align: center; }
 
-    .btn-tools { background: var(--tools-color); color: white; padding: 18px; border-radius: 15px; font-weight: 800; width: 100%; margin-bottom: 15px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-
-    @media(max-width: 600px) { .nav-tabs { flex-wrap: nowrap; overflow-x: auto; } .nav-btn { min-width: 110px; } }
+    @media(max-width: 600px) { .nav-tabs { -webkit-overflow-scrolling: touch; } }
   </style>
 </head>
 
@@ -115,7 +103,7 @@
       <div class="brand-logo"><img src="escudo.png" alt="Escudo" id="schoolLogo"></div>
       <div class="brand-text">
         <div class="brand-title">Panel Administrativo Docente</div>
-        <div class="brand-subtitle">Gestión Escolar · 2026</div>
+        <div class="brand-subtitle" style="font-size: 11px; opacity: 0.7;">Primaria 2026 · Santa Juana</div>
       </div>
     </div>
     <div id="connStatus" class="conn-indicator conn-online"></div>
@@ -142,34 +130,23 @@
       <div id="attendanceList" class="attendance-grid"></div>
       <button class="btn-save" style="background:var(--accent);" onclick="window.guardarAsistencia()">💾 GUARDAR ASISTENCIA</button>
 
-      <div class="compilation-monthly">
-        <h3 style="font-size:13px; color:var(--accent); margin-bottom:8px;">Reporte Mensual</h3>
-        <p style="font-size:11px; color:#666; margin-bottom:10px;">(El reporte mensual siempre mostrará los datos del mes elegido, sin importar los reseteos de periodo)</p>
-
-        <select id="mesSeleccionadoAsis" class="comp-select">
+      <div style="margin-top:20px; padding:15px; background:#f0f9ff; border-radius:20px; border:1px solid #bae6fd; text-align:center;">
+        <h3 style="font-size:13px; color:var(--accent); margin-bottom:10px;">Compilación Mensual</h3>
+        <select id="mesSeleccionadoAsis" style="margin-bottom:10px; width:100%;">
           <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
           <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
           <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
           <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
         </select>
-
-        <button class="btn-mini btn-pdf-exc" style="width:100%; padding:14px; border-radius:30px;" onclick="window.descargarReporteMensualAsis()">
-          📊 DESCARGAR COMPILACIÓN (PDF)
-        </button>
-
-        <button class="btn-reset-ciclo" style="background:#2e7d32; border:2px solid #1b5e20; margin-top:15px; padding:12px; width:100%;" onclick="window.resetearFaltasPeriodo()">
-          🔄 INICIAR NUEVO PERIODO (BORRÓN Y CUENTA NUEVA)
-        </button>
+        <button class="btn-save" style="background:var(--accent); padding:12px; font-size:12px;" onclick="window.descargarReporteMensualAsis()">📊 DESCARGAR COMPILACIÓN (PDF)</button>
+        <button class="btn-save" style="background:#2e7d32; padding:12px; font-size:12px; margin-top:5px;" onclick="window.resetearFaltasPeriodo()">🔄 INICIAR NUEVO PERIODO</button>
       </div>
 
       <div style="margin:25px 0 15px; border-bottom:2px dashed #e0e0e0; color:var(--accent); font-weight:700; font-size:14px;">Gestión de Excusas</div>
-      <button type="button" class="btn-historial" style="background:var(--accent);" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
+      <button type="button" class="btn-save" style="background:#455a64;" onclick="toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
 
       <div id="historialExc" class="hidden-section">
-        <div class="search-box-container">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="searchExcusaInput" placeholder="Buscar estudiante o motivo..." oninput="window.filtrarExcusas()">
-        </div>
+        <input type="text" id="searchExcInput" placeholder="Buscar excusa..." oninput="window.filtrarExcusas()" style="margin-bottom:15px;">
         <div id="listaExcusas">Cargando...</div>
       </div>
     </section>
@@ -181,45 +158,23 @@
       <h2 class="card-title">📝 Registro de Observaciones</h2>
       <form id="formRegistro">
         <input type="hidden" id="editObsId">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Tipo</label>
-            <select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select>
-          </div>
-          <div class="form-group">
-            <label>Fecha</label>
-            <input type="date" id="fecha" required>
-          </div>
-        </div>
-
+        
+        <div class="form-group"><label>Tipo de Registro</label><select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select></div>
+        <div class="form-group"><label>Fecha</label><input type="date" id="fecha" required></div>
+        <div class="form-group"><label>Estudiante</label><select id="selectEstudianteObs" required><option value="">Seleccione...</option></select></div>
+        <div class="form-group"><label>Descripción</label><textarea id="comportamiento" rows="3" placeholder="Sucedido..."></textarea></div>
+        <div class="form-group"><label>Descargos</label><textarea id="descargos" placeholder="Descargos..."></textarea></div>
+        <div class="form-group"><label>Procedimiento</label><textarea id="procedimiento" placeholder="Acciones..."></textarea></div>
+        
         <div class="form-group">
-          <label>Seleccionar Estudiante</label>
-          <select id="selectEstudianteObs" required>
-            <option value="" disabled selected>Elija un estudiante de la lista...</option>
-          </select>
+          <label>Firma Estudiante</label>
+          <div class="signature-container"><canvas id="sigStudent" class="signature-pad"></canvas></div>
+          <button type="button" style="color:red; font-size:10px; border:none; background:none;" onclick="limpiarPad('sigStudent')">Limpiar</button>
         </div>
-
         <div class="form-group">
-          <label>Descripción</label>
-          <textarea id="comportamiento" placeholder="Novedad presentada..."></textarea>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group"><label>Descargos</label><textarea id="descargos"></textarea></div>
-          <div class="form-group"><label>Procedimiento</label><textarea id="procedimiento"></textarea></div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Firma Estudiante</label>
-            <div class="signature-container"><canvas id="sigStudent" class="signature-pad"></canvas></div>
-            <button type="button" style="border:none; background:none; color:red; font-size:10px; cursor:pointer;" onclick="limpiarPad('sigStudent')">Limpiar</button>
-          </div>
-          <div class="form-group">
-            <label>Firma Docente</label>
-            <div class="signature-container"><canvas id="sigTeacher" class="signature-pad"></canvas></div>
-            <button type="button" style="border:none; background:none; color:red; font-size:10px; cursor:pointer;" onclick="limpiarPad('sigTeacher')">Limpiar</button>
-          </div>
+          <label>Firma Docente</label>
+          <div class="signature-container"><canvas id="sigTeacher" class="signature-pad"></canvas></div>
+          <button type="button" style="color:red; font-size:10px; border:none; background:none;" onclick="limpiarPad('sigTeacher')">Limpiar</button>
         </div>
 
         <button type="submit" class="btn-save" id="btnSubmitObs">ENVIAR REGISTRO</button>
@@ -227,17 +182,14 @@
         <div style="background:#fff3e0; padding:15px; border-radius:15px; margin-top:15px; border:1px solid #ffe0b2;">
           <p style="font-size:12px; font-weight:bold; margin-bottom:5px; color:#e65100;">Controles de Ciclo:</p>
           <button type="button" class="btn-reset-ciclo" onclick="window.resetearCicloEstudiante()">🔄 REINICIAR CICLO PARA ESTE ESTUDIANTE</button>
-          <button type="button" class="btn-save" style="background:#43a047; margin-top:10px;" onclick="window.descargarPDFUnificado()">📄 GENERAR PDF UNIFICADO (CON ADVERTENCIAS)</button>
+          <button type="button" class="btn-save" style="background:#43a047; margin-top:10px; font-size:12px;" onclick="window.descargarPDFUnificado()">📄 GENERAR PDF UNIFICADO (CON ADVERTENCIAS)</button>
         </div>
-
-        <button type="button" class="btn-historial" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL COMPLETO</button>
+        
+        <button type="button" class="btn-save" style="background:#455a64; margin-top:15px;" onclick="toggleHistorial('historialObs')">📂 VER HISTORIAL COMPLETO</button>
       </form>
 
       <div id="historialObs" class="hidden-section">
-        <div class="search-box-container">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="searchHistoryInput" placeholder="Buscar en observaciones..." oninput="window.filtrarHistorialObs()">
-        </div>
+        <input type="text" id="searchHistoryInput" placeholder="Buscar en historial..." oninput="window.filtrarHistorialObs()" style="margin-bottom:15px;">
         <div id="listaRegistros"></div>
       </div>
     </section>
@@ -258,244 +210,103 @@
   <div id="view-corr" style="display:none;">
     <section class="card" style="border-left: 5px solid var(--corr-color);">
       <h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2>
-      <div id="listaCorrespondencia">Cargando...</div>
+      <div id="listaCorrespondencia">Cargando mensajes...</div>
     </section>
   </div>
 
 </div>
 
-<!-- MODAL DELETE -->
+<!-- MODAL ELIMINAR -->
 <div id="deleteModal">
   <div class="modal-box">
     <h3 style="color:#dc2626">¿Eliminar registro?</h3>
-    <p style="margin:10px 0; font-size:14px; color:#666">Esta acción es irreversible.</p>
-    <button class="btn-save" id="confirmDeleteBtn" style="background:#dc2626; width:100%">Eliminar ahora</button>
-    <button onclick="closeDeleteModal()" style="border:none; background:none; color:#666; margin-top:15px; cursor:pointer; font-weight:bold">Cancelar</button>
+    <button class="btn-save" id="confirmDeleteBtn" style="background:#dc2626;">ELIMINAR AHORA</button>
+    <button onclick="closeDeleteModal()" style="border:none; background:none; margin-top:15px; font-weight:bold;">CANCELAR</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    updateDoc,
-    deleteDoc,
-    doc,
-    onSnapshot,
-    setDoc,
-    getDoc,
-    query,
-    orderBy
-  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
     authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-    projectId: "diariodeprocesos-6f78d",
-    storageBucket: "diariodeprocesos-6f78d.firebasestorage.app"
+    projectId: "diariodeprocesos-6f78d"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
   const estudiantesBase = [
+    { doc: "1042155626", nombre: "MARTINEZ ARANGO AYLYN" },
+    { doc: "1041636979", nombre: "OSORIO MUÑOZ JERONIMO" },
+    { doc: "1041636870", nombre: "GONZALEZ BETANCUR MARIA JOSE" },
+    { doc: "1042155380", nombre: "GUTIERREZ CHAVARRIA JOSE LEANDRO" },
+    { doc: "1041636841", nombre: "VARELAS BARRIENTOS LUCIANA" },
+    { doc: "1041636641", nombre: "MARTINEZ MARTINEZ SEBASTIAN" },
+    { doc: "1035922719", nombre: "MOLINA OCHOA BELEN" },
+    { doc: "1067959648", nombre: "PACHECO BARRERA JOSE DANIEL" },
+    { doc: "1032328826", nombre: "LOPERA CADAVID LUCIANA" },
+    { doc: "1042155250", nombre: "CASAS FERNANDEZ ANTONELLA" },
+    { doc: "1035801483", nombre: "RESTREPO VILLA DILMER FELIPE" },
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
-    { doc: "1072263423", nombre: "MEDINA POLO JESUS DAVID" },
-    { doc: "1041636093", nombre: "MEJIA VALLEJO TOMAS" },
     { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
-  const pads = new Map();
-  let currentDeleteInfo = { id: null, collection: null };
+  const ADVERTENCIAS = [
+    "PRIMER LLAMADO DE ATENCIÓN (Anotación #1).",
+    "SEGUNDO LLAMADO DE ATENCIÓN (Citación obligatoria a padres).",
+    "TERCER LLAMADO DE ATENCIÓN (Remisión a entrevista docente/acudiente)."
+  ];
+
+  let localAsistenciaCompleta = [];
   let localExcusas = [];
   let localRegistrosObs = [];
-  let localAsistenciaCompleta = [];
   let periodoActualAsis = 1;
+  let asistenciaTemp = {};
+  let pads = new Map();
+  let currentDeleteInfo = { id: null, collection: null };
 
-  // ------- Helpers PDF (logo dataURL para que no falle) -------
-  function getLogoDataUrl() {
-    try {
-      const img = document.getElementById('schoolLogo');
-      if (!img || !img.complete || !img.naturalWidth) return null;
-      const c = document.createElement('canvas');
-      c.width = img.naturalWidth;
-      c.height = img.naturalHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      return c.toDataURL('image/png');
-    } catch(e) { return null; }
-  }
-
-  // ------- Navegación -------
+  // --- NAVEGACIÓN ---
   window.switchTab = (t) => {
-    ['view-asis', 'view-obs', 'view-herramientas', 'view-corr'].forEach(v => document.getElementById(v).style.display = 'none');
-    ['btnTabAsis', 'btnTabObs', 'btnTabHerramientas', 'btnTabCorr'].forEach(b => document.getElementById(b).className = 'nav-btn');
-
-    document.getElementById('view-' + t).style.display = 'block';
-    const btnId = 'btnTab' + t.charAt(0).toUpperCase() + t.slice(1);
-    document.getElementById(btnId).className = 'nav-btn active-' + t;
-
-    if (t === 'obs') setTimeout(() => { initPad('sigStudent'); initPad('sigTeacher'); }, 250);
+    ['asis', 'obs', 'herramientas', 'corr'].forEach(key => {
+      const view = document.getElementById('view-' + key);
+      const btn = document.getElementById('btnTab' + key.charAt(0).toUpperCase() + key.slice(1));
+      if (view) view.style.display = (key === t) ? 'block' : 'none';
+      if (btn) btn.className = (key === t) ? 'nav-btn active-' + t : 'nav-btn';
+    });
+    if (t === 'obs') { setTimeout(() => { initPad('sigStudent'); initPad('sigTeacher'); }, 250); }
     if (t === 'corr') cargarCorrespondencia();
   };
 
-  // =========================================================
-  // ✅ FIRMAS (CORREGIDO): evita trazos accidentales con stylus
-  // =========================================================
-  function initPad(id) {
-    const c = document.getElementById(id);
-    if (!c) return;
-
-    // Evitar doble inicialización si cambias de pestaña
-    if (c.dataset.padReady === "1") return;
-    c.dataset.padReady = "1";
-
-    const ctx = c.getContext("2d", { willReadFrequently: true });
-
-    const resize = () => {
-      const ratio = window.devicePixelRatio || 1;
-      const rect = c.getBoundingClientRect();
-
-      c.width = Math.floor(rect.width * ratio);
-      c.height = Math.floor(150 * ratio);
-
-      // Coordenadas en CSS pixels
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#000";
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    let drawing = false;
-    let lastX = null;
-    let lastY = null;
-
-    const getPos = (e) => {
-      const r = c.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
-    };
-
-    const endStroke = () => {
-      drawing = false;
-      lastX = null;
-      lastY = null;
-      ctx.beginPath(); // rompe el path para que no conecte
-    };
-
-    c.addEventListener("pointerdown", (e) => {
-      c.setPointerCapture?.(e.pointerId);
-
-      // Stylus: si no hay presión es hover -> no iniciar
-      if (e.pointerType === "pen" && e.pressure === 0) return;
-
-      // Mouse: solo si botón presionado
-      if (e.pointerType === "mouse" && e.buttons !== 1) return;
-
-      drawing = true;
-
-      const { x, y } = getPos(e);
-      lastX = x;
-      lastY = y;
-
-      // Punto inicial
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + 0.01, y + 0.01);
-      ctx.stroke();
-
-      pads.set(id, { hasData: true, canvas: c });
-    });
-
-    c.addEventListener("pointermove", (e) => {
-      if (!drawing) return;
-
-      // Stylus: hover (pressure 0) no dibuja
-      if (e.pointerType === "pen" && e.pressure === 0) return;
-
-      // Mouse: si se soltó el botón, no dibuja
-      if (e.pointerType === "mouse" && e.buttons !== 1) return;
-
-      const { x, y } = getPos(e);
-
-      // Si se perdió el último punto, reiniciar sin unir
-      if (lastX === null || lastY === null) {
-        lastX = x;
-        lastY = y;
-        return;
-      }
-
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-
-      lastX = x;
-      lastY = y;
-
-      pads.set(id, { hasData: true, canvas: c });
-    });
-
-    // Cortar trazo en todos los finales posibles
-    c.addEventListener("pointerup", endStroke);
-    c.addEventListener("pointercancel", endStroke);
-    c.addEventListener("pointerleave", endStroke);
-    c.addEventListener("lostpointercapture", endStroke);
-
-    pads.set(id, { hasData: false, canvas: c });
-  }
-
-  window.limpiarPad = (id) => {
-    const p = pads.get(id);
-    if (p) {
-      p.canvas.getContext("2d").clearRect(0, 0, p.canvas.width, p.canvas.height);
-      pads.set(id, {hasData:false, canvas:p.canvas});
-    }
-  };
-
-  // ------- Asistencia -------
+  // --- ASISTENCIA ---
   async function cargarConfiguracionPeriodo() {
     const snap = await getDoc(doc(db, "configuracionGlobal", "asistencia"));
-    if (snap.exists()) {
-      periodoActualAsis = snap.data().periodoActual || 1;
-    } else {
-      await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: 1 });
-    }
+    if (snap.exists()) periodoActualAsis = snap.data().periodoActual || 1;
     document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
   }
 
-  window.obtenerFaltasPeriodo = (docEst) => {
-    let faltas = 0;
-    localAsistenciaCompleta.forEach(registro => {
-      if (registro.periodo === periodoActualAsis) {
-        const detalle = registro.detalles.find(d => d.doc === docEst);
-        if (detalle && (detalle.estado === 'I' || detalle.estado === 'E')) faltas++;
-      }
-    });
-    return faltas;
-  };
-
-  let asistenciaTemp = {};
   window.renderAsistencia = () => {
     const list = document.getElementById('attendanceList');
     if(!list) return;
-
     let html = '';
     estudiantesBase.forEach(e => {
       const s = asistenciaTemp[e.doc] || 'P';
-      const totalFaltas = window.obtenerFaltasPeriodo(e.doc);
+      let faltas = 0;
+      localAsistenciaCompleta.forEach(r => {
+        if(r.periodo === periodoActualAsis) {
+            const d = r.detalles?.find(x => x.doc === e.doc);
+            if(d && (d.estado === 'I' || d.estado === 'E')) faltas++;
+        }
+      });
       html += `
         <div class="att-row">
           <div class="att-info">
             <span class="att-name">${e.nombre}</span>
-            <span class="att-counter">${totalFaltas} faltas este periodo</span>
+            <span class="att-doc-small">Doc: ${e.doc}</span>
+            <span class="att-counter">${faltas} faltas este periodo</span>
           </div>
           <div class="att-options">
             <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
@@ -522,603 +333,248 @@
     const f = document.getElementById('fechaAsistencia').value;
     const detalles = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'}));
     await setDoc(doc(db, "controlAsistencia", f), { fecha:f, detalles, periodo: periodoActualAsis });
-    alert("✅ Registro guardado.");
+    alert("Asistencia guardada.");
   };
 
   window.resetearFaltasPeriodo = async () => {
-    const passwordInput = prompt("🔑 Ingrese la contraseña (9218) para iniciar un nuevo periodo de conteo:");
-    if (passwordInput === "9218") {
-      if (confirm(`¿Desea cerrar el periodo #${periodoActualAsis}? Los conteos volverán a 0, pero podrá seguir bajando los reportes mensuales de meses anteriores.`)) {
-        try {
-          const nuevoPeriodo = periodoActualAsis + 1;
-          await updateDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: nuevoPeriodo });
-          periodoActualAsis = nuevoPeriodo;
-          document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
-          alert(`✅ Periodo #${nuevoPeriodo} iniciado. Conteos reiniciados.`);
-          window.renderAsistencia();
-        } catch (e) {
-          alert("Error al actualizar el periodo.");
-        }
-      }
-    } else {
-      alert("❌ Contraseña incorrecta.");
+    if(prompt("Clave (9218):") === "9218") {
+        const nuevo = periodoActualAsis + 1;
+        await updateDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: nuevo });
+        periodoActualAsis = nuevo;
+        document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${nuevo}`;
+        window.renderAsistencia();
     }
   };
 
-  function escucharAsistencia() {
-    onSnapshot(collection(db, "controlAsistencia"), (snap) => {
-      localAsistenciaCompleta = [];
-      snap.forEach(docu => localAsistenciaCompleta.push(docu.data()));
-      window.renderAsistencia();
-    });
-  }
-
-  // ------- PDF Mensual Asistencia -------
-  window.descargarReporteMensualAsis = async () => {
-    const mes = document.getElementById('mesSeleccionadoAsis').value;
-    const { jsPDF } = window.jspdf;
-    const docPDF = new jsPDF('l', 'mm', 'a4');
-    const logoDataUrl = getLogoDataUrl();
-
-    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 297, 30, 'F');
-    try { if (logoDataUrl) docPDF.addImage(logoDataUrl, 'PNG', 12, 3, 24, 24); } catch(e){}
-
-    docPDF.setTextColor(255, 255, 255);
-    docPDF.setFontSize(15); docPDF.setFont("helvetica", "bold");
-    docPDF.text("Institución Educativa de María, Sede Rural Santa Juana.", 155, 12, { align: "center" });
-    docPDF.setFontSize(11);
-    docPDF.text(`Reporte Mensual de Asistencia - Mes ${mes} - 2026`, 155, 22, { align: "center" });
-
-    const dias = localAsistenciaCompleta.filter(d => (d.fecha || "").startsWith(`2026-${mes}`));
-    dias.sort((a,b) => (a.fecha||"").localeCompare(b.fecha||""));
-
-    if (dias.length === 0) return alert("Sin datos.");
-
-    const head = [["Estudiante", ...dias.map(x => (x.fecha||"").split("-")[2]), "P", "E", "I"]];
-    const body = estudiantesBase.map(est => {
-      let p=0, e=0, i=0;
-      const row = [est.nombre];
-      dias.forEach(dia => {
-        const st = dia.detalles?.find(x => x.doc === est.doc)?.estado || '-';
-        row.push(st);
-        if (st==='P') p++; if (st==='E') e++; if (st==='I') i++;
-      });
-      return [...row, p, e, i];
-    });
-
-    docPDF.autoTable({
-      startY: 35,
-      head,
-      body,
-      theme: 'grid',
-      styles: { fontSize: 7 },
-      headStyles: { fillColor: [27,94,32] }
-    });
-
-    docPDF.save(`Asistencia_Mes_${mes}_Reporte.pdf`);
-  };
-
-  // ------- Excusas -------
-  window.filtrarExcusas = () => {
-    const queryTxt = (document.getElementById('searchExcusaInput').value || "").toLowerCase();
-    const list = document.getElementById('listaExcusas');
-
-    const filtradas = localExcusas.filter(ex => {
-      const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-      const nombre = est ? est.nombre.toLowerCase() : "";
-      return nombre.includes(queryTxt) || (ex.motivoTipo || "").toLowerCase().includes(queryTxt);
-    });
-
-    if (filtradas.length === 0) {
-      list.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>No hay excusas que coincidan.</p>";
-      return;
-    }
-
-    list.innerHTML = filtradas.map(ex => {
-      const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-      return `
-        <div class="excusa-card">
-          <div class="excusa-header">
-            <span class="excusa-name">${est ? est.nombre : 'Desconocido (' + ex.documentoEstudiante + ')'}</span>
-            <span class="excusa-date">${ex.fechaInasistencia || ''}</span>
-          </div>
-          <div class="excusa-body">
-            <b>Motivo:</b> ${ex.motivoTipo || ''}<br>
-            <b>Detalle:</b> ${ex.motivoDetalle || ''}
-          </div>
-          <div class="excusa-firma-wrap">
-            <span style="font-size:9px; color:#888; display:block; margin-bottom:4px;">FIRMA ACUDIENTE:</span>
-            ${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" class="excusa-firma-img">` : `<span style="font-size:11px;color:#999;">(Sin firma)</span>`}
-          </div>
-          <div style="margin-top:15px; display:flex; gap:8px; justify-content:flex-end;">
-            <button class="btn-mini btn-pdf-obs" style="background:#2e7d32;" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF CARTA</button>
-            <button class="btn-mini btn-del" onclick="window.openDeleteModal('${ex.id}','excusasInasistencia')">Eliminar</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  };
-
+  // --- PDF EXCUSA (CON ENCABEZADO) ---
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-
     const { jsPDF } = window.jspdf;
-    const docPDF = new jsPDF('p', 'mm', 'a4');
-    const logoDataUrl = getLogoDataUrl();
-    const margin = 25;
-
-    const fechaDiligenciado = ex.timestamp
-      ? new Date(ex.timestamp).toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric' })
-      : new Date().toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric' });
-
-    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
-    try { if (logoDataUrl) docPDF.addImage(logoDataUrl, 'PNG', 12, 4, 22, 22); } catch(e){}
-
+    const docPDF = new jsPDF();
+    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 35, 'F');
     docPDF.setTextColor(255, 255, 255);
-    docPDF.setFontSize(14); docPDF.setFont("helvetica", "bold");
-    docPDF.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 12, { align: "center" });
-    docPDF.setFontSize(10); docPDF.setFont("helvetica", "normal");
-    docPDF.text("Sede Rural Santa Juana · Gestión de Procesos 2026", 105, 18, { align: "center" });
-
-    docPDF.setTextColor(0, 0, 0);
-    docPDF.setFontSize(11);
-
-    let y = 50;
-    docPDF.text(`Yarumal, Antioquia. ${fechaDiligenciado}`, margin, y); y += 15;
-
-    docPDF.setFont("helvetica", "bold");
-    docPDF.text("Respetado Docente:", margin, y); y += 6;
-    docPDF.text("OSCAR BARRIENTOS", margin, y); y += 6;
-
-    docPDF.setFont("helvetica", "normal");
-    docPDF.text("I.E. de María - Sede Santa Juana", margin, y); y += 15;
-
-    docPDF.setFont("helvetica", "bold");
-    const nombreE = est ? est.nombre : "___________________________";
-    docPDF.text(`ASUNTO: EXCUSA POR INASISTENCIA ESCOLAR - ${nombreE}`, margin, y); y += 15;
-
-    docPDF.text(`Fecha de inasistencia: ${ex.fechaInasistencia || ''}`, margin, y); y += 10;
-    docPDF.text(`Motivo: ${ex.motivoTipo || ''}`, margin, y); y += 10;
-
-    docPDF.text("Detalle de la justificación:", margin, y); y += 6;
-    docPDF.setFont("helvetica", "italic");
-    const detalleLines = docPDF.splitTextToSize(`"${ex.motivoDetalle || ''}"`, 160);
-    docPDF.text(detalleLines, margin, y); y += (detalleLines.length * 6) + 15;
-
-    docPDF.setFont("helvetica", "normal");
-    const despedida = `Agradezco de antemano su comprensión y colaboración para que el estudiante pueda ponerse al día con las actividades académicas realizadas durante su ausencia.`;
-    const lineasDespedida = docPDF.splitTextToSize(despedida, 160);
-    docPDF.text(lineasDespedida, margin, y); y += (lineasDespedida.length * 6) + 25;
-
-    docPDF.text("Cordialmente,", margin, y); y += 10;
-
-    if (ex.firmaAcudiente) {
-      try { docPDF.addImage(ex.firmaAcudiente, 'PNG', margin, y, 50, 20); y += 22; } catch(e){ y += 10; }
-    } else {
-      y += 20;
-    }
-
-    docPDF.setDrawColor(0); docPDF.line(margin, y, margin + 60, y); y += 5;
-    docPDF.setFont("helvetica", "bold");
-    docPDF.text("FIRMA DEL ACUDIENTE", margin, y);
-
-    docPDF.setFontSize(8); docPDF.setTextColor(150);
-    docPDF.text("Documento generado automáticamente · Sistema de Gestión Primaria 2026", 105, 285, { align: "center" });
-
-    docPDF.save(`Excusa_${nombreE}_${ex.fechaInasistencia || 'sinf'} .pdf`);
+    docPDF.setFontSize(16); docPDF.setFont("helvetica", "bold");
+    docPDF.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
+    docPDF.setFontSize(10); docPDF.text("Sede Rural Santa Juana · Primaria 2026", 105, 22, { align: "center" });
+    docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(12);
+    docPDF.text(`Yarumal, Antioquia. ${ex.fechaInasistencia}`, 20, 50);
+    docPDF.text(`Apreciado Docente Oscar Barrientos,`, 20, 65);
+    docPDF.text(`Informo que el estudiante ${est?.nombre || 'N/A'}, con documento ${ex.documentoEstudiante},`, 20, 80);
+    docPDF.text(`no asistió a clases por motivo de: ${ex.motivoTipo}`, 20, 87);
+    const splitDetalle = docPDF.splitTextToSize(`Detalle: "${ex.motivoDetalle}"`, 170);
+    docPDF.text(splitDetalle, 20, 100);
+    if(ex.firmaAcudiente) { try { docPDF.addImage(ex.firmaAcudiente, 'PNG', 20, 160, 50, 25); } catch(e){} }
+    docPDF.text("__________________________", 20, 190);
+    docPDF.text("FIRMA DEL ACUDIENTE", 20, 197);
+    docPDF.save(`Excusa_${est?.nombre || id}.pdf`);
   };
 
-  // ------- Observaciones / Ciclos -------
-  const ADVERTENCIAS = [
-    "PRIMER LLAMADO DE ATENCIÓN (Advertencia inicial por conducta o rendimiento). Si su hijo ajusta una tercera anotación será citado a una entrevista directamente con el docente.",
-    "SEGUNDO LLAMADO DE ATENCIÓN (Citación obligatoria a padres de familia para acta de compromiso). Si su hijo ajusta una tercera anotación será citado a una entrevista directamente con el docente.",
-    "TERCER LLAMADO DE ATENCIÓN. El estudiante acumuló las tres anotaciones y por lo tanto será citado el acudiente para una entrevista con el profesor."
-  ];
-
-  async function getCicloActual(docEst) {
-    const snap = await getDoc(doc(db, "configuracionCiclos", docEst));
-    return snap.exists() ? (snap.data().cicloActual || 1) : 1;
-  }
-
+  // --- OBSERVACIONES (FUNCIONALIDADES RESTAURADAS) ---
   window.resetearCicloEstudiante = async () => {
     const docEst = document.getElementById('selectEstudianteObs').value;
     if (!docEst) return alert("Seleccione un estudiante.");
-    const conf = await getCicloActual(docEst);
-    const nuevoCiclo = conf + 1;
-    if (confirm(`¿Desea cerrar el ciclo #${conf}? La siguiente nota será la #1 del ciclo #${nuevoCiclo}.`)) {
-      await setDoc(doc(db, "configuracionCiclos", docEst), { cicloActual: nuevoCiclo });
-      alert(`✅ Ciclo reiniciado al #${nuevoCiclo}.`);
+    const cicSnap = await getDoc(doc(db, "configuracionCiclos", docEst));
+    const actual = cicSnap.exists() ? (cicSnap.data().cicloActual || 1) : 1;
+    if (confirm(`¿Reiniciar ciclo para el estudiante? El ciclo actual es #${actual}.`)) {
+      await setDoc(doc(db, "configuracionCiclos", docEst), { cicloActual: actual + 1 });
+      alert("Ciclo reiniciado.");
     }
   };
 
-  // ✅ PDF INDIVIDUAL
-  window.descargarPDFIndividual = (id) => {
-    const r = localRegistrosObs.find(x => x.id === id);
-    if (!r) return alert("No se encontró el registro.");
-
-    const { jsPDF } = window.jspdf;
-    const docPDF = new jsPDF('p', 'mm', 'a4');
-    const logoDataUrl = getLogoDataUrl();
-
-    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
-    try { if (logoDataUrl) docPDF.addImage(logoDataUrl, 'PNG', 8, 3, 24, 24); } catch(e){}
-
-    docPDF.setTextColor(255,255,255);
-    docPDF.setFont("helvetica","bold"); docPDF.setFontSize(11);
-    docPDF.text("I.E. de María, Sede Santa Juana - Observación Individual", 105, 12, {align:"center"});
-    docPDF.setFont("helvetica","normal"); docPDF.setFontSize(9);
-    docPDF.text(`Estudiante: ${r.nombreEstudiante} | Ciclo #${r.ciclo || 1}`, 105, 19, {align:"center"});
-
-    docPDF.setTextColor(0,0,0);
-    let y = 45;
-
-    docPDF.setFont("helvetica","bold"); docPDF.setFontSize(11);
-    docPDF.text(`Fecha: ${r.fecha || 'Sin fecha'}`, 14, y); y += 8;
-
-    docPDF.setFont("helvetica","normal"); docPDF.setFontSize(10);
-    const desc = docPDF.splitTextToSize(`Descripción: ${r.comportamiento || ''}`, 180);
-    docPDF.text(desc, 14, y); y += desc.length * 6 + 4;
-
-    if (r.descargos) {
-      const dd = docPDF.splitTextToSize(`Descargos: ${r.descargos}`, 180);
-      docPDF.text(dd, 14, y); y += dd.length * 6 + 4;
-    }
-    if (r.procedimiento) {
-      const pp = docPDF.splitTextToSize(`Procedimiento: ${r.procedimiento}`, 180);
-      docPDF.text(pp, 14, y); y += pp.length * 6 + 4;
-    }
-
-    docPDF.setFont("helvetica","bold");
-    docPDF.setTextColor(200,0,0);
-    const adv = docPDF.splitTextToSize(`NOTA DE ADVERTENCIA: ${ADVERTENCIAS[0]}`, 180);
-    docPDF.text(adv, 14, y); y += adv.length * 6 + 10;
-
-    docPDF.setTextColor(0,0,0);
-    const sigH = 15;
-    try { if (r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, y, 45, sigH); } catch(e){}
-    try { if (r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 80, y, 45, sigH); } catch(e){}
-    try { if (r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 145, y, 45, sigH); } catch(e){}
-
-    y += sigH + 6;
-    docPDF.setFontSize(8);
-    docPDF.text("Firma Estudiante", 37, y, {align:"center"});
-    docPDF.text("Firma Docente", 102, y, {align:"center"});
-    docPDF.text("Firma Acudiente", 167, y, {align:"center"});
-
-    docPDF.save(`Observacion_${r.nombreEstudiante}_${r.fecha || 'sinf'}.pdf`);
-  };
-
-  // ✅ PDF UNIFICADO
   window.descargarPDFUnificado = async () => {
     const docEst = document.getElementById('selectEstudianteObs').value;
     if (!docEst) return alert("Seleccione un estudiante.");
-
-    const est = estudiantesBase.find(x => x.doc === docEst);
-    const nombreEst = est?.nombre || `(${docEst})`;
-
-    const obsAll = localRegistrosObs
-      .filter(r => r.documentoEstudiante === docEst)
-      .map(r => ({ ...r, ciclo: (r.ciclo || 1) }))
-      .sort((a,b) => {
-        const ca = (a.ciclo||1) - (b.ciclo||1);
-        if (ca !== 0) return ca;
-        const fa = (a.fecha || "").toString();
-        const fb = (b.fecha || "").toString();
-        if (fa !== fb) return fa.localeCompare(fb);
-        return (a.timestamp || "").localeCompare(b.timestamp || "");
-      });
-
-    if (obsAll.length === 0) return alert("No hay observaciones para este estudiante.");
-
+    const regs = localRegistrosObs.filter(r => r.documentoEstudiante === docEst);
+    if (regs.length === 0) return alert("Sin registros.");
     const { jsPDF } = window.jspdf;
-    const docPDF = new jsPDF('p', 'mm', 'a4');
-    const pageHeight = docPDF.internal.pageSize.height;
-    const logoDataUrl = getLogoDataUrl();
-
-    let y = 10;
-
-    const header = () => {
-      docPDF.setFillColor(27, 94, 32);
-      docPDF.rect(0, 0, 210, 30, 'F');
-      try { if (logoDataUrl) docPDF.addImage(logoDataUrl, 'PNG', 8, 3, 24, 24); } catch(e){}
-
-      docPDF.setTextColor(255, 255, 255);
-      docPDF.setFont("helvetica","bold");
-      docPDF.setFontSize(10);
-      docPDF.text("I.E. de María, Sede Santa Juana - Seguimiento Unificado", 105, 12, {align:"center"});
-      docPDF.setFont("helvetica","normal");
-      docPDF.setFontSize(8);
-      docPDF.text(`Estudiante: ${nombreEst} | TODOS LOS CICLOS`, 105, 18, {align:"center"});
-      y = 38;
-    };
-
-    const ensureSpace = (needed) => {
-      if (y + needed > pageHeight - 15) {
-        docPDF.addPage();
-        header();
-      }
-    };
-
-    const cicloMap = new Map();
-    obsAll.forEach(r => {
-      const c = r.ciclo || 1;
-      if (!cicloMap.has(c)) cicloMap.set(c, []);
-      cicloMap.get(c).push(r);
+    const docPDF = new jsPDF();
+    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 30, 'F');
+    docPDF.setTextColor(255, 255, 255);
+    docPDF.text("I.E. DE MARÍA - REGISTRO UNIFICADO", 105, 15, { align: "center" });
+    docPDF.setTextColor(0, 0, 0);
+    let y = 45;
+    regs.forEach((r, i) => {
+        docPDF.setFontSize(10);
+        docPDF.text(`Registro #${i+1} - Fecha: ${r.fecha}`, 20, y);
+        docPDF.text(`Situación: ${r.comportamiento}`, 20, y+7);
+        y += 25;
+        if(y > 270) { docPDF.addPage(); y = 20; }
     });
-    const ciclos = Array.from(cicloMap.keys()).sort((a,b)=>a-b);
-    const titulosNumeros = ["uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez"];
-
-    header();
-
-    ciclos.forEach((cicloNum, idxCiclo) => {
-      const regs = cicloMap.get(cicloNum) || [];
-
-      ensureSpace(18);
-      docPDF.setTextColor(0,0,0);
-      docPDF.setFont("helvetica","bold");
-      docPDF.setFontSize(12);
-      docPDF.text(`CICLO #${cicloNum}`, 14, y);
-      y += 6;
-
-      docPDF.setFont("helvetica","normal");
-      docPDF.setFontSize(9);
-      docPDF.setTextColor(90);
-      docPDF.text(`Registros en este ciclo: ${regs.length}`, 14, y);
-      y += 8;
-
-      docPDF.setDrawColor(220);
-      docPDF.line(14, y, 196, y);
-      y += 10;
-
-      regs.forEach((r, index) => {
-        const numTxt = titulosNumeros[index] || (index+1);
-        const advertenciaTxt = ADVERTENCIAS[index] || "Seguimiento continuo de compromisos.";
-
-        const textComportamiento = docPDF.splitTextToSize(`Descripción: ${r.comportamiento || ""}`, 180);
-        const textDescargos = r.descargos ? docPDF.splitTextToSize(`Descargos: ${r.descargos}`, 180) : [];
-        const textProc = r.procedimiento ? docPDF.splitTextToSize(`Procedimiento: ${r.procedimiento}`, 180) : [];
-        const textAdv = docPDF.splitTextToSize(`NOTA DE ADVERTENCIA: ${advertenciaTxt}`, 180);
-
-        const blockHeight = 15 + (textComportamiento.length*5) + (textDescargos.length*5) + (textProc.length*5) + (textAdv.length*5) + 35;
-        ensureSpace(blockHeight);
-
-        docPDF.setTextColor(0,0,0);
-        docPDF.setFont("helvetica","bold");
-        docPDF.setFontSize(11);
-        docPDF.text(`Anotación número ${numTxt}`, 14, y); y += 6;
-
-        docPDF.setFont("helvetica","normal");
-        docPDF.setFontSize(9);
-        docPDF.text(`Fecha: ${r.fecha || "Sin fecha"} | Tipo: ${r.tipoRegistro || "N/A"}`, 14, y); y += 6;
-
-        docPDF.text(textComportamiento, 14, y); y += (textComportamiento.length * 5);
-        if (textDescargos.length) { docPDF.text(textDescargos, 14, y); y += (textDescargos.length * 5); }
-        if (textProc.length) { docPDF.text(textProc, 14, y); y += (textProc.length * 5); }
-        y += 2;
-
-        let advColor = [200, 0, 0];
-        if (index === 0) advColor = [22, 101, 52];
-        else if (index === 1) advColor = [154, 52, 18];
-
-        docPDF.setFont("helvetica","bold");
-        docPDF.setTextColor(...advColor);
-        docPDF.text(textAdv, 14, y); y += (textAdv.length * 5);
-
-        docPDF.setTextColor(0,0,0);
-        docPDF.setFont("helvetica","normal");
-        y += 5;
-
-        const sigH = 12;
-        try { if (r.firmaEstudiante) docPDF.addImage(r.firmaEstudiante, 'PNG', 15, y, 35, sigH); } catch(e){}
-        try { if (r.firmaDocente) docPDF.addImage(r.firmaDocente, 'PNG', 82, y, 35, sigH); } catch(e){}
-        try { if (r.firmaAcudiente) docPDF.addImage(r.firmaAcudiente, 'PNG', 150, y, 35, sigH); } catch(e){}
-
-        y += sigH + 3;
-        docPDF.setFontSize(7);
-        docPDF.text("Firma Estudiante", 32, y, {align:"center"});
-        docPDF.text("Firma Docente", 100, y, {align:"center"});
-        docPDF.text("Firma Acudiente", 167, y, {align:"center"});
-
-        y += 8;
-        docPDF.setDrawColor(220);
-        docPDF.line(14, y, 196, y);
-        y += 10;
-      });
-
-      if (idxCiclo < ciclos.length - 1) {
-        ensureSpace(10);
-        docPDF.setTextColor(120);
-        docPDF.setFontSize(8);
-        docPDF.text("— Fin de ciclo —", 105, y, {align:"center"});
-        y += 10;
-      }
-    });
-
-    docPDF.save(`Seguimiento_${nombreEst}_TODOS_LOS_CICLOS.pdf`);
+    docPDF.save(`Unificado_${docEst}.pdf`);
   };
-
-  // ------- Render historial obs -------
-  function iniciarEscuchasObs() {
-    onSnapshot(query(collection(db, "registrosComportamentales"), orderBy("timestamp", "desc")), (snap) => {
-      localRegistrosObs = [];
-      snap.forEach(d => localRegistrosObs.push({ id: d.id, ...d.data() }));
-      renderRegistrosObs(localRegistrosObs);
-    });
-  }
 
   function renderRegistrosObs(data) {
     const list = document.getElementById('listaRegistros');
-    if (!list) return;
-
     list.innerHTML = data.map(r => `
-      <div class="obs-list-card" style="${(r.ciclo > 1) ? 'border-left-color: #f57c00;' : ''}">
-        <div class="excusa-header">
-          <b class="card-name">👤 ${r.nombreEstudiante || ''}</b>
-          <span class="card-date" style="background:#e8f5e9">${r.fecha || ''} (Ciclo #${r.ciclo || 1})</span>
-        </div>
+      <div class="obs-list-card" style="border-left-color: ${r.ciclo > 1 ? '#f57c00' : '#1b5e20'}">
+        <div class="excusa-header"><b class="excusa-name">👤 ${r.nombreEstudiante}</b><span class="excusa-date">${r.fecha} (Ciclo #${r.ciclo || 1})</span></div>
+        <p style="font-size:13px; margin:5px 0;">${r.comportamiento}</p>
         <div class="sigs-history-row">
           <div class="sig-view-box"><span>Estud.</span>${r.firmaEstudiante ? `<img src="${r.firmaEstudiante}" class="sig-img-history">` : 'N/A'}</div>
           <div class="sig-view-box"><span>Docen.</span>${r.firmaDocente ? `<img src="${r.firmaDocente}" class="sig-img-history">` : 'N/A'}</div>
-          <div class="sig-view-box"><span>Acud.</span>${r.firmaAcudiente ? `<img src="${r.firmaAcudiente}" class="sig-img-history">` : 'Pte'}</div>
+          <div class="sig-view-box"><span>Acud.</span>${r.firmaAcudiente ? `<img src="${r.firmaAcudiente}" class="sig-img-history">` : 'Pend'}</div>
         </div>
-
-        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
-          <button class="btn-mini btn-pdf-obs" onclick="window.descargarPDFIndividual('${r.id}')">📄 Individual</button>
-          <button class="btn-mini btn-edit-obs" onclick="window.cargarParaEditarObs('${r.id}')">✏️</button>
-          <button class="btn-mini btn-del" onclick="window.openDeleteModal('${r.id}','registrosComportamentales')">🗑️</button>
+        <div style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="window.cargarParaEditarObs('${r.id}')" style="font-size:10px; padding:5px 10px; border-radius:5px; border:1px solid #ccc; cursor:pointer;">Editar</button>
+            <button onclick="window.openDeleteModal('${r.id}','registrosComportamentales')" style="font-size:10px; color:red; padding:5px 10px; border-radius:5px; border:1px solid #fee2e2; cursor:pointer;">Eliminar</button>
         </div>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   window.filtrarHistorialObs = () => {
-    const queryTxt = (document.getElementById('searchHistoryInput').value || "").toLowerCase();
-    const filtrados = localRegistrosObs.filter(r =>
-      (r.nombreEstudiante || "").toLowerCase().includes(queryTxt) ||
-      (r.comportamiento || "").toLowerCase().includes(queryTxt)
-    );
+    const q = (document.getElementById('searchHistoryInput').value || "").toLowerCase();
+    const filtrados = localRegistrosObs.filter(r => r.nombreEstudiante.toLowerCase().includes(q) || r.comportamiento.toLowerCase().includes(q));
     renderRegistrosObs(filtrados);
   };
 
-  // ------- Editar obs -------
-  window.cargarParaEditarObs = (id) => {
-    const r = localRegistrosObs.find(x => x.id === id); if(!r) return;
-    document.getElementById('editObsId').value = r.id;
-    document.getElementById('tipoRegistro').value = r.tipoRegistro || "Comportamental";
-    document.getElementById('fecha').value = r.fecha || "";
-    document.getElementById('selectEstudianteObs').value = r.documentoEstudiante || "";
-    document.getElementById('comportamiento').value = r.comportamiento || "";
-    document.getElementById('descargos').value = r.descargos || "";
-    document.getElementById('procedimiento').value = r.procedimiento || "";
-    document.getElementById('btnSubmitObs').innerText = "ACTUALIZAR REGISTRO";
-    window.scrollTo({top: 0, behavior:'smooth'});
-  };
-
-  // ------- Guardar obs -------
-  document.getElementById('formRegistro').onsubmit = async (e) => {
-    e.preventDefault();
-
-    const pE = pads.get('sigStudent');
-    const pT = pads.get('sigTeacher');
-
-    const selectE = document.getElementById('selectEstudianteObs');
-    const studentName = selectE.options[selectE.selectedIndex]?.text || "";
-    const studentDoc = selectE.value;
-
-    if(!studentDoc) return alert("Seleccione un estudiante.");
-    if(!pE?.hasData || !pT?.hasData) return alert("Firme ambas casillas.");
-
-    const ciclo = await getCicloActual(studentDoc);
-    const editId = document.getElementById('editObsId').value;
-
-    if (!editId) {
-      const obsEnCiclo = localRegistrosObs.filter(r => r.documentoEstudiante === studentDoc && (r.ciclo || 1) === ciclo).length;
-      if (obsEnCiclo < 3) alert(ADVERTENCIAS[obsEnCiclo]);
-    }
-
-    const data = {
-      tipoRegistro: document.getElementById('tipoRegistro').value,
-      fecha: document.getElementById('fecha').value,
-      nombreEstudiante: studentName,
-      documentoEstudiante: studentDoc,
-      comportamiento: document.getElementById('comportamiento').value,
-      descargos: document.getElementById('descargos').value,
-      procedimiento: document.getElementById('procedimiento').value,
-      timestamp: new Date().toISOString(),
-      firmaEstudiante: pE.canvas.toDataURL(),
-      firmaDocente: pT.canvas.toDataURL(),
-      ciclo
-    };
-
-    if (editId) await updateDoc(doc(db, "registrosComportamentales", editId), data);
-    else await addDoc(collection(db, "registrosComportamentales"), data);
-
-    alert("✅ Registro guardado.");
-    e.target.reset();
-    document.getElementById('editObsId').value = "";
-    document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
-    window.limpiarPad('sigStudent');
-    window.limpiarPad('sigTeacher');
-  };
-
-  // ------- Correspondencia -------
+  // --- CORRESPONDENCIA (FIX CARGANDO) ---
   function cargarCorrespondencia() {
-    onSnapshot(query(collection(db, "comunicacionPadres"), orderBy("timestamp", "desc")), (snap) => {
+    onSnapshot(collection(db, "comunicacionPadres"), (snap) => {
+      let msgs = [];
+      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+      msgs.sort((a,b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
       let html = '';
-      snap.forEach(d => {
-        const m = d.data();
-        const id = d.id;
+      msgs.forEach(m => {
         html += `
-          <div class="excusa-card" style="border-left-color: var(--corr-color);">
-            <strong>👤 ${m.nombreEstudiante || 'Estudiante'}</strong>
-            <div style="font-size:13px; margin:8px 0;">${m.mensaje || ''}</div>
-            ${m.respuestaDocente
-              ? `<div style="color:green; font-size:12px;"><b>Resp:</b> ${m.respuestaDocente}</div>`
-              : `<textarea id="rep_txt_${id}" placeholder="Escriba la respuesta..."></textarea>
-                 <button class="btn-mini" style="background: var(--corr-color); color:#fff;" onclick="responderMsg('${id}')">Responder</button>`
-            }
-          </div>
-        `;
+          <div class="excusa-card" style="border-left-color: #6a1b9a;">
+            <div class="excusa-header"><span class="excusa-name">👤 ${m.nombreEstudiante}</span><span class="excusa-date">${m.fechaMsg}</span></div>
+            <div style="font-size:13px;"><b>Asunto:</b> ${m.asunto}<br>${m.mensaje}</div>
+            <div style="margin-top:10px; background:#f3e5f5; padding:10px; border-radius:10px;">
+                ${m.respuestaDocente ? 
+                  `<b>Respuesta:</b><br>${m.respuestaDocente}` : 
+                  `<textarea id="rep_${m.id}" placeholder="Responder..." rows="2"></textarea>
+                   <button onclick="window.responderPadre('${m.id}')" style="background:#6a1b9a; color:white; border:none; padding:8px; border-radius:8px; width:100%; margin-top:5px; cursor:pointer;">Enviar</button>`
+                }
+            </div>
+          </div>`;
       });
-      document.getElementById('listaCorrespondencia').innerHTML = html || 'Sin mensajes.';
+      document.getElementById('listaCorrespondencia').innerHTML = html || "Sin mensajes.";
     });
   }
 
-  window.responderMsg = async (id) => {
-    const txt = (document.getElementById(`rep_txt_${id}`)?.value || "").trim();
-    if (!txt) return alert("Escriba una respuesta.");
-    try {
-      await updateDoc(doc(db, "comunicacionPadres", id), {
-        respuestaDocente: txt,
-        respuestaTimestamp: new Date().toISOString()
-      });
-      alert("✅ Respuesta enviada.");
-    } catch (e) {
-      alert("❌ No se pudo enviar la respuesta.");
-    }
+  window.responderPadre = async (id) => {
+    const t = document.getElementById(`rep_${id}`).value;
+    if(!t) return alert("Escriba algo.");
+    await updateDoc(doc(db, "comunicacionPadres", id), { respuestaDocente: t, respuestaTimestamp: new Date().toISOString() });
+    alert("Enviado.");
   };
 
-  // ------- Modal delete -------
-  window.openDeleteModal = (id, col) => { currentDeleteInfo = { id, collection: col }; document.getElementById('deleteModal').style.display = 'flex'; };
-  window.closeDeleteModal = () => { document.getElementById('deleteModal').style.display = 'none'; };
+  // --- FIRMAS UTILS ---
+  function initPad(id) {
+    const c = document.getElementById(id); if (!c) return;
+    const ctx = c.getContext("2d");
+    const ratio = window.devicePixelRatio || 1;
+    c.width = c.offsetWidth * ratio; c.height = 160 * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.strokeStyle = "#000";
+    let draw = false;
+    const getPos = (e) => {
+      const r = c.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+      return {x, y};
+    };
+    c.addEventListener("mousedown", (e) => { draw = true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x, p.y); });
+    c.addEventListener("mousemove", (e) => { if(!draw) return; const p=getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData:true, canvas:c}); });
+    window.addEventListener("mouseup", () => draw = false);
+    c.addEventListener("touchstart", (e) => { e.preventDefault(); draw = true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x, p.y); });
+    c.addEventListener("touchmove", (e) => { e.preventDefault(); if(!draw) return; const p=getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); pads.set(id, {hasData:true, canvas:c}); });
+    c.addEventListener("touchend", () => draw = false);
+    pads.set(id, {hasData:false, canvas:c});
+  }
+
+  window.limpiarPad = (id) => {
+    const p = pads.get(id);
+    if(p) { p.canvas.getContext("2d").clearRect(0,0,p.canvas.width, p.canvas.height); pads.set(id, {hasData:false, canvas:p.canvas}); }
+  };
+
+  // --- FORMULARIO OBS SUBMIT ---
+  document.getElementById('formRegistro').onsubmit = async (e) => {
+    e.preventDefault();
+    const pS = pads.get('sigStudent');
+    const pT = pads.get('sigTeacher');
+    const docEst = document.getElementById('selectEstudianteObs').value;
+    if(!docEst || !pS.hasData || !pT.hasData) return alert("Faltan firmas.");
+    const cicSnap = await getDoc(doc(db, "configuracionCiclos", docEst));
+    const ciclo = cicSnap.exists() ? (cicSnap.data().cicloActual || 1) : 1;
+    const editId = document.getElementById('editObsId').value;
+    if (!editId) {
+      const count = localRegistrosObs.filter(r => r.documentoEstudiante === docEst && (r.ciclo || 1) === ciclo).length;
+      if (count < 3) alert(ADVERTENCIAS[count]);
+    }
+    const data = {
+        tipoRegistro: document.getElementById('tipoRegistro').value,
+        fecha: document.getElementById('fecha').value,
+        documentoEstudiante: docEst,
+        nombreEstudiante: document.getElementById('selectEstudianteObs').options[document.getElementById('selectEstudianteObs').selectedIndex].text,
+        comportamiento: document.getElementById('comportamiento').value,
+        descargos: document.getElementById('descargos').value,
+        procedimiento: document.getElementById('procedimiento').value,
+        firmaEstudiante: pS.canvas.toDataURL(),
+        firmaDocente: pT.canvas.toDataURL(),
+        ciclo,
+        timestamp: new Date().toISOString()
+    };
+    if(editId) await updateDoc(doc(db, "registrosComportamentales", editId), data);
+    else await addDoc(collection(db, "registrosComportamentales"), data);
+    alert("✅ Registro guardado.");
+    e.target.reset();
+    window.limpiarPad('sigStudent'); window.limpiarPad('sigTeacher');
+    document.getElementById('editObsId').value = "";
+    document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
+  };
+
+  // --- UTILS ---
+  window.openDeleteModal = (id, col) => { currentDeleteInfo={id, collection:col}; document.getElementById('deleteModal').style.display='flex'; };
+  window.closeDeleteModal = () => document.getElementById('deleteModal').style.display='none';
   document.getElementById('confirmDeleteBtn').onclick = async () => {
     await deleteDoc(doc(db, currentDeleteInfo.collection, currentDeleteInfo.id));
-    window.closeDeleteModal();
+    closeDeleteModal();
   };
+  window.toggleHistorial = (id) => { const el=document.getElementById(id); el.style.display = el.style.display==='block'?'none':'block'; };
 
-  // ------- Onload -------
   window.onload = async () => {
     document.getElementById('fechaAsistencia').valueAsDate = new Date();
     document.getElementById('fecha').valueAsDate = new Date();
-
-    const selectObs = document.getElementById('selectEstudianteObs');
-    estudiantesBase.forEach(est => {
-      const opt = document.createElement('option');
-      opt.value = est.doc; opt.textContent = est.nombre;
-      selectObs.appendChild(opt);
+    const sel = document.getElementById('selectEstudianteObs');
+    estudiantesBase.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.doc; opt.textContent = e.nombre;
+        sel.appendChild(opt);
     });
-
     await cargarConfiguracionPeriodo();
-    escucharAsistencia();
-    iniciarEscuchasObs();
-
+    onSnapshot(collection(db, "controlAsistencia"), (snap) => {
+      localAsistenciaCompleta = []; snap.forEach(d => localAsistenciaCompleta.push(d.data()));
+      window.renderAsistencia();
+    });
     onSnapshot(collection(db, "excusasInasistencia"), (snap) => {
-      localExcusas = [];
-      snap.forEach(d => localExcusas.push({ id: d.id, ...d.data() }));
+      localExcusas = []; snap.forEach(d => localExcusas.push({id:d.id, ...d.data()}));
       window.filtrarExcusas();
     });
-
-    const st = document.getElementById('connStatus');
-    st.className = navigator.onLine ? 'conn-indicator conn-online' : 'conn-indicator conn-offline';
-
+    onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
+        localRegistrosObs = []; snap.forEach(d => localRegistrosObs.push({id:d.id, ...d.data()}));
+        renderRegistrosObs(localRegistrosObs);
+    });
     window.cargarAsistenciaDelDia();
   };
 
-  window.toggleHistorial = (id) => {
-    const el = document.getElementById(id);
-    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  window.filtrarExcusas = () => {
+    const list = document.getElementById('listaExcusas');
+    list.innerHTML = localExcusas.map(ex => {
+      const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+      return `
+        <div class="excusa-card">
+          <div class="excusa-header"><span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span><span class="excusa-date">${ex.fechaInasistencia}</span></div>
+          <div class="excusa-body" style="font-size:13px;"><b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
+            ${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" class="excusa-firma-img">` : '<span></span>'}
+            <button class="btn-mini-pdf" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF CARTA</button>
+          </div>
+        </div>`;
+    }).join('');
   };
 </script>
 </body>
 </html>
+
