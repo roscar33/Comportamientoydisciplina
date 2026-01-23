@@ -183,7 +183,7 @@
     </section>
   </div>
 
-  <!-- SECCIÓN HERRAMIENTAS -->
+  <!-- SECCIÓN HERRAMIENTAS MODIFICADA -->
   <div id="view-herramientas" style="display:none;">
     <section class="card" style="border-left: 5px solid var(--tools-color);">
       <h2 class="card-title" style="color:var(--tools-color);">🧰 Herramientas</h2>
@@ -191,6 +191,8 @@
       <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tools">📊 PLANILLA DE NOTAS</a>
       <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" class="btn-tools">📚 TEMARIOS</a>
       <a href="https://roscar33.github.io/Horario/" target="_blank" class="btn-tools">🕒 HORARIO DE CLASES</a>
+      <!-- NUEVO BOTÓN AGREGADO -->
+      <a href="https://roscar33.github.io/Libtodevisitas/" target="_blank" class="btn-tools">📖 LIBRO DE VISITAS</a>
     </section>
   </div>
 
@@ -312,13 +314,11 @@
     alert("✅ Guardado.");
   };
 
-  // ✅ COMPILADO DE ASISTENCIA MENSUAL (RESTAURADO CON ENCABEZADO Y TABLA)
   window.descargarReporteMensualAsis = async () => {
     const mes = document.getElementById('mesSeleccionadoAsis').value;
     const { jsPDF } = window.jspdf;
     const docPDF = new jsPDF('l', 'mm', 'a4');
 
-    // Encabezado Institucional
     docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 297, 30, 'F');
     docPDF.setTextColor(255, 255, 255);
     docPDF.setFontSize(16); docPDF.setFont("helvetica", "bold");
@@ -331,7 +331,7 @@
     if (dias.length === 0) return alert("No hay datos para este mes.");
 
     const head = [["Estudiante", ...dias.map(x => x.fecha.split("-")[2]), "P", "E", "I"]];
-    const body = [...estudiantesBase].sort((a,b) => a.nombre.localeCompare(b.nombre)).map(est => {
+    const body = [...estudiantesBase].sort((a,b) => a.nombre.nombreCompare ? a.nombre.nombreCompare(b.nombre) : a.nombre.localeCompare(b.nombre)).map(est => {
       let p=0, e=0, i=0;
       const row = [est.nombre];
       dias.forEach(dia => {
@@ -345,7 +345,6 @@
     docPDF.save(`Asistencia_Compilada_Mes_${mes}.pdf`);
   };
 
-  // ✅ PDF CARTA EXCUSA (RESTAURADO)
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
@@ -369,7 +368,6 @@
     docPDF.save(`Excusa_${est?.nombre || id}.pdf`);
   };
 
-  // --- CORRESPONDENCIA (FIX CARGANDO) ---
   function cargarCorrespondencia() {
     onSnapshot(collection(db, "comunicacionPadres"), (snap) => {
       let msgs = []; snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
@@ -398,7 +396,6 @@
     alert("✅ Enviado.");
   };
 
-  // --- FIRMAS ---
   function initPad(id) {
     const c = document.getElementById(id); if (!c) return;
     const ctx = c.getContext("2d");
@@ -467,3 +464,4 @@
 </script>
 </body>
 </html>
+
