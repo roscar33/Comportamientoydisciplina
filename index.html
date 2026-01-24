@@ -243,8 +243,7 @@
     { doc: "1035801483", nombre: "RESTREPO VILLA DILMER FELIPE" },
     { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
     { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
-    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" },
-    { doc: "12345678",   nombre: "PEDRO PEREZ" }
+    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" }
   ];
 
   let localAsistenciaCompleta = [];
@@ -463,6 +462,29 @@
   };
 
   window.toggleHistorial = (id) => { const el=document.getElementById(id); el.style.display = el.style.display==='block'?'none':'block'; };
+
+  // --- FUNCIÓN INTEGRADA PARA INICIAR NUEVO PERIODO ---
+  window.resetearFaltasPeriodo = async () => {
+    const pass = prompt("Ingrese la contraseña de autorización (9218):");
+    if (pass === "9218") {
+      const nuevoPeriodo = periodoActualAsis + 1;
+      const confirmar = confirm(`¿Está seguro de iniciar el Periodo #${nuevoPeriodo}? Los contadores de faltas se reiniciarán para este nuevo ciclo.`);
+      if (confirmar) {
+        try {
+          await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: nuevoPeriodo });
+          periodoActualAsis = nuevoPeriodo;
+          document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
+          window.renderAsistencia();
+          alert(`✅ Éxito: Se ha iniciado el Periodo #${nuevoPeriodo}`);
+        } catch (e) {
+          alert("Error al actualizar el periodo en la base de datos.");
+        }
+      }
+    } else if (pass !== null) {
+      alert("❌ Contraseña incorrecta.");
+    }
+  };
 </script>
 </body>
 </html>
+
