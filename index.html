@@ -346,26 +346,68 @@
     docPDF.save(`Asistencia_Compilada_Mes_${mes}.pdf`);
   };
 
+  // --- FUNCIÓN DE PDF EXCUSA SEGÚN FORMATO SOLICITADO ---
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
     const { jsPDF } = window.jspdf;
     const docPDF = new jsPDF();
-    docPDF.setFillColor(27, 94, 32); docPDF.rect(0, 0, 210, 35, 'F');
+
+    // 1. ENCABEZADO: FONDO VERDE MANZANA
+    docPDF.setFillColor(141, 182, 0); // Verde Manzana
+    docPDF.rect(0, 0, 210, 40, 'F');
+
+    // 2. ESCUDO A LA IZQUIERDA
+    try { docPDF.addImage('escudo.png', 'PNG', 15, 5, 30, 30); } catch(e) {}
+
+    // 3. TEXTO CENTRAL EN EL ENCABEZADO
     docPDF.setTextColor(255, 255, 255);
-    docPDF.setFontSize(16); docPDF.setFont("helvetica", "bold");
-    docPDF.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
-    docPDF.setFontSize(10); docPDF.text("Justificación de Inasistencia - Primaria 2026", 105, 22, { align: "center" });
-    docPDF.setTextColor(0, 0, 0); docPDF.setFontSize(12);
-    docPDF.text(`Yarumal, Antioquia. ${ex.fechaInasistencia}`, 20, 50);
-    docPDF.text(`Respetado Docente Oscar Barrientos,`, 20, 65);
-    docPDF.text(`Informo que el estudiante ${est?.nombre || 'N/A'}, con documento ${ex.documentoEstudiante},`, 20, 80);
-    docPDF.text(`no asistió a clases por motivo de: ${ex.motivoTipo}`, 20, 87);
-    const splitDetalle = docPDF.splitTextToSize(`Detalle: "${ex.motivoDetalle}"`, 170);
-    docPDF.text(splitDetalle, 20, 100);
-    if(ex.firmaAcudiente) { try { docPDF.addImage(ex.firmaAcudiente, 'PNG', 20, 160, 50, 25); } catch(e){} }
-    docPDF.text("__________________________", 20, 190);
-    docPDF.text("FIRMA DEL ACUDIENTE", 20, 197);
+    docPDF.setFont("helvetica", "bold");
+    docPDF.setFontSize(14);
+    docPDF.text("INSTITUCIÓN EDUCATIVA SEDE RURAL SANTA JUANA", 120, 18, { align: "center" });
+    docPDF.setFontSize(11);
+    docPDF.text("Control y seguimiento de inasistencia 2026", 120, 26, { align: "center" });
+
+    // --- CUERPO DEL DOCUMENTO ---
+    docPDF.setTextColor(0, 0, 0);
+    docPDF.setFont("helvetica", "normal");
+    docPDF.setFontSize(11);
+
+    // 4. SANTA JUANA YARUMAL + FECHA DILIGENCIAMIENTO
+    docPDF.text(`Santa Juana Yarumal, ${ex.fechaRegistro || ex.fechaInasistencia}`, 20, 60);
+
+    // 5. DESTINATARIO
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text("Señor,", 20, 75);
+    docPDF.text("Oscar Barrientos", 20, 81);
+    docPDF.text("Docente Santa Juana.", 20, 87);
+
+    // 6. SALUDO Y ASUNTO
+    docPDF.setFont("helvetica", "normal");
+    docPDF.text("Cordial saludo:", 20, 100);
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text(`Asunto. Justificación de inasistencia del estudiante ${est?.nombre || 'N/A'} (${ex.documentoEstudiante})`, 20, 115);
+
+    // 7. DATOS DE INASISTENCIA
+    docPDF.setFont("helvetica", "normal");
+    docPDF.text(`Fecha de inasistencia: ${ex.fechaInasistencia}`, 20, 125);
+    docPDF.text(`Motivo: ${ex.motivoTipo}`, 20, 132);
+
+    // 8. DETALLE (Explicación del padre sin subtítulo "Detalle")
+    const splitExplicacion = docPDF.splitTextToSize(ex.motivoDetalle, 170);
+    docPDF.text(splitExplicacion, 20, 145);
+
+    // 9. CIERRE
+    docPDF.text("Gracias De antemano por su atención prestada.", 20, 175);
+
+    // 10. FIRMA CENTRADA SOBRE LÍNEA
+    if(ex.firmaAcudiente) {
+        try { docPDF.addImage(ex.firmaAcudiente, 'PNG', 80, 210, 50, 25); } catch(e){}
+    }
+    docPDF.text("__________________________", 105, 240, { align: "center" });
+    docPDF.setFont("helvetica", "bold");
+    docPDF.text("acudiente", 105, 247, { align: "center" });
+
     docPDF.save(`Excusa_${est?.nombre || id}.pdf`);
   };
 
@@ -463,7 +505,7 @@
 
   window.toggleHistorial = (id) => { const el=document.getElementById(id); el.style.display = el.style.display==='block'?'none':'block'; };
 
-  // --- FUNCIÓN INTEGRADA PARA INICIAR NUEVO PERIODO ---
+  // --- FUNCIÓN PARA INICIAR NUEVO PERIODO ---
   window.resetearFaltasPeriodo = async () => {
     const pass = prompt("Ingrese la contraseña de autorización (9218):");
     if (pass === "9218") {
