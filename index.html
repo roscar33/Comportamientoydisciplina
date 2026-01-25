@@ -35,10 +35,12 @@
     .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 20px; box-shadow: var(--shadow); border: 1px solid white; position: relative; }
     .card-title { font-size: 20px; font-weight: 800; color: #0288d1; margin-bottom: 5px; }
 
-    /* ASISTENCIA (Botones Horizontales) */
+    /* ASISTENCIA (Botones Horizontales + Documento Pequeño) */
     .attendance-list { display: flex; flex-direction: column; gap: 12px; margin: 15px 0; }
     .student-card { background: #f8fafc; border-radius: 20px; padding: 15px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .stu-info { display: flex; flex-direction: column; gap: 2px; }
     .stu-name { font-weight: 800; font-size: 13px; color: #1e293b; text-transform: uppercase; line-height: 1.2; max-width: 170px; }
+    .stu-doc { font-size: 10px; color: #64748b; font-weight: 600; display: block; } /* NUEVO ESTILO DOCUMENTO */
     .stu-faltas { background: #fee2e2; color: #dc2626; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 10px; width: fit-content; margin-top: 4px; }
     .stu-btns { display: flex; gap: 8px; }
     .att-btn { width: 36px; height: 36px; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 10px; font-weight: 800; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
@@ -64,7 +66,7 @@
     .btn-pdf-carta { background: #f1f5f9; border: 1.5px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .btn-delete-exc { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
-    /* Herramientas (Naranjas) */
+    /* Herramientas Naranjas */
     .tools-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
     .btn-tool-orange { background: #f57c00; color: white; padding: 18px; border-radius: 20px; font-weight: 900; text-decoration: none; text-align: center; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 0 #b35900; text-transform: uppercase; transition: all 0.2s ease; }
     .btn-tool-orange:active { transform: translateY(2px); box-shadow: 0 2px 0 #b35900; }
@@ -114,7 +116,10 @@
         <div><h2 class="card-title">Registro Diario</h2><span id="periodoActualLabel" style="font-size:11px; font-weight:bold; color:#666;">Periodo Actual: ...</span></div>
         <input type="date" id="fechaAsistencia" style="width:auto;" onchange="window.cargarAsistenciaDelDia()">
       </div>
+      
+      <!-- LISTADO CON DOCUMENTO PEQUEÑO -->
       <div id="attendanceList" class="attendance-list"></div>
+      
       <button class="btn-action btn-blue" onclick="window.guardarAsistencia()">💾 GUARDAR ASISTENCIA</button>
       <div class="report-box">
         <h3 style="font-size:11px; color:#0288d1; margin-bottom:10px; font-weight:900;">REPORTE MENSUAL</h3>
@@ -214,7 +219,7 @@
     if(t==='corr') cargarCorrespondencia();
   };
 
-  // --- ASISTENCIA ---
+  // --- ASISTENCIA (Render con documento pequeño) ---
   window.renderAsistencia = () => {
     const list = document.getElementById('attendanceList'); if(!list) return;
     let html = '';
@@ -222,7 +227,18 @@
       const s = asistenciaTemp[e.doc] || 'P';
       let fCount = 0;
       localAsistenciaCompleta.forEach(r => { if(r.periodo == periodoActualAsis) { const reg = r.detalles?.find(x => x.doc === e.doc); if(reg && (reg.estado==='I'||reg.estado==='E')) fCount++; } });
-      html += `<div class="student-card"><div class="stu-info"><span class="stu-name">${e.nombre}</span><span class="stu-faltas">${fCount} FALTAS</span></div><div class="stu-btns"><button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button><button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button><button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button></div></div>`;
+      html += `<div class="student-card">
+        <div class="stu-info">
+            <span class="stu-name">${e.nombre}</span>
+            <span class="stu-doc">CC. ${e.doc}</span>
+            <span class="stu-faltas">${fCount} FALTAS</span>
+        </div>
+        <div class="stu-btns">
+            <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
+            <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button>
+            <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button>
+        </div>
+      </div>`;
     });
     list.innerHTML = html;
   };
@@ -257,7 +273,7 @@
     } else if (pass !== null) alert("❌ Clave incorrecta.");
   };
 
-  // --- OBSERVACIONES ---
+  // --- OBSERVACIONES (VARIABLES UNIFICADAS) ---
   window.guardarRegistroObs = async (e) => {
     e.preventDefault(); const dId = document.getElementById('selectEstudianteObs').value;
     const editId = document.getElementById('editId').value;
@@ -322,7 +338,6 @@
         pdf.setTextColor(255, 255, 255); pdf.setFontSize(14); pdf.setFont("helvetica", "bold");
         pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
         pdf.setFontSize(10); pdf.text(`SEGUIMIENTO UNIFICADO - CICLO #${cAct}`, 105, 25, { align: "center" });
-        // ESCUDO
         try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
         pdf.setTextColor(0,0,0); pdf.setFontSize(11);
         pdf.text(`Estudiante: ${est?.nombre || dId}`, 20, 45);
@@ -395,6 +410,7 @@
     pdf.setFont("helvetica", "normal");
     pdf.text(`${ex.motivoTipo}`, 45, 136);
 
+    // TEXTO SIN ETIQUETA "DETALLE"
     const txt = `${ex.motivoDetalle || ''}`;
     pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
     
