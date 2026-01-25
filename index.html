@@ -257,7 +257,7 @@
     } else if (pass !== null) alert("❌ Clave incorrecta.");
   };
 
-  // --- OBSERVACIONES (VARIABLES UNIFICADAS: firmaAcudiente) ---
+  // --- OBSERVACIONES ---
   window.guardarRegistroObs = async (e) => {
     e.preventDefault(); const dId = document.getElementById('selectEstudianteObs').value;
     const editId = document.getElementById('editId').value;
@@ -343,32 +343,29 @@
     } catch (error) { alert("Error PDF."); }
   };
 
-  // --- EXCUSAS (PDF CON FORMATO CARTA EXACTO Y FIRMA CORREGIDA) ---
+  // --- EXCUSAS (Variable corregida y Formato Restaurado) ---
+  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
     const { jsPDF } = window.jspdf; const pdf = new jsPDF();
     
-    // Encabezado Verde Manzana
-    pdf.setFillColor(141, 182, 0); 
-    pdf.rect(0, 0, 210, 40, 'F');
-    // ADDED: SCHOOL LOGO (ESCUDO.PNG)
-    try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
-    
+    // Encabezado
+    pdf.setFillColor(141, 182, 0); pdf.rect(0, 0, 210, 40, 'F');
+    try { pdf.addImage('escudo.png', 'PNG', 15, 5, 30, 30); } catch(e){}
     pdf.setTextColor(255, 255, 255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
-    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 18, { align: "center" });
+    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA, Sede Rural Santa Juana.", 105, 18, { align: "center" });
     pdf.setFontSize(12); pdf.text("Registro y Control de Asistencia Escolar 2026", 105, 26, { align: "center" });
 
     // Cuerpo
     pdf.setTextColor(0, 0, 0); pdf.setFontSize(14); pdf.setFont("helvetica", "normal");
     
-    // Formato fecha larga
-    const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+    // Fecha de diligenciamiento
     const fechaDilig = (fStr) => {
         if(!fStr) return ""; const partes = fStr.split('-');
-        return `${partes[2]} de ${meses[parseInt(partes[1])-1]} de ${partes[0]}`;
+        return `${partes[2]} de ${meses[parseInt(partes[1])-1]} del ${partes[0]}`;
     };
-    
     pdf.text(`Santa Juana, Yarumal ${fechaDilig(ex.fechaInasistencia)}`, 20, 60);
 
     pdf.setFont("helvetica", "bold");
@@ -382,31 +379,27 @@
     pdf.setFont("helvetica", "bold");
     pdf.text(`Asunto: Justificación de inasistencia de ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
     
-    pdf.setFont("helvetica", "bold"); pdf.text("Fecha de inasistencia:", 20, 128);
-    pdf.setFont("helvetica", "normal"); pdf.text(`${fechaDilig(ex.fechaInasistencia)}`, 85, 128);
+    pdf.text("Fecha de inasistencia:", 20, 128);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${fechaDilig(ex.fechaInasistencia)}`, 85, 128);
 
-    pdf.setFont("helvetica", "bold"); pdf.text("Motivo:", 20, 136);
-    pdf.setFont("helvetica", "normal"); pdf.text(`${ex.motivoTipo}`, 45, 136);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Tipo de motivo:", 20, 136);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${ex.motivoTipo}`, 65, 136);
 
-    const txt = `Me permito informar que el estudiante no asistió el día ${ex.fechaInasistencia} por motivo de ${ex.motivoTipo}. ${ex.motivoDetalle || ''}`;
+    // Sin la palabra "Detalle"
+    const txt = `${ex.motivoDetalle || ''}`;
     pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
     
     pdf.text("Gracias De antemano por su atención prestada.", 20, 180);
-
-    if(ex.firmaAcudiente) { 
-        try { 
-            pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); 
-        } catch(e) { console.log("Error img"); } 
-    }
-    
+    if(ex.firmaAcudiente) { try { pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); } catch(e){} }
     pdf.text("__________________________", 105, 225, { align: "center" }); 
-    pdf.setFont("helvetica", "bold"); 
-    pdf.text("ACUDIENTE", 105, 232, { align: "center" });
-
+    pdf.setFont("helvetica", "bold"); pdf.text("ACUDIENTE", 105, 232, { align: "center" });
     pdf.save(`Excusa_${id}.pdf`);
   };
   
-  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa permanentemente?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
+  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
 
   window.filtrarExcusas = () => {
     const list = document.getElementById('listaExcusas'); const search = document.getElementById('searchExcInput').value.toLowerCase();
