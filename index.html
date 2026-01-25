@@ -64,7 +64,7 @@
     .btn-pdf-carta { background: #f1f5f9; border: 1.5px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .btn-delete-exc { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
-    /* Herramientas Naranjas */
+    /* Herramientas (Naranjas) */
     .tools-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
     .btn-tool-orange { background: #f57c00; color: white; padding: 18px; border-radius: 20px; font-weight: 900; text-decoration: none; text-align: center; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 0 #b35900; text-transform: uppercase; transition: all 0.2s ease; }
     .btn-tool-orange:active { transform: translateY(2px); box-shadow: 0 2px 0 #b35900; }
@@ -322,6 +322,8 @@
         pdf.setTextColor(255, 255, 255); pdf.setFontSize(14); pdf.setFont("helvetica", "bold");
         pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
         pdf.setFontSize(10); pdf.text(`SEGUIMIENTO UNIFICADO - CICLO #${cAct}`, 105, 25, { align: "center" });
+        // ESCUDO
+        try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
         pdf.setTextColor(0,0,0); pdf.setFontSize(11);
         pdf.text(`Estudiante: ${est?.nombre || dId}`, 20, 45);
         pdf.text(`Documento: ${dId}`, 20, 52);
@@ -343,9 +345,17 @@
     } catch (error) { alert("Error PDF."); }
   };
 
-  // --- EXCUSAS (Variable corregida y Formato Restaurado) ---
+  // --- EXCUSAS (Variable corregida) ---
   const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-  
+  function fechaLarga(fStr) {
+      if(!fStr) return ""; const partes = fStr.split('-');
+      return `${partes[2]} de ${meses[parseInt(partes[1])-1]} de ${partes[0]}`;
+  }
+  function fechaActualLarga() {
+      const today = new Date();
+      return `${today.getDate()} de ${meses[today.getMonth()]} de ${today.getFullYear()}`;
+  }
+
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
@@ -355,18 +365,15 @@
     pdf.setFillColor(141, 182, 0); pdf.rect(0, 0, 210, 40, 'F');
     try { pdf.addImage('escudo.png', 'PNG', 15, 5, 30, 30); } catch(e){}
     pdf.setTextColor(255, 255, 255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
-    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA, Sede Rural Santa Juana.", 105, 18, { align: "center" });
-    pdf.setFontSize(12); pdf.text("Registro y Control de Asistencia Escolar 2026", 105, 26, { align: "center" });
+    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 120, 18, { align: "center" });
+    pdf.setFontSize(12); pdf.text("Sede Rural Santa Juana", 120, 26, { align: "center" });
+    pdf.setFontSize(11); pdf.text("Registro y Control de Asistencia Escolar 2026", 120, 34, { align: "center" });
 
     // Cuerpo
     pdf.setTextColor(0, 0, 0); pdf.setFontSize(14); pdf.setFont("helvetica", "normal");
     
-    // Fecha de diligenciamiento
-    const fechaDilig = (fStr) => {
-        if(!fStr) return ""; const partes = fStr.split('-');
-        return `${partes[2]} de ${meses[parseInt(partes[1])-1]} del ${partes[0]}`;
-    };
-    pdf.text(`Santa Juana, Yarumal ${fechaDilig(ex.fechaInasistencia)}`, 20, 60);
+    // Fecha de diligenciamiento (HOY o Timestamp si existiera, usamos HOY para el PDF generado)
+    pdf.text(`Santa Juana, Yarumal ${fechaActualLarga()}`, 20, 60);
 
     pdf.setFont("helvetica", "bold");
     pdf.text("Señor", 20, 75);
@@ -377,22 +384,22 @@
     pdf.text("Cordial saludo.", 20, 100);
     
     pdf.setFont("helvetica", "bold");
-    pdf.text(`Asunto: Justificación de inasistencia de ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
+    pdf.text(`Asunto: Justificación de inasistencia - ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
     
     pdf.text("Fecha de inasistencia:", 20, 128);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`${fechaDilig(ex.fechaInasistencia)}`, 85, 128);
+    pdf.text(`${fechaLarga(ex.fechaInasistencia)}`, 85, 128);
 
     pdf.setFont("helvetica", "bold");
-    pdf.text("Tipo de motivo:", 20, 136);
+    pdf.text("Motivo:", 20, 136);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`${ex.motivoTipo}`, 65, 136);
+    pdf.text(`${ex.motivoTipo}`, 45, 136);
 
-    // Sin la palabra "Detalle"
     const txt = `${ex.motivoDetalle || ''}`;
     pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
     
     pdf.text("Gracias De antemano por su atención prestada.", 20, 180);
+    
     if(ex.firmaAcudiente) { try { pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); } catch(e){} }
     pdf.text("__________________________", 105, 225, { align: "center" }); 
     pdf.setFont("helvetica", "bold"); pdf.text("ACUDIENTE", 105, 232, { align: "center" });
