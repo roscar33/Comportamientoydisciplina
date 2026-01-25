@@ -247,11 +247,14 @@
   window.resetearFaltasPeriodo = async () => {
     const pass = prompt("Clave para nuevo periodo (9218):");
     if(pass === "9218") {
-        periodoActualAsis++;
-        await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: periodoActualAsis });
-        document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
-        alert(`✅ Periodo #${periodoActualAsis} iniciado.`); window.renderAsistencia();
-    }
+        const confirmar = confirm(`¿Iniciar Periodo #${periodoActualAsis + 1}? Se reiniciarán las faltas.`);
+        if(confirmar) {
+            periodoActualAsis++;
+            await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: periodoActualAsis });
+            document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
+            alert(`✅ Periodo #${periodoActualAsis} iniciado.`); window.renderAsistencia();
+        }
+    } else if (pass !== null) alert("❌ Clave incorrecta.");
   };
 
   // --- OBSERVACIONES (VARIABLES UNIFICADAS: firmaAcudiente) ---
@@ -340,43 +343,76 @@
     } catch (error) { alert("Error PDF."); }
   };
 
-  // --- EXCUSAS (Variable corregida: firmaAcudiente) ---
+  // --- EXCUSAS (PDF CON FORMATO CARTA EXACTO Y FIRMA CORREGIDA) ---
   window.descargarPDFExcusaCarta = (id) => {
     const ex = localExcusas.find(x => x.id === id); if(!ex) return;
     const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
     const { jsPDF } = window.jspdf; const pdf = new jsPDF();
-    pdf.setFillColor(141, 182, 0); pdf.rect(0, 0, 210, 40, 'F');
+    
+    // Encabezado Verde Manzana
+    pdf.setFillColor(141, 182, 0); 
+    pdf.rect(0, 0, 210, 40, 'F');
+    // ADDED: SCHOOL LOGO (ESCUDO.PNG)
+    try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
+    
     pdf.setTextColor(255, 255, 255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
-    pdf.text("INSTITUCIÓN EDUCATIVA SEDE RURAL SANTA JUANA", 105, 18, { align: "center" });
-    pdf.setFontSize(11); pdf.text("Control y seguimiento de inasistencia 2026", 105, 26, { align: "center" });
+    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 18, { align: "center" });
+    pdf.setFontSize(12); pdf.text("Registro y Control de Asistencia Escolar 2026", 105, 26, { align: "center" });
+
+    // Cuerpo
     pdf.setTextColor(0, 0, 0); pdf.setFontSize(14); pdf.setFont("helvetica", "normal");
-    pdf.text(`Santa Juana Yarumal, ${ex.fechaInasistencia}`, 20, 60);
-    pdf.setFont("helvetica", "bold"); pdf.text("Señor,", 20, 75); pdf.text("Oscar Barrientos", 20, 81); pdf.text("Docente Santa Juana.", 20, 87);
-    pdf.setFont("helvetica", "normal"); pdf.text("Cordial saludo:", 20, 100);
-    pdf.setFont("helvetica", "bold"); pdf.text(`Asunto: Justificación de inasistencia - ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
+    
+    // Formato fecha larga
+    const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+    const fechaDilig = (fStr) => {
+        if(!fStr) return ""; const partes = fStr.split('-');
+        return `${partes[2]} de ${meses[parseInt(partes[1])-1]} de ${partes[0]}`;
+    };
+    
+    pdf.text(`Santa Juana, Yarumal ${fechaDilig(ex.fechaInasistencia)}`, 20, 60);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Señor", 20, 75);
+    pdf.text("Oscar Evelio Barrientos", 20, 81);
+    pdf.text("Docente.", 20, 87);
+    
     pdf.setFont("helvetica", "normal");
-    const txt = `Me permito informar que el estudiante no asistió el día ${ex.fechaInasistencia} por motivo de ${ex.motivoTipo || 'Salud'}. ${ex.motivoDetalle || ''}`;
-    pdf.text(pdf.splitTextToSize(txt, 170), 20, 130);
-    pdf.text("Gracias de antemano por su atención prestada.", 20, 170);
-    if(ex.firmaAcudiente) { try { pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); } catch(e){} }
-    pdf.text("__________________________", 105, 225, { align: "center" }); pdf.setFont("helvetica", "bold"); pdf.text("ACUDIENTE", 105, 232, { align: "center" });
+    pdf.text("Cordial saludo.", 20, 100);
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`Asunto: Justificación de inasistencia de ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
+    
+    pdf.setFont("helvetica", "bold"); pdf.text("Fecha de inasistencia:", 20, 128);
+    pdf.setFont("helvetica", "normal"); pdf.text(`${fechaDilig(ex.fechaInasistencia)}`, 85, 128);
+
+    pdf.setFont("helvetica", "bold"); pdf.text("Motivo:", 20, 136);
+    pdf.setFont("helvetica", "normal"); pdf.text(`${ex.motivoTipo}`, 45, 136);
+
+    const txt = `Me permito informar que el estudiante no asistió el día ${ex.fechaInasistencia} por motivo de ${ex.motivoTipo}. ${ex.motivoDetalle || ''}`;
+    pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
+    
+    pdf.text("Gracias De antemano por su atención prestada.", 20, 180);
+
+    if(ex.firmaAcudiente) { 
+        try { 
+            pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); 
+        } catch(e) { console.log("Error img"); } 
+    }
+    
+    pdf.text("__________________________", 105, 225, { align: "center" }); 
+    pdf.setFont("helvetica", "bold"); 
+    pdf.text("ACUDIENTE", 105, 232, { align: "center" });
+
     pdf.save(`Excusa_${id}.pdf`);
   };
   
-  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
+  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa permanentemente?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
 
   window.filtrarExcusas = () => {
     const list = document.getElementById('listaExcusas'); const search = document.getElementById('searchExcInput').value.toLowerCase();
     list.innerHTML = localExcusas.filter(ex => ex.documentoEstudiante.includes(search)).map(ex => {
         const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-        return `<div class="excusa-card">
-            <div class="excusa-header"><span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span><span class="excusa-date">${ex.fechaInasistencia}</span></div>
-            <div class="excusa-body"><b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}</div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                ${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" height="35" style="border:1px solid #eee; background:#fff; border-radius:4px;">` : '<span></span>'}
-                <div style="display:flex; gap:5px;"><button class="btn-pdf-carta" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF</button><button class="btn-delete-exc" onclick="window.eliminarExcusa('${ex.id}')">Eliminar</button></div>
-            </div>
-        </div>`;
+        return `<div class="excusa-card"><div class="excusa-header"><span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span><span class="excusa-date">${ex.fechaInasistencia}</span></div><div class="excusa-body"><b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}</div><div style="display:flex; justify-content:space-between; align-items:center;">${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" height="35" style="border:1px solid #eee; background:#fff; border-radius:4px;">` : '<span></span>'}<div style="display:flex; gap:5px;"><button class="btn-pdf-carta" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF</button><button class="btn-delete-exc" onclick="window.eliminarExcusa('${ex.id}')">Eliminar</button></div></div></div>`;
     }).join('') || "No hay resultados.";
   };
 
