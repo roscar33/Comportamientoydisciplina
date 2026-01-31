@@ -2,1166 +2,463 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Seguimiento Docente + Agenda Pro</title>
+  <title>Panel Administrativo Docente · Primaria 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
+  <!-- Scripts para generación de PDF y Tablas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    body { 
-      font-family: 'Inter', sans-serif; 
-      -webkit-tap-highlight-color: transparent; 
-      background-color: #f8fafc;
+    :root {
+      --primary: #1b5e20; --primary-light: #2e7d32; --accent: #0288d1; --tools-color: #f57c00; --corr-color: #6a1b9a;
+      --bg-body: #c8e6c9; --text-main: #0f172a; --card-bg: #ffffff; --radius-xl: 30px; --shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-    .animate-slide-up { animation: slideUpPanel 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideUpPanel { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    input, select, textarea { font-size: 16px !important; } 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-body); min-height: 100vh; padding: 15px; color: var(--text-main); display: flex; justify-content: center; }
+    .app-shell { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; }
+
+    /* Barra Superior */
+    .top-bar { display: flex; align-items: center; padding: 12px 20px; background: #ffffff; border-radius: 50px; box-shadow: var(--shadow); gap: 12px; }
+    .brand-logo { width: 45px; height: 45px; border: 1px solid #eee; border-radius: 50%; padding: 2px; }
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-title { font-size: 14px; font-weight: 800; color: var(--primary-light); line-height: 1.1; }
+
+    /* Navegación */
+    .nav-tabs { display: flex; background: #fff; padding: 5px; border-radius: 50px; box-shadow: var(--shadow); gap: 5px; overflow-x: auto; }
+    .nav-btn { flex: 1; border: none; background: transparent; padding: 12px 15px; border-radius: 40px; font-weight: 700; color: #666; cursor: pointer; font-size: 11px; text-align: center; white-space: nowrap; }
+    .nav-btn.active-asis { background: var(--accent); color: white; }
+    .nav-btn.active-obs { background: var(--primary); color: white; }
+    .nav-btn.active-herramientas { background: var(--tools-color); color: white; }
+    .nav-btn.active-corr { background: var(--corr-color); color: white; }
+
+    .card { background: var(--card-bg); border-radius: var(--radius-xl); padding: 20px; box-shadow: var(--shadow); border: 1px solid white; position: relative; }
+    .card-title { font-size: 20px; font-weight: 800; color: #0288d1; margin-bottom: 5px; }
+
+    /* ASISTENCIA (Botones Horizontales + Documento Pequeño) */
+    .attendance-list { display: flex; flex-direction: column; gap: 12px; margin: 15px 0; }
+    .student-card { background: #f8fafc; border-radius: 20px; padding: 15px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .stu-info { display: flex; flex-direction: column; gap: 2px; }
+    .stu-name { font-weight: 800; font-size: 13px; color: #1e293b; text-transform: uppercase; line-height: 1.2; max-width: 170px; }
+    .stu-doc { font-size: 10px; color: #64748b; font-weight: 600; display: block; } /* NUEVO ESTILO DOCUMENTO */
+    .stu-faltas { background: #fee2e2; color: #dc2626; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 10px; width: fit-content; margin-top: 4px; }
+    .stu-btns { display: flex; gap: 8px; }
+    .att-btn { width: 36px; height: 36px; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 10px; font-weight: 800; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .att-btn.active-p { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .att-btn.active-e { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
+    .att-btn.active-i { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+    /* Botones Acción */
+    .btn-action { width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; font-size: 15px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-blue { background: #0288d1; color: white; box-shadow: 0 4px 0 #01579b; margin-bottom: 20px; }
+    .btn-green { background: #1b5e20; color: white; border-radius: 50px; margin-top: 10px; }
+    .btn-slate { background: #455a64; color: white; border-radius: 50px; margin-top: 15px; }
+
+    /* Controles */
+    .report-box { background: #f0f9ff; padding: 15px; border-radius: 20px; text-align: center; border: 1px solid #bae6fd; margin-top: 15px; }
+    .btn-period-green { background: #2e7d32; color: white; padding: 12px; border-radius: 50px; border: none; font-weight: 800; font-size: 12px; cursor: pointer; width: 100%; }
+    .cycle-box { background: #fff3e0; padding: 20px; border-radius: 25px; border: 1px solid #ffe0b2; margin-top: 20px; }
+    .btn-cycle-orange { background: #f57c00; color: white; width: 100%; padding: 12px; border-radius: 50px; border: none; font-weight: 800; font-size: 11px; margin-bottom: 10px; cursor: pointer; text-transform: uppercase; }
+    .btn-cycle-green { background: #43a047; color: white; width: 100%; padding: 12px; border-radius: 50px; border: none; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+
+    /* Excusas Visual */
+    .excusa-card { background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; border-left: 5px solid #0288d1; }
+    .btn-pdf-carta { background: #f1f5f9; border: 1.5px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn-delete-exc { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
+
+    /* Herramientas Naranjas */
+    .tools-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+    .btn-tool-orange { background: #f57c00; color: white; padding: 18px; border-radius: 20px; font-weight: 900; text-decoration: none; text-align: center; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 0 #b35900; text-transform: uppercase; transition: all 0.2s ease; }
+    .btn-tool-orange:active { transform: translateY(2px); box-shadow: 0 2px 0 #b35900; }
+
+    /* Observaciones */
+    .obs-item { background: #fff; padding: 15px; border-radius: 18px; border-left: 5px solid #1b5e20; margin-bottom: 12px; font-size: 13px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .obs-sigs-preview { display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed #eee; overflow-x: auto; }
+    .sig-thumb { text-align: center; flex: 1; min-width: 60px; }
+    .sig-thumb span { font-size: 8px; font-weight: 800; display: block; color: #888; margin-bottom: 4px; text-transform: uppercase; }
+    .sig-thumb img { max-height: 35px; border: 1px solid #f0f0f0; background: #fff; max-width: 100%; object-fit: contain; }
+    .obs-controls { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
+    .btn-edit { background: #e3f2fd; color: #1976d2; padding: 5px 10px; border-radius: 5px; border: none; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .btn-delete { background: #ffebee; color: #d32f2f; padding: 5px 10px; border-radius: 5px; border: none; font-size: 10px; font-weight: 800; cursor: pointer; }
+
+    .signature-container { background: #fff; border: 2px dashed #b0bec5; border-radius: 15px; overflow: hidden; margin: 10px 0; }
+    canvas { width: 100%; height: 140px; display: block; touch-action: none; }
+    input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; background: #fafafa; font-size: 14px; margin-bottom: 8px; }
+    .hidden-section { display: none; margin-top: 15px; }
+    .msg-card { background: #fff; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; border-left: 5px solid var(--corr-color); }
+    .btn-delete-msg { background: #fee2e2; color: #d32f2f; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; margin-left: 8px; }
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
-  <div id="root"></div>
+<body>
+<div class="app-shell">
+  <header class="top-bar">
+    <div class="brand-group">
+      <div class="brand-logo"><img src="escudo.png" alt="Escudo"></div>
+      <div class="brand-text">
+        <div class="brand-title">Panel Administrativo Docente</div>
+        <div style="font-size: 10px; opacity: 0.7; font-weight: 600;">Primaria 2026 · Santa Juana</div>
+      </div>
+    </div>
+  </header>
 
-  <script type="text/babel">
-    // ==========================================================
-    // FIREBASE SETUP
-    // ==========================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
-      authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
-      projectId: "diariodeprocesos-6f78d"
-    };
-    
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.firestore();
+  <nav class="nav-tabs">
+    <button id="btnTabAsis" class="nav-btn active-asis" onclick="switchTab('asis')">Asistencia</button>
+    <button id="btnTabObs" class="nav-btn" onclick="switchTab('obs')">Observaciones</button>
+    <button id="btnTabHerramientas" class="nav-btn" onclick="switchTab('herramientas')">Herramientas</button>
+    <button id="btnTabCorr" class="nav-btn" onclick="switchTab('corr')">Correspondencia</button>
+  </nav>
 
-    const CFG_DOC = db.collection("configuracionGlobal").doc("notas");            
-    const LISTS_DOC = db.collection("configuracionGlobal").doc("listasEstudiantes"); 
-    const NOTAS_COL = db.collection("notasAcademicas"); 
-    const AGENDA_COL = db.collection("agendaEscolar"); 
-    const MSGS_COL = db.collection("mensajesAgenda");
-
-    // ==========================================================
-    // ICONS
-    // ==========================================================
-    const Icon = ({ children, size = 24, className = "" }) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        className={className}>{children}</svg>
-    );
-    const Home = (p) => <Icon {...p}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></Icon>;
-    const Layers = (p) => <Icon {...p}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></Icon>;
-    const Plus = (p) => <Icon {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></Icon>;
-    const Trash2 = (p) => <Icon {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></Icon>;
-    const Save = (p) => <Icon {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Icon>;
-    const X = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Icon>;
-    const FileText = (p) => <Icon {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14 2z"/><polyline points="14 2 14 8 20 8"/></Icon>;
-    const Download = (p) => <Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
-    const Edit3 = (p) => <Icon {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></Icon>;
-    const Settings = (p) => <Icon {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></Icon>;
-    const ChevronRight = (p) => <Icon {...p}><polyline points="9 18 15 12 9 6"/></Icon>;
-    
-    // ICONOS AGENDA & BUZÓN
-    const Book = (p) => <Icon {...p}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></Icon>;
-    const Calendar = (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Icon>;
-    const Archive = (p) => <Icon {...p}><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></Icon>;
-    const CheckCircle = (p) => <Icon {...p}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>;
-    const User = (p) => <Icon {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>;
-    const Upload = (p) => <Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Icon>;
-    const MessageCircle = (p) => <Icon {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></Icon>;
-    const Send = (p) => <Icon {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></Icon>;
-    const Folder = (p) => <Icon {...p}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></Icon>;
-
-    const { useState, useEffect, useMemo } = React;
-
-    // ==========================================================
-    // HELPERS
-    // ==========================================================
-    const formatDisplay = (val) => {
-      if (val === '' || val === null || val === undefined) return '';
-      return val.toString().replace('.', ',');
-    };
-    const parseInput = (val) => (val ?? '').toString().replace(',', '.');
-
-    const validateScoreInput = (value) => {
-      if (value === '') return true;
-      const regex = /^[0-9]*[.,]?[0-9]*$/;
-      if (!regex.test(value)) return false;
-      const numVal = parseFloat(value.replace(',', '.'));
-      if (!isNaN(numVal)) return numVal >= 0 && numVal <= 5.0;
-      return true;
-    };
-
-    const splitNameDoc = (str) => {
-      const s = (str || "").trim();
-      const idx = s.lastIndexOf(" - ");
-      if (idx === -1) return { nombre: s, doc: "" };
-      return {
-        nombre: s.slice(0, idx).trim(),
-        doc: s.slice(idx + 3).trim()
-      };
-    };
-
-    const gradeLevels = ['Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto'];
-    const areas = [
-      'INGLES', 'CIENCIAS NATURALES', 'CIENCIAS SOCIALES', 'ARTISTICA',
-      'EDUCACION FISICA', 'ETICA Y VALORES', 'RELIGION', 'ESPAÑOL (LENGUAJE)',
-      'MATEMATICAS', 'TECNOLOGIA E INFORMATICA'
-    ];
-
-    const Dashboard = () => {
-      const [students, setStudents] = useState([]);
-      const [studentLists, setStudentLists] = useState({});
-
-      const [periodoActual, setPeriodoActual] = useState(1);
-      const [view, setView] = useState('recent'); // 'recent' | 'topics' | 'agenda' | 'mailbox'
-      const [isFormOpen, setIsFormOpen] = useState(false);
-      const [isReportOpen, setIsReportOpen] = useState(false);
-      const [isConfigOpen, setIsConfigOpen] = useState(false);
-      const [topicFilter, setTopicFilter] = useState({ gradeLevel: '', area: '' });
-      const [editingTopic, setEditingTopic] = useState(null);
-      const [batchData, setBatchData] = useState({ gradeLevel: '', area: '', actividad: '', entries: [] });
-      const [error, setError] = useState('');
-      const [configGrade, setConfigGrade] = useState('Quinto');
-      const [newStudentName, setNewStudentName] = useState('');
-      const [reportFilter, setReportFilter] = useState({ gradeLevel: 'Quinto', area: 'MATEMATICAS' });
+  <!-- SECCIÓN ASISTENCIA -->
+  <div id="view-asis">
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div><h2 class="card-title">Registro Diario</h2><span id="periodoActualLabel" style="font-size:11px; font-weight:bold; color:#666;">Periodo Actual: ...</span></div>
+        <input type="date" id="fechaAsistencia" style="width:auto;" onchange="window.cargarAsistenciaDelDia()">
+      </div>
       
-      // ESTADOS AGENDA
-      const [agendaItems, setAgendaItems] = useState([]);
-      const [agendaTab, setAgendaTab] = useState('published'); // 'published' | 'drafts'
-      const [selectedGrades, setSelectedGrades] = useState([]); // Array para selección múltiple
-      const [newTask, setNewTask] = useState({ 
-        area: '',         
-        title: '',
-        description: '', 
-        date: '',
-        targetStudent: '' 
-      });
-      const [editingTask, setEditingTask] = useState(null);
-
-      // ESTADOS BUZÓN
-      const [inboxMessages, setInboxMessages] = useState([]);
-      const [replyText, setReplyText] = useState({});
-
-      // FIREBASE SYNC
-      useEffect(() => {
-        const unsub = CFG_DOC.onSnapshot(async (snap) => {
-          if (snap.exists) setPeriodoActual(snap.data().periodoActual || 1);
-          else await CFG_DOC.set({ periodoActual: 1 });
-        });
-        return () => unsub();
-      }, []);
-
-      useEffect(() => {
-        const unsub = LISTS_DOC.onSnapshot(async (snap) => {
-          if (snap.exists) setStudentLists(prev => ({ ...prev, ...snap.data() }));
-          else await LISTS_DOC.set(studentLists);
-        });
-        return () => unsub();
-      }, []);
-
-      useEffect(() => {
-        const unsub = NOTAS_COL.where("periodo", "==", periodoActual).onSnapshot((snap) => {
-          const arr = [];
-          snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
-          arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          setStudents(arr);
-        });
-        return () => unsub();
-      }, [periodoActual]);
-
-      // SYNC AGENDA
-      useEffect(() => {
-        const unsub = AGENDA_COL.orderBy("createdAt", "desc").limit(100).onSnapshot(snap => {
-          const arr = [];
-          snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
-          setAgendaItems(arr);
-        });
-        return () => unsub();
-      }, []);
-
-      // SYNC BUZÓN
-      useEffect(() => {
-        const unsub = MSGS_COL.orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
-          const arr = [];
-          snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
-          setInboxMessages(arr);
-        });
-        return () => unsub();
-      }, []);
-
-      // HELPER NOMBRE ESTUDIANTE
-      const getStudentName = (id) => {
-        if(!id) return '';
-        for (const grade in studentLists) {
-          const found = studentLists[grade].find(s => s.includes(id));
-          if(found) return found.split(' - ')[0]; 
-        }
-        return id; 
-      };
-
-      // LOGIC NOTAS
-      const topics = useMemo(() => {
-        const grouped = {};
-        const relevant = students.filter(s => {
-          if (view === 'topics' && topicFilter.gradeLevel && topicFilter.area) {
-            return s.gradeLevel === topicFilter.gradeLevel && s.area === topicFilter.area;
-          }
-          return true;
-        });
-        relevant.forEach(s => {
-          const key = `${s.gradeLevel}-${s.area}-${s.actividad}`;
-          if (!grouped[key]) {
-            grouped[key] = { id: key, gradeLevel: s.gradeLevel, area: s.area, actividad: s.actividad, count: 0, createdAt: s.createdAt || 0 };
-          }
-          grouped[key].count++;
-        });
-        return Object.values(grouped).sort((a,b) => b.createdAt - a.createdAt);
-      }, [students, view, topicFilter]);
-
-      const changePeriod = async (p) => {
-        try {
-          await CFG_DOC.set({ periodoActual: p }, { merge: true });
-          setPeriodoActual(p);
-          Swal.fire({ icon: 'success', title: `Periodo ${p} Activo`, toast: true, position: 'top', showConfirmButton: false, timer: 1500, background: '#10b981', color: '#fff' });
-        } catch (err) { }
-      };
-
-      const addStudentToList = async (e) => {
-        e.preventDefault();
-        if (!newStudentName.trim()) return;
-        const updated = { ...studentLists, [configGrade]: [...(studentLists[configGrade] || []), newStudentName.trim()] };
-        setStudentLists(updated);
-        setNewStudentName('');
-        try { await LISTS_DOC.set(updated, { merge: true }); } catch (err) {}
-      };
-
-      // LOGIC AGENDA - SELECCIÓN MÚLTIPLE
-      const toggleGrade = (grade) => {
-        setSelectedGrades(prev => {
-          if (prev.includes(grade)) return prev.filter(g => g !== grade);
-          return [...prev, grade];
-        });
-      };
-
-      const addTask = async (saveAsArchived) => {
-        if (selectedGrades.length === 0) {
-          Swal.fire('Atención', 'Selecciona al menos un grado', 'warning');
-          return;
-        }
-        if (!newTask.title.trim() || !newTask.date || !newTask.area) {
-          Swal.fire('Faltan datos', 'Completa título, área y fecha', 'warning');
-          return;
-        }
-        
-        try {
-          const batch = db.batch();
-          
-          selectedGrades.forEach(grade => {
-             const docRef = AGENDA_COL.doc();
-             batch.set(docRef, {
-                gradeLevel: grade,
-                area: newTask.area,
-                title: newTask.title,
-                description: newTask.description || '', 
-                date: newTask.date,
-                targetStudent: newTask.targetStudent || '', 
-                archived: saveAsArchived, 
-                createdAt: Date.now(),
-                timestamp: new Date().toISOString()
-             });
-          });
-
-          await batch.commit();
-
-          setNewTask({ ...newTask, title: '', description: '', targetStudent: '' }); 
-          
-          const msg = saveAsArchived ? 'Guardado en Borradores' : 'Tarea Publicada';
-          Swal.fire({ icon: 'success', title: msg, toast: true, position: 'top', showConfirmButton: false, timer: 1500 });
-        } catch (e) { console.error(e); }
-      };
-
-      const toggleArchiveTask = async (id, currentStatus) => {
-        try { 
-          await AGENDA_COL.doc(id).update({ archived: !currentStatus }); 
-          Swal.fire({ icon: 'success', title: !currentStatus ? 'Movido a Borradores' : 'Tarea Publicada', toast: true, position: 'top', showConfirmButton: false, timer: 1200 });
-        } catch(e){}
-      };
-
-      const deletePermanent = async (id) => {
-        if(!confirm("¿Eliminar definitivamente?")) return;
-        try { await AGENDA_COL.doc(id).delete(); } catch(e){}
-      };
-
-      const openEditTask = (task) => { setEditingTask({ ...task }); };
-
-      const saveTaskEdit = async () => {
-        if (!editingTask.title.trim() || !editingTask.date || !editingTask.area) {
-          Swal.fire('Error', 'Faltan datos requeridos', 'warning');
-          return;
-        }
-        try {
-          await AGENDA_COL.doc(editingTask.id).update({
-            gradeLevel: editingTask.gradeLevel,
-            area: editingTask.area,
-            title: editingTask.title,
-            description: editingTask.description || '',
-            date: editingTask.date,
-            targetStudent: editingTask.targetStudent || ''
-          });
-          setEditingTask(null);
-          Swal.fire({ icon: 'success', title: 'Tarea Actualizada', toast: true, position: 'top', showConfirmButton: false, timer: 1500 });
-        } catch(e) { console.error(e); }
-      };
-
-      // GENERAR PDF AGENDA UNIFICADA
-      const generateAgendaPDF = () => {
-        // Filtrar tareas visibles en la lista actual (sea borrador o publicada)
-        const tasksToPrint = agendaItems.filter(item => {
-          if (agendaTab === 'drafts') return item.archived === true;
-          return !item.archived;
-        });
-
-        if (tasksToPrint.length === 0) {
-          Swal.fire('Atención', 'No hay tareas visibles para descargar', 'warning');
-          return;
-        }
-
-        // Ordenar por Fecha, luego por Grado
-        tasksToPrint.sort((a, b) => {
-           if(a.date !== b.date) return a.date.localeCompare(b.date);
-           return a.gradeLevel.localeCompare(b.gradeLevel);
-        });
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Encabezado
-        doc.setFontSize(14);
-        doc.setTextColor(20, 83, 45); // Dark Green
-        doc.setFont("helvetica", "bold");
-        doc.text("INSTITUCIÓN EDUCATIVA DE MARÍA - Sede Santa Juana", 105, 15, { align: "center" });
-        doc.setFontSize(12);
-        doc.setTextColor(50);
-        doc.text(`REPORTE DE AGENDA ESCOLAR (${agendaTab === 'drafts' ? 'BORRADORES' : 'PUBLICADAS'})`, 105, 23, { align: "center" });
-        doc.setFontSize(10);
-        doc.text(`Generado: ${new Date().toLocaleDateString()}`, 105, 29, { align: "center" });
-
-        const tableBody = tasksToPrint.map(t => [
-          t.gradeLevel,
-          t.area,
-          t.title + (t.description ? `\n- ${t.description}` : '') + (t.targetStudent ? ` (Individual)` : ''),
-          t.date
-        ]);
-
-        doc.autoTable({
-          startY: 35,
-          head: [['GRADO', 'ÁREA', 'ACTIVIDAD / DETALLE', 'FECHA']],
-          body: tableBody,
-          theme: 'grid',
-          headStyles: { fillColor: [16, 185, 129], textColor: 255, fontSize: 9, fontStyle: 'bold' },
-          columnStyles: {
-            0: { cellWidth: 25, fontStyle: 'bold' },
-            1: { cellWidth: 30 },
-            2: { cellWidth: 'auto' },
-            3: { cellWidth: 30, halign: 'center' }
-          },
-          styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak' }
-        });
-
-        doc.save(`Agenda_Escolar_Unificada_${new Date().toLocaleDateString().replace(/\//g,'-')}.pdf`);
-      };
-
-      // LOGIC BUZÓN
-      const sendReply = async (msgId) => {
-        const text = replyText[msgId];
-        if(!text || !text.trim()) return;
-        try {
-          await MSGS_COL.doc(msgId).update({
-            respuesta: text,
-            fechaRespuesta: new Date().toISOString()
-          });
-          setReplyText(prev => ({...prev, [msgId]: ''}));
-          Swal.fire({ icon: 'success', title: 'Respuesta enviada', toast: true, position: 'top', showConfirmButton: false, timer: 1500 });
-        } catch(e) { console.error(e); }
-      };
-
-      // LOGIC NOTAS CRUD
-      const deleteTopic = async (e, topic) => {
-        e.stopPropagation();
-        if (!confirm(`¿Borrar "${topic.actividad}"?`)) return;
-        try {
-          const q = await NOTAS_COL.where("periodo", "==", periodoActual).where("gradeLevel", "==", topic.gradeLevel).where("area", "==", topic.area).where("actividad", "==", topic.actividad).get();
-          const batch = db.batch();
-          q.forEach(docu => batch.delete(docu.ref));
-          await batch.commit();
-          Swal.fire({ icon: 'success', title: 'Tema borrado', timer: 1200, showConfirmButton: false });
-        } catch (err) {}
-      };
-
-      const handleBatchConfigChange = (e) => {
-        const { name, value } = e.target;
-        setBatchData(prev => {
-          const newData = { ...prev, [name]: value };
-          if (name === 'gradeLevel') {
-            const list = studentLists[value] || [];
-            newData.entries = list.length > 0
-              ? list.map(n => ({ name: n, score: '', observation: '' }))
-              : [{ name: '', score: '', observation: '' }];
-          }
-          return newData;
-        });
-      };
-
-      const handleEntryChange = (index, field, value) => {
-        const newEntries = [...batchData.entries];
-        if (field === 'score') {
-          if (validateScoreInput(value)) newEntries[index][field] = value;
-        } else newEntries[index][field] = value;
-        setBatchData(prev => ({ ...prev, entries: newEntries }));
-      };
-
-      const handleEntryBlur = (index) => {
-        const newEntries = [...batchData.entries];
-        const val = newEntries[index].score;
-        if (val && val.includes('.')) {
-          newEntries[index].score = val.replace('.', ',');
-          setBatchData(prev => ({ ...prev, entries: newEntries }));
-        }
-      };
-
-      const buildRecord = (grade, area, actividad, nameRaw, score, observation) => {
-        const { nombre, doc } = splitNameDoc(nameRaw);
-        return {
-          gradeLevel: grade, area, actividad: (actividad || '').trim(),
-          name: nameRaw, nombreEstudiante: nombre, documentoEstudiante: doc,
-          score: parseInput(score), nota: parseFloat(parseInput(score)),
-          observation: observation || '', observacion: observation || '',
-          periodo: periodoActual, date: new Date().toLocaleDateString('es-CO'), createdAt: Date.now(), timestamp: new Date().toISOString()
-        };
-      };
-
-      const handleSaveBatch = async () => {
-        if (!batchData.gradeLevel || !batchData.area || !batchData.actividad.trim()) { setError('Faltan datos básicos'); return; }
-        const valid = batchData.entries.filter(en => (en.name || '').trim() !== '' && en.score !== '');
-        if (valid.length === 0) { setError('Ingresa al menos una nota'); return; }
-        try {
-          const batch = db.batch();
-          valid.forEach(en => {
-            const rec = buildRecord(batchData.gradeLevel, batchData.area, batchData.actividad, en.name, en.score, en.observation);
-            batch.set(NOTAS_COL.doc(), rec);
-          });
-          await batch.commit();
-          setIsFormOpen(false);
-          setBatchData({ gradeLevel: '', area: '', actividad: '', entries: [] });
-          setError('');
-          Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false });
-        } catch (err) {}
-      };
-
-      const removeRecord = async (id) => {
-        if(!confirm("¿Borrar?")) return;
-        try { await NOTAS_COL.doc(id).delete(); } catch (err) {}
-      };
-
-      // EDIT LOGIC
-      const openTopicEditor = (topic) => {
-        const existing = students.filter(s => s.gradeLevel === topic.gradeLevel && s.area === topic.area && s.actividad === topic.actividad);
-        const currentList = studentLists[topic.gradeLevel] || [];
-        const missing = currentList.filter(name => !existing.some(r => r.name === name));
-        const placeholders = missing.map(name => ({
-          id: 'temp-' + Math.random(), gradeLevel: topic.gradeLevel, area: topic.area, actividad: topic.actividad, name,
-          score: '', observation: 'Pendiente', date: new Date().toLocaleDateString('es-CO'), createdAt: Date.now(), isNew: true
-        }));
-        const formattedExisting = existing.map(r => ({...r, score: formatDisplay(r.score)}));
-        setEditingTopic({ ...topic, records: [...formattedExisting, ...placeholders] });
-      };
-
-      const handleTopicRecordChange = (id, field, val) => {
-        if (field === 'score' && !validateScoreInput(val)) return;
-        setEditingTopic(prev => ({
-          ...prev, records: prev.records.map(r => r.id === id ? { ...r, [field]: val } : r)
-        }));
-      };
-
-      const saveTopicChanges = async () => {
-        const recordsToProcess = editingTopic.records.filter(r => r.name && r.score !== '');
-        try {
-          const batch = db.batch();
-          for (const r of recordsToProcess) {
-            if (r.isNew) {
-              const rec = buildRecord(r.gradeLevel, r.area, editingTopic.actividad, r.name, r.score, r.observation);
-              batch.set(NOTAS_COL.doc(), rec);
-            } else {
-              batch.update(NOTAS_COL.doc(r.id), {
-                score: parseInput(r.score), nota: parseFloat(parseInput(r.score)),
-                observation: r.observation || '', observacion: r.observation || '', updatedAt: Date.now(), timestamp: new Date().toISOString()
-              });
-            }
-          }
-          await batch.commit();
-          setEditingTopic(null);
-          Swal.fire({ icon: 'success', title: 'Actualizado', timer: 1000, showConfirmButton: false });
-        } catch (err) {}
-      };
-
-      // GENERAR PDF NOTAS
-      const generatePDF = () => {
-        const filtered = students.filter(s => s.gradeLevel === reportFilter.gradeLevel && s.area === reportFilter.area);
-        if (filtered.length === 0) { Swal.fire('Vacío', 'No hay registros', 'info'); return; }
-        const activitiesSet = new Set();
-        filtered.forEach(s => activitiesSet.add(s.actividad));
-        const activities = Array.from(activitiesSet).sort();
-        const uniqueStudents = [...new Set(filtered.map(s => s.name))].sort();
-        const tableBody = uniqueStudents.map(studentName => {
-          const row = [studentName];
-          let sum = 0; let count = 0;
-          activities.forEach(act => {
-            const record = filtered.find(s => s.name === studentName && s.actividad === act);
-            if (record) {
-              const val = record.nota || 0;
-              row.push(formatDisplay(val));
-              sum += val; count++;
-            } else { row.push("-"); }
-          });
-          const avg = count > 0 ? (sum / count).toFixed(1).replace('.', ',') : "0,0";
-          row.push(avg);
-          return row;
-        });
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(14); doc.setTextColor(20, 83, 45); doc.setFont("helvetica", "bold");
-        doc.text("INSTITUCIÓN EDUCATIVA DE MARÍA - Sede Santa Juana", 105, 15, { align: "center" });
-        doc.setFontSize(10); doc.setTextColor(60);
-        doc.text(`PLANILLA DE CALIFICACIONES - PERIODO ${periodoActual}`, 105, 22, { align: "center" });
-        doc.setFontSize(9);
-        doc.text(`GRADO: ${reportFilter.gradeLevel.toUpperCase()}   |   ÁREA: ${reportFilter.area}`, 105, 28, { align: "center" });
-        doc.autoTable({
-          startY: 35, head: [['ESTUDIANTE', ...activities, 'DEF']], body: tableBody, theme: 'grid',
-          headStyles: { fillColor: [16, 185, 129], textColor: 255, fontSize: 8, fontStyle: 'bold', halign: 'center' },
-          bodyStyles: { fontSize: 8, textColor: 50 },
-          columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 60 } },
-          didParseCell: function(data) {
-            if (data.section === 'body' && data.column.index > 0) {
-              data.cell.styles.halign = 'center';
-              const valStr = data.cell.raw;
-              if(typeof valStr === 'string' && valStr !== '-') {
-                 const num = parseFloat(valStr.replace(',', '.'));
-                 if(num < 3.0) { data.cell.styles.textColor = [220, 38, 38]; data.cell.styles.fontStyle = 'bold'; }
-              }
-            }
-          }
-        });
-        doc.save(`Reporte_${reportFilter.gradeLevel}_${reportFilter.area}_P${periodoActual}.pdf`);
-      };
-
-      const getScoreColor = (s) => {
-        const n = parseFloat(parseInput((s ?? '').toString()));
-        if (n >= 4.0) return 'text-emerald-600 bg-emerald-50 border-emerald-100';
-        if (n >= 3.0) return 'text-amber-600 bg-amber-50 border-amber-100';
-        return 'text-rose-600 bg-rose-50 border-rose-100';
-      };
-
-      const average = students.length > 0 ? (students.reduce((acc, curr) => acc + (parseFloat(parseInput((curr.score ?? '').toString())) || 0), 0) / students.length).toFixed(1).replace('.', ',') : '0,0';
-
-      // RENDER AGENDA FILTERED
-      const visibleAgenda = agendaItems.filter(item => {
-        if (agendaTab === 'drafts') return item.archived === true;
-        return !item.archived;
-      });
-
-      return (
-        <div className="flex flex-col h-[100dvh] bg-slate-50">
-          
-          {/* TOP HEADER */}
-          <header className="px-6 py-6 bg-white/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-200/60">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                  Seguimiento
-                </h1>
-                <p className="text-xs font-semibold text-emerald-600 mt-0.5 uppercase tracking-wider">
-                  Periodo {periodoActual} • Online
-                </p>
-              </div>
-              <div className="h-10 w-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold border border-slate-200">
-                {average}
-              </div>
-            </div>
-          </header>
-
-          {/* MAIN SCROLL AREA */}
-          <main className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar">
-            
-            {view === 'recent' && (
-              <div className="space-y-4 animate-in">
-                <div className="flex items-center justify-between mb-2 px-1">
-                  <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wide">Actividad Reciente</h2>
-                </div>
-                {students.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                    <div className="bg-slate-100 p-4 rounded-full mb-3"><Layers size={32} /></div>
-                    <p className="text-sm font-medium">No hay notas registradas</p>
-                  </div>
-                ) : (
-                  students.slice(0, 30).map(s => (
-                    <div key={s.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100/80 flex items-center justify-between transition-all active:scale-[0.98]">
-                      <div className="min-w-0 flex-1 pr-4">
-                        <div className="flex items-center gap-2 mb-1.5">
-                           <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md uppercase tracking-tight">{s.gradeLevel}</span>
-                           <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-tight truncate">{s.area}</span>
-                        </div>
-                        <h3 className="text-sm font-bold text-slate-800 truncate leading-snug">{s.name}</h3>
-                        <p className="text-xs text-slate-500 truncate mt-0.5">{s.actividad}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`text-lg font-bold px-3 py-1 rounded-xl border ${getScoreColor(s.score)}`}>
-                          {formatDisplay(s.score)}
-                        </span>
-                        <button onClick={() => removeRecord(s.id)} className="text-slate-300 hover:text-rose-500 transition-colors">
-                          <Trash2 size={16}/>
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {view === 'topics' && (
-              <div className="animate-in pb-10">
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 sticky top-0 z-10">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative">
-                      <select value={topicFilter.gradeLevel} onChange={(e) => setTopicFilter({...topicFilter, gradeLevel: e.target.value})}
-                        className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl py-3 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        <option value="">Todos los Grados</option>
-                        {gradeLevels.map(g => <option key={g} value={g}>{g}</option>)}
-                      </select>
-                      <div className="absolute right-3 top-3.5 pointer-events-none text-slate-400"><ChevronRight size={14} className="rotate-90"/></div>
-                    </div>
-                    <div className="relative">
-                      <select value={topicFilter.area} onChange={(e) => setTopicFilter({...topicFilter, area: e.target.value})}
-                        className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl py-3 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        <option value="">Todas las Áreas</option>
-                        {areas.map(a => <option key={a} value={a}>{a}</option>)}
-                      </select>
-                      <div className="absolute right-3 top-3.5 pointer-events-none text-slate-400"><ChevronRight size={14} className="rotate-90"/></div>
-                    </div>
-                  </div>
-                </div>
-                {(!topicFilter.gradeLevel || !topicFilter.area) ? (
-                  <div className="text-center py-12 text-slate-400 text-sm font-medium">Selecciona un Grado y Área<br/>para ver los temas.</div>
-                ) : (
-                  <div className="grid gap-3">
-                    {topics.map(t => (
-                      <div key={t.id} onClick={() => openTopicEditor(t)}
-                        className="group bg-white p-5 rounded-2xl shadow-sm border border-slate-100 active:scale-[0.98] transition-all flex items-center justify-between cursor-pointer">
-                        <div>
-                          <h3 className="font-bold text-slate-800 text-sm mb-1 group-hover:text-emerald-700 transition-colors">{t.actividad}</h3>
-                          <span className="text-xs font-semibold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md">{t.count} Notas</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                           <button className="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
-                             <Edit3 size={16}/>
-                           </button>
-                           <button onClick={(e) => deleteTopic(e, t)} className="h-8 w-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
-                             <Trash2 size={16}/>
-                           </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* VISTA AGENDA ACTUALIZADA */}
-            {view === 'agenda' && (
-              <div className="animate-in pb-20">
-                
-                {/* TABS CARPETAS */}
-                <div className="flex p-1 bg-slate-200/50 rounded-xl mb-6 mx-1">
-                  <button onClick={() => setAgendaTab('published')} 
-                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${agendaTab === 'published' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                    🚀 Tareas Publicadas
-                  </button>
-                  <button onClick={() => setAgendaTab('drafts')} 
-                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${agendaTab === 'drafts' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                    📂 Borradores
-                  </button>
-                </div>
-
-                {/* BOTÓN DESCARGA PDF AGENDA */}
-                <div className="flex justify-end px-1 mb-4">
-                   <button onClick={generateAgendaPDF} className="bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-slate-800 shadow-md">
-                     <Download size={14}/> PDF Agenda
-                   </button>
-                </div>
-
-                {agendaTab === 'published' && (
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                    <h2 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                      <Book size={20} className="text-emerald-600"/> Nueva Tarea
-                    </h2>
-                    <div className="space-y-3">
-                      {/* MULTI SELECT GRADOS */}
-                      <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">Grados (Selección Múltiple)</label>
-                        <div className="flex flex-wrap gap-2">
-                          {gradeLevels.map(g => (
-                            <button key={g} onClick={() => toggleGrade(g)}
-                              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${selectedGrades.includes(g) ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-                              {g}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <select value={newTask.area} onChange={e => setNewTask({...newTask, area: e.target.value})}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none">
-                        <option value="">Seleccionar Área</option>
-                        {areas.map(a => <option key={a} value={a}>{a}</option>)}
-                      </select>
-
-                      {/* SELECTOR DE ESTUDIANTE INDIVIDUAL */}
-                      {selectedGrades.length === 1 && (
-                        <select value={newTask.targetStudent} onChange={e => setNewTask({...newTask, targetStudent: e.target.value})}
-                          className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none">
-                          <option value="">👥 Asignar a: Toda la clase</option>
-                          {(studentLists[selectedGrades[0]] || []).map(st => (
-                            <option key={st} value={st.split(" - ")[1] || st}>{st.split(" - ")[0]}</option>
-                          ))}
-                        </select>
-                      )}
-
-                      <input type="text" placeholder="Título de la tarea (ej: Maqueta Sistema Solar)" value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"/>
-                      
-                      <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1">Fecha de Entrega</label>
-                        <input type="date" value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})}
-                          className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none text-slate-600 mt-1"/>
-                      </div>
-                      
-                      <textarea placeholder="Descripción o detalles (Opcional)..." value={newTask.description} onChange={e => setNewTask({...newTask, description: e.target.value})}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none h-20 resize-none"></textarea>
-                      
-                      {/* DOS BOTONES: GUARDAR Y PUBLICAR */}
-                      <div className="flex gap-3 pt-2">
-                        <button onClick={() => addTask(true)} className="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all flex justify-center items-center gap-2 text-xs border border-slate-200">
-                          <Save size={16}/> Guardar Borrador
-                        </button>
-                        <button onClick={() => addTask(false)} className="flex-[2] bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-emerald-700 transition-all flex justify-center items-center gap-2 text-sm">
-                          <Upload size={18}/> Publicar
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  {visibleAgenda.length === 0 ? (
-                    <div className="text-center py-10 text-slate-400 text-sm">No hay tareas en esta carpeta.</div>
-                  ) : (
-                    visibleAgenda.map(item => (
-                      <div key={item.id} className={`bg-white p-4 rounded-2xl shadow-sm border ${item.archived ? 'border-amber-100 bg-amber-50/50' : 'border-slate-100'} flex flex-col gap-2 relative group`}>
-                        <div className="flex justify-between items-start">
-                          <div className="flex flex-wrap gap-2">
-                            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-1 rounded uppercase">{item.gradeLevel}</span>
-                            <span className="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-1 rounded uppercase">{item.area}</span>
-                            {item.targetStudent && (
-                              <span className="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-1 rounded uppercase flex items-center gap-1">
-                                <User size={10}/> Individual
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Calendar size={12}/> {item.date}</span>
-                        </div>
-                        <h3 className="font-bold text-slate-800 leading-tight mt-1">{item.title}</h3>
-                        
-                        {item.description && <p className="text-xs text-slate-500 line-clamp-2">{item.description}</p>}
-
-                        {item.targetStudent && (
-                           <p className="text-xs text-purple-600 font-medium">Asignado a: {getStudentName(item.targetStudent)}</p>
-                        )}
-
-                        <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-dashed border-slate-200">
-                          {/* BOTÓN EDITAR */}
-                          <button onClick={() => openEditTask(item)} className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" title="Editar">
-                            <Edit3 size={16}/>
-                          </button>
-
-                          {/* BOTÓN PUBLICAR / ARCHIVAR */}
-                          {item.archived ? (
-                             <button onClick={() => toggleArchiveTask(item.id, true)} 
-                               className="bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-600 flex items-center gap-1">
-                               <CheckCircle size={14}/> Publicar
-                             </button>
-                          ) : (
-                             <button onClick={() => toggleArchiveTask(item.id, false)} className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50" title="Mover a Borradores">
-                               <Archive size={16}/>
-                             </button>
-                          )}
-                          
-                          {/* BOTÓN ELIMINAR MEJORADO */}
-                          <button onClick={() => deletePermanent(item.id)} className="bg-rose-50 text-rose-600 text-xs font-bold px-3 py-2 rounded-lg hover:bg-rose-100 flex items-center gap-1" title="Eliminar Definitivamente">
-                            <Trash2 size={14}/> Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* VISTA BUZÓN */}
-            {view === 'mailbox' && (
-              <div className="animate-in pb-20">
-                <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <MessageCircle size={20} className="text-emerald-600"/> Buzón de Dudas
-                  </h2>
-                </div>
-
-                {inboxMessages.length === 0 ? (
-                  <div className="text-center py-20 text-slate-400 text-sm">No hay mensajes pendientes.</div>
-                ) : (
-                  <div className="space-y-4">
-                    {inboxMessages.map(msg => (
-                      <div key={msg.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <div className="flex justify-between mb-2">
-                          <span className="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded uppercase">{msg.studentName}</span>
-                          <span className="text-[10px] text-slate-400">{new Date(msg.timestamp).toLocaleDateString()}</span>
-                        </div>
-                        <p className="text-xs font-bold text-emerald-600 mb-1">Sobre: {msg.taskTitle}</p>
-                        <p className="text-sm text-slate-700 italic mb-4">"{msg.pregunta}"</p>
-                        
-                        {msg.respuesta ? (
-                          <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                            <p className="text-xs font-bold text-emerald-800 mb-1">Tu respuesta:</p>
-                            <p className="text-xs text-emerald-700">{msg.respuesta}</p>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <input type="text" placeholder="Escribir respuesta..." 
-                              value={replyText[msg.id] || ''} 
-                              onChange={(e) => setReplyText({...replyText, [msg.id]: e.target.value})}
-                              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm outline-none"/>
-                            <button onClick={() => sendReply(msg.id)} className="bg-slate-800 text-white p-2.5 rounded-xl hover:bg-slate-900">
-                              <Send size={16}/>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </main>
-
-          {/* BOTTOM NAVIGATION BAR */}
-          <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 pb-safe z-30 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-            <button onClick={() => setView('recent')} className={`flex flex-col items-center gap-1 ${view === 'recent' ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <Home size={22} strokeWidth={view === 'recent' ? 2.5 : 2} />
-              <span className="text-[10px] font-bold">Inicio</span>
-            </button>
-            
-            <button onClick={() => setView('topics')} className={`flex flex-col items-center gap-1 ${view === 'topics' ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <Layers size={22} strokeWidth={view === 'topics' ? 2.5 : 2} />
-              <span className="text-[10px] font-bold">Temas</span>
-            </button>
-
-            {/* MAIN ACTION BUTTON (FAB) */}
-            <div className="-mt-12">
-              <button onClick={() => setIsFormOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white h-14 w-14 rounded-full shadow-xl shadow-emerald-500/40 flex items-center justify-center transition-transform active:scale-95">
-                <Plus size={28} strokeWidth={3} />
-              </button>
-            </div>
-
-            <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 ${view === 'agenda' ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <Book size={22} strokeWidth={view === 'agenda' ? 2.5 : 2} />
-              <span className="text-[10px] font-bold">Agenda</span>
-            </button>
-
-            <button onClick={() => setView('mailbox')} className={`flex flex-col items-center gap-1 ${view === 'mailbox' ? 'text-emerald-600' : 'text-slate-400'}`}>
-              <MessageCircle size={22} strokeWidth={view === 'mailbox' ? 2.5 : 2} />
-              <span className="text-[10px] font-bold">Buzón</span>
-            </button>
-          </nav>
-
-          {/* MODALS - BOTTOM SHEET STYLE */}
-          
-          {/* 1. CONFIG MODAL */}
-          {isConfigOpen && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={() => setIsConfigOpen(false)} />
-              <div className="relative z-10 bg-white w-full max-w-md h-[85vh] sm:h-auto sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col animate-slide-up">
-                <div className="p-2 flex justify-center"><div className="w-12 h-1.5 bg-slate-200 rounded-full my-2"/></div>
-                
-                <div className="px-6 pb-6 border-b border-slate-100">
-                   <h2 className="text-xl font-black text-slate-800">Configuración</h2>
-                   <p className="text-sm text-slate-500 font-medium">Periodo Escolar & Listas</p>
-                </div>
-
-                <div className="p-6 overflow-y-auto space-y-8">
-                  {/* Period Selector */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">Periodo Activo</label>
-                    <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl">
-                      {[1, 2, 3, 4].map(p => (
-                        <button key={p} onClick={() => changePeriod(p)}
-                          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${periodoActual === p ? 'bg-white text-emerald-600 shadow-md ring-1 ring-black/5' : 'text-slate-400 hover:text-slate-600'}`}>
-                          {p}°
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Student Management */}
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">Gestión de Listas</label>
-                    <div className="flex gap-2 mb-3">
-                      <select value={configGrade} onChange={e => setConfigGrade(e.target.value)} className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none">
-                        {gradeLevels.map(g=><option key={g} value={g}>{g}</option>)}
-                      </select>
-                    </div>
-                    
-                    <div className="flex gap-2 mb-4">
-                      <input type="text" value={newStudentName} onChange={e => setNewStudentName(e.target.value)}
-                        placeholder="Nombre Completo - Documento"
-                        className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500 transition-colors" />
-                      <button onClick={addStudentToList} className="bg-slate-800 text-white p-3 rounded-xl shadow-lg hover:bg-slate-900"><Plus/></button>
-                    </div>
-
-                    <div className="bg-slate-50 rounded-2xl p-4 max-h-60 overflow-y-auto space-y-2 border border-slate-100">
-                      {(studentLists[configGrade] || []).length === 0 ? <p className="text-center text-xs text-slate-400 py-4">Lista vacía</p> : 
-                        (studentLists[configGrade] || []).map((name, i) => (
-                        <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-200/50 last:border-0">
-                          <div className="h-2 w-2 rounded-full bg-emerald-400"></div>
-                          <span className="text-xs font-semibold text-slate-600 truncate">{name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 2. FORM MODAL (ADD NOTES) */}
-          {isFormOpen && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsFormOpen(false)} />
-              <div className="relative z-10 bg-white w-full max-w-lg h-[92vh] sm:h-auto sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col animate-slide-up">
-                
-                {/* Header Modal */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white rounded-t-3xl">
-                   <div>
-                     <h2 className="text-xl font-black text-slate-800">Nueva Actividad</h2>
-                     <p className="text-xs font-bold text-emerald-600 uppercase tracking-wide">Periodo {periodoActual}</p>
-                   </div>
-                   <button onClick={() => setIsFormOpen(false)} className="bg-slate-100 p-2 rounded-full text-slate-500 hover:bg-slate-200"><X size={20}/></button>
-                </div>
-
-                {/* Form Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
-                  {error && <div className="mb-4 bg-rose-50 text-rose-600 p-3 rounded-xl text-xs font-bold text-center border border-rose-100 animate-in">{error}</div>}
-
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4 space-y-4">
-                     <input type="text" name="actividad" placeholder="Título de la Actividad..." value={batchData.actividad} onChange={handleBatchConfigChange}
-                      className="w-full text-lg font-bold text-slate-800 placeholder-slate-300 border-none focus:ring-0 p-0" />
-                     
-                     <div className="grid grid-cols-2 gap-3">
-                        <select name="gradeLevel" value={batchData.gradeLevel} onChange={handleBatchConfigChange}
-                          className="bg-slate-50 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl p-3 outline-none">
-                          <option value="">Seleccionar Grado</option>
-                          {gradeLevels.map(g => <option key={g} value={g}>{g}</option>)}
-                        </select>
-                        <select name="area" value={batchData.area} onChange={handleBatchConfigChange}
-                          className="bg-slate-50 border border-slate-200 text-slate-600 text-xs font-bold rounded-xl p-3 outline-none">
-                          <option value="">Seleccionar Área</option>
-                          {areas.map(a => <option key={a} value={a}>{a}</option>)}
-                        </select>
-                     </div>
-                  </div>
-
-                  {batchData.gradeLevel && (
-                    <div className="space-y-3">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Estudiantes</p>
-                      {batchData.entries.map((entry, idx) => (
-                        <div key={idx} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-bold text-slate-700 truncate max-w-[70%]">{entry.name || 'Nuevo'}</span>
-                            <input type="text" inputMode="decimal" value={entry.score} onChange={e => handleEntryChange(idx, 'score', e.target.value)} onBlur={() => handleEntryBlur(idx)}
-                              className="w-16 h-10 text-center bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-lg focus:border-emerald-500 outline-none" placeholder="0,0" />
-                          </div>
-                          <input type="text" value={entry.observation} onChange={e => handleEntryChange(idx, 'observation', e.target.value)}
-                            className="w-full bg-slate-50 border-none rounded-lg text-xs p-2.5 placeholder-slate-400 focus:ring-1 focus:ring-emerald-500/50" placeholder="Escribir observación..." />
-                        </div>
-                      ))}
-                      {(!studentLists[batchData.gradeLevel]?.length) && (
-                         <button onClick={() => setBatchData(p => ({...p, entries: [...p.entries, {name:'', score:'', observation:''}]}))}
-                          className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-xs font-bold hover:bg-slate-50 hover:border-emerald-300 hover:text-emerald-600 transition-all">
-                          + Fila Manual
-                         </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 bg-white border-t border-slate-100">
-                  <button onClick={handleSaveBatch} className="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-slate-900/20 flex justify-center items-center gap-2 active:scale-[0.98] transition-transform">
-                    <Save size={20}/> Guardar Notas
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 3. EDIT TOPIC MODAL (NOTAS) */}
-          {editingTopic && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setEditingTopic(null)} />
-              <div className="relative z-10 bg-white w-full max-w-lg h-[90vh] sm:h-auto sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col animate-slide-up">
-                 <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                   <div>
-                     <h3 className="font-black text-slate-800 text-lg">{editingTopic.actividad}</h3>
-                     <p className="text-xs font-bold text-slate-400 uppercase">{editingTopic.gradeLevel} • {editingTopic.area}</p>
-                   </div>
-                   <button onClick={() => setEditingTopic(null)} className="bg-slate-50 p-2 rounded-full hover:bg-slate-100"><X size={20}/></button>
-                 </div>
-
-                 <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-3">
-                    {editingTopic.records.map(r => (
-                      <div key={r.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-xs font-bold text-slate-700">{r.name}</span>
-                          <input type="text" inputMode="decimal" value={r.score} onChange={e => handleTopicRecordChange(r.id, 'score', e.target.value)} onBlur={() => handleTopicRecordBlur(r.id)}
-                            className="w-14 h-9 text-center bg-slate-50 border border-slate-200 rounded-lg font-bold outline-none focus:border-emerald-500" placeholder="-" />
-                        </div>
-                        <input type="text" value={r.observation} onChange={e => handleTopicRecordChange(r.id, 'observation', e.target.value)}
-                           className="w-full text-xs p-2 bg-slate-50 rounded-lg outline-none placeholder-slate-300" placeholder="Observación..." />
-                      </div>
-                    ))}
-                 </div>
-
-                 <div className="p-4 bg-white border-t border-slate-100">
-                   <button onClick={saveTopicChanges} className="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2">
-                     <Save size={18}/> Guardar Cambios
-                   </button>
-                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* 4. MODAL EDICIÓN AGENDA */}
-          {editingTask && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setEditingTask(null)} />
-              <div className="relative z-10 bg-white w-full max-w-lg rounded-3xl shadow-2xl flex flex-col animate-slide-up p-6">
-                 <h3 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
-                   <Edit3 size={20} className="text-emerald-600"/> Editar Tarea
-                 </h3>
-                 
-                 <div className="space-y-3 mb-6">
-                    <div className="grid grid-cols-2 gap-3">
-                      <select value={editingTask.gradeLevel} onChange={e => setEditingTask({...editingTask, gradeLevel: e.target.value})}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none">
-                        {gradeLevels.map(g => <option key={g} value={g}>{g}</option>)}
-                      </select>
-                      <select value={editingTask.area} onChange={e => setEditingTask({...editingTask, area: e.target.value})}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none">
-                        {areas.map(a => <option key={a} value={a}>{a}</option>)}
-                      </select>
-                    </div>
-
-                    <select value={editingTask.targetStudent || ''} onChange={e => setEditingTask({...editingTask, targetStudent: e.target.value})}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none">
-                      <option value="">👥 Asignar a: Toda la clase</option>
-                      {(studentLists[editingTask.gradeLevel] || []).map(st => (
-                        <option key={st} value={st.split(" - ")[1] || st}>{st.split(" - ")[0]}</option>
-                      ))}
-                    </select>
-
-                    <input type="text" value={editingTask.title} onChange={e => setEditingTask({...editingTask, title: e.target.value})}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"/>
-                    
-                    <input type="date" value={editingTask.date} onChange={e => setEditingTask({...editingTask, date: e.target.value})}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none text-slate-600"/>
-                    
-                    <textarea value={editingTask.description} onChange={e => setEditingTask({...editingTask, description: e.target.value})}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none h-24 resize-none"></textarea>
-                 </div>
-
-                 <button onClick={saveTaskEdit} className="w-full bg-slate-800 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-slate-900 flex justify-center items-center gap-2">
-                   <Save size={18}/> Guardar Cambios
-                 </button>
-              </div>
-            </div>
-          )}
-
-          {/* 5. REPORT MODAL */}
-          {isReportOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsReportOpen(false)} />
-               <div className="relative z-10 bg-white p-6 rounded-3xl w-full max-w-xs shadow-2xl animate-in">
-                  <div className="flex flex-col items-center mb-6">
-                    <div className="h-12 w-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-3">
-                      <FileText size={24}/>
-                    </div>
-                    <h3 className="font-black text-slate-800">Descargar Planilla</h3>
-                    <p className="text-xs text-slate-400 text-center mt-1">Genera un PDF oficial con todas las notas del periodo actual.</p>
-                  </div>
-                  
-                  <div className="space-y-3 mb-6">
-                    <select value={reportFilter.gradeLevel} onChange={e => setReportFilter({...reportFilter, gradeLevel: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 outline-none">
-                      {gradeLevels.map(g=><option key={g} value={g}>{g}</option>)}
-                    </select>
-                    <select value={reportFilter.area} onChange={e => setReportFilter({...reportFilter, area: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 outline-none">
-                      {areas.map(a=><option key={a} value={a}>{a}</option>)}
-                    </select>
-                  </div>
-                  <div className="flex gap-3">
-                    <button onClick={() => setIsReportOpen(false)} className="flex-1 py-3 text-xs font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
-                    <button onClick={generatePDF} className="flex-[2] bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 flex justify-center gap-2 text-xs items-center">
-                      <Download size={14}/> Descargar PDF
-                    </button>
-                  </div>
-               </div>
-            </div>
-          )}
+      <!-- LISTADO CON DOCUMENTO PEQUEÑO -->
+      <div id="attendanceList" class="attendance-list"></div>
+      
+      <button class="btn-action btn-blue" onclick="window.guardarAsistencia()">💾 GUARDAR ASISTENCIA</button>
+      <div class="report-box">
+        <h3 style="font-size:11px; color:#0288d1; margin-bottom:10px; font-weight:900;">REPORTE MENSUAL</h3>
+        <select id="mesSeleccionadoAsis">
+          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+          <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <button class="btn-action btn-blue" style="font-size:12px; padding:12px; margin-bottom:8px;" onclick="window.descargarReporteMensualAsis()">📊 DESCARGAR COMPILACIÓN (PDF)</button>
+        <button class="btn-period-green" onclick="window.resetearFaltasPeriodo()">🔄 INICIAR NUEVO PERIODO</button>
+      </div>
+      <p style="margin:20px 0 10px; font-weight:800; font-size:14px; color:#0288d1; border-bottom:1px dashed #ccc;">Gestión de Excusas</p>
+      <button class="btn-action btn-slate" style="margin-top:0;" onclick="window.toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
+      <div id="historialExc" class="hidden-section"><input type="text" id="searchExcInput" placeholder="Buscar..." oninput="window.filtrarExcusas()"><div id="listaExcusas"></div></div>
+    </section>
+  </div>
+
+  <!-- SECCIÓN OBSERVACIONES -->
+  <div id="view-obs" style="display:none;">
+    <section class="card" style="border-left: 5px solid #1b5e20;">
+      <h2 class="card-title" style="color:#1b5e20;">📝 Registro de Observaciones</h2>
+      <form id="formRegistro" onsubmit="window.guardarRegistroObs(event)">
+        <input type="hidden" id="editId">
+        <select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select>
+        <input type="date" id="fecha" required>
+        <select id="selectEstudianteObs" required onchange="window.actualizarHistorialObs()"><option value="">Seleccione Estudiante...</option></select>
+        <textarea id="comportamiento" rows="3" placeholder="Descripción de la situación..."></textarea>
+        <textarea id="descargos" placeholder="Descargos del estudiante..."></textarea>
+        <textarea id="procedimiento" placeholder="Procedimiento seguido..."></textarea>
+        <div class="signature-container"><canvas id="sigStudent"></canvas></div>
+        <button type="button" style="color:red; font-size:9px; border:none; background:none; margin-bottom:10px;" onclick="limpiarPad('sigStudent')">Limpiar Firma Estudiante</button>
+        <div class="signature-container"><canvas id="sigTeacher"></canvas></div>
+        <button type="button" style="color:red; font-size:9px; border:none; background:none;" onclick="limpiarPad('sigTeacher')">Limpiar Firma Docente</button>
+        <button type="submit" class="btn-action btn-green" id="btnSubmitObs">ENVIAR REGISTRO</button>
+        <div class="cycle-box">
+          <p style="font-size:10px; font-weight:900; margin-bottom:12px; color:#e65100;">CONTROLES DE CICLO:</p>
+          <button type="button" class="btn-cycle-orange" onclick="window.resetearCicloEstudiante()">🔄 REINICIAR CICLO PARA ESTE ESTUDIANTE</button>
+          <button type="button" class="btn-cycle-green" onclick="window.descargarPDFUnificado()">📄 GENERAR PDF UNIFICADO</button>
         </div>
-      );
-    };
+        <button type="button" class="btn-action btn-slate" style="margin-top:15px;" onclick="window.toggleHistorialObs()">📂 VER HISTORIAL COMPLETO</button>
+      </form>
+      <div id="historialObs" class="hidden-section"><div id="listaRegistros" style="margin-top:15px;"></div></div>
+    </section>
+  </div>
 
-    const App = () => <Dashboard />;
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+  <!-- SECCIÓN HERRAMIENTAS -->
+  <div id="view-herramientas" style="display:none;">
+    <section class="card" style="border-left: 6px solid var(--tools-color);">
+      <h2 class="card-title" style="color:var(--tools-color); display: flex; align-items: center; gap: 10px;">🧰 Herramientas</h2>
+      <div class="tools-list">
+        <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" class="btn-tool-orange">📓 DIARIO DE PROCESOS</a>
+        <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tool-orange">📊 PLANILLA DE NOTAS</a>
+        <a href="https://roscar33.github.io/Bancodecriterios/" target="_blank" class="btn-tool-orange">📚 TEMARIOS</a>
+        <a href="https://roscar33.github.io/Horario/" target="_blank" class="btn-tool-orange">🕒 HORARIO DE CLASES</a>
+        <a href="https://roscar33.github.io/Libtodevisitas/" target="_blank" class="btn-tool-orange">📖 LIBRO DE VISITAS</a>
+        <a href="https://roscar33.github.io/Paneldocentevisitas/" target="_blank" class="btn-tool-orange">🤝 PANEL DE ASAMBLEAS</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- CORRESPONDENCIA -->
+  <div id="view-corr" style="display:none;">
+    <section class="card" style="border-left: 5px solid var(--corr-color);"><h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2><div id="listaCorrespondencia">Cargando...</div></section>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = { apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8", authDomain: "diariodeprocesos-6f78d.firebaseapp.com", projectId: "diariodeprocesos-6f78d" };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const estudiantesBase = [
+    { doc: "1042155626", nombre: "MARTINEZ ARANGO AYLYN" }, { doc: "1041636979", nombre: "OSORIO MUÑOZ JERONIMO" },
+    { doc: "1041636870", nombre: "GONZALEZ BETANCUR MARIA JOSE" }, { doc: "1042155380", nombre: "GUTIERREZ CHAVARRIA JOSE LEANDRO" },
+    { doc: "1041636841", nombre: "VARELAS BARRIENTOS LUCIANA" }, { doc: "1041636641", nombre: "MARTINEZ MARTINEZ SEBASTIAN" },
+    { doc: "1035922719", nombre: "MOLINA OCHOA BELEN" }, { doc: "1067959648", nombre: "PACHECO BARRERA JOSE DANIEL" },
+    { doc: "1032328826", nombre: "LOPERA CADAVID LUCIANA" }, { doc: "1042155250", nombre: "CASAS FERNANDEZ ANTONELLA" },
+    { doc: "1035801483", nombre: "RESTREPO VILLA DILMER FELIPE" }, { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
+    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" }, { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" },
+    { doc: "12345678", nombre: "PEDRO PEREZ" }
+  ];
+
+  let localAsistenciaCompleta = []; let localExcusas = []; let periodoActualAsis = 1; let asistenciaTemp = {}; let pads = new Map();
+
+  window.switchTab = (t) => {
+    ['asis', 'obs', 'herramientas', 'corr'].forEach(key => {
+      const v = document.getElementById('view-' + key);
+      const b = document.getElementById('btnTab' + key.charAt(0).toUpperCase() + key.slice(1));
+      if(v) v.style.display = (key === t) ? 'block' : 'none';
+      if(b) b.className = (key === t) ? 'nav-btn active-' + t : 'nav-btn';
+    });
+    if(t==='obs') setTimeout(() => { initPad('sigStudent'); initPad('sigTeacher'); }, 300);
+    if(t==='corr') cargarCorrespondencia();
+  };
+
+  // --- ASISTENCIA (Render con documento pequeño) ---
+  window.renderAsistencia = () => {
+    const list = document.getElementById('attendanceList'); if(!list) return;
+    let html = '';
+    estudiantesBase.forEach(e => {
+      const s = asistenciaTemp[e.doc] || 'P';
+      let fCount = 0;
+      localAsistenciaCompleta.forEach(r => { if(r.periodo == periodoActualAsis) { const reg = r.detalles?.find(x => x.doc === e.doc); if(reg && (reg.estado==='I'||reg.estado==='E')) fCount++; } });
+      html += `<div class="student-card">
+        <div class="stu-info">
+            <span class="stu-name">${e.nombre}</span>
+            <span class="stu-doc">CC. ${e.doc}</span>
+            <span class="stu-faltas">${fCount} FALTAS</span>
+        </div>
+        <div class="stu-btns">
+            <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
+            <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button>
+            <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button>
+        </div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  };
+  window.setAtt = (d, s) => { asistenciaTemp[d] = s; window.renderAsistencia(); };
+  window.cargarAsistenciaDelDia = async () => { const f = document.getElementById('fechaAsistencia').value; const s = await getDoc(doc(db, "controlAsistencia", f)); asistenciaTemp = (s.exists() && s.data().detalles) ? s.data().detalles.reduce((acc,d)=>({...acc,[d.doc]:d.estado}),{}) : {}; window.renderAsistencia(); };
+  window.guardarAsistencia = async () => { const f = document.getElementById('fechaAsistencia').value; if(!f) return alert("Fecha?"); const det = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'})); await setDoc(doc(db, "controlAsistencia", f), { fecha:f, detalles:det, periodo: periodoActualAsis }); alert("✅ Guardado."); };
+  window.descargarReporteMensualAsis = async () => {
+    const mes = document.getElementById('mesSeleccionadoAsis').value; const { jsPDF } = window.jspdf; const pdf = new jsPDF('l', 'mm', 'a4');
+    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 297, 30, 'F');
+    pdf.setTextColor(255, 255, 255); pdf.setFontSize(16); pdf.text("REPORTE MENSUAL DE ASISTENCIA - 2026", 148, 15, { align: "center" });
+    const dias = localAsistenciaCompleta.filter(d => d.fecha?.startsWith(`2026-${mes}`));
+    if(dias.length===0) return alert("Sin datos.");
+    dias.sort((a,b) => a.fecha.localeCompare(b.fecha));
+    const head = [["Estudiante", ...dias.map(x => x.fecha.split("-")[2]), "P", "E", "I"]];
+    const body = [...estudiantesBase].map(est => {
+      let p=0, e=0, i=0; const row = [est.nombre];
+      dias.forEach(dia => { const st = dia.detalles?.find(x => x.doc === est.doc)?.estado || '-'; row.push(st); if (st==='P') p++; if (st==='E') e++; if (st==='I') i++; });
+      return [...row, p, e, i];
+    });
+    pdf.autoTable({ startY: 35, head, body, theme: 'grid', styles: { fontSize: 6.5 }, headStyles: { fillColor: [27, 94, 32] } }); pdf.save(`Asistencia_Mes_${mes}.pdf`);
+  };
+  window.resetearFaltasPeriodo = async () => {
+    const pass = prompt("Clave para nuevo periodo (9218):");
+    if(pass === "9218") {
+        const confirmar = confirm(`¿Iniciar Periodo #${periodoActualAsis + 1}? Se reiniciarán las faltas.`);
+        if(confirmar) {
+            periodoActualAsis++;
+            await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: periodoActualAsis });
+            document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
+            alert(`✅ Periodo #${periodoActualAsis} iniciado.`); window.renderAsistencia();
+        }
+    } else if (pass !== null) alert("❌ Clave incorrecta.");
+  };
+
+  // --- OBSERVACIONES (VARIABLES UNIFICADAS) ---
+  window.guardarRegistroObs = async (e) => {
+    e.preventDefault(); const dId = document.getElementById('selectEstudianteObs').value;
+    const editId = document.getElementById('editId').value;
+    const cSnap = await getDoc(doc(db, "configuracionCiclos", dId)); const cAct = cSnap.exists() ? (cSnap.data().cicloActual || 1) : 1;
+    const data = { documentoEstudiante: dId, tipo: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value, comportamiento: document.getElementById('comportamiento').value, descargos: document.getElementById('descargos').value, procedimiento: document.getElementById('procedimiento').value, ciclo: cAct, timestamp: new Date().toISOString() };
+    if (pads.get('sigStudent')?.hasData) data.firmaEstudiante = pads.get('sigStudent').canvas.toDataURL();
+    if (pads.get('sigTeacher')?.hasData) data.firmaDocente = pads.get('sigTeacher').canvas.toDataURL();
+    if (editId) { await updateDoc(doc(db, "registrosComportamentales", editId), data); alert("Actualizado."); }
+    else { data.firmaAcudiente = null; await addDoc(collection(db, "registrosComportamentales"), data); alert("Guardado."); }
+    document.getElementById('formRegistro').reset(); document.getElementById('editId').value = ""; document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
+    limpiarPad('sigStudent'); limpiarPad('sigTeacher');
+    if(document.getElementById('historialObs').style.display==='block') cargarListaObs();
+  };
+
+  window.cargarListaObs = async () => {
+    const dId = document.getElementById('selectEstudianteObs').value; const cont = document.getElementById('listaRegistros'); if(!dId) return;
+    onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
+        let html = ""; let list = [];
+        snap.forEach(d => { if(d.data().documentoEstudiante == dId) list.push({id: d.id, ...d.data()}); });
+        list.sort((a,b) => b.timestamp.localeCompare(a.timestamp));
+        list.forEach(r => {
+            html += `<div class="obs-item">
+                <b>${r.fecha} (Ciclo #${r.ciclo})</b><br>${r.comportamiento}
+                <div class="obs-sigs-preview">
+                    <div class="sig-thumb"><span>Estudiante</span>${r.firmaEstudiante?`<img src="${r.firmaEstudiante}">`:'-'}</div>
+                    <div class="sig-thumb"><span>Docente</span>${r.firmaDocente?`<img src="${r.firmaDocente}">`:'-'}</div>
+                    <div class="sig-thumb"><span>Padre</span>${r.firmaAcudiente?`<img src="${r.firmaAcudiente}">`:'-'}</div>
+                </div>
+                <div class="obs-controls">
+                    <button class="btn-edit" onclick="window.editarObs('${r.id}')">EDITAR</button>
+                    <button class="btn-delete" onclick="window.eliminarObs('${r.id}')">ELIMINAR</button>
+                </div>
+            </div>`;
+        });
+        cont.innerHTML = html || "Sin registros.";
+    });
+  };
+
+  window.editarObs = async (id) => { const s = await getDoc(doc(db, "registrosComportamentales", id)); if(!s.exists()) return; const d = s.data(); document.getElementById('editId').value = id; document.getElementById('tipoRegistro').value = d.tipo; document.getElementById('fecha').value = d.fecha; document.getElementById('comportamiento').value = d.comportamiento; document.getElementById('descargos').value = d.descargos; document.getElementById('procedimiento').value = d.procedimiento; document.getElementById('btnSubmitObs').innerText = "ACTUALIZAR REGISTRO"; window.scrollTo(0, 0); };
+  window.eliminarObs = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "registrosComportamentales", id)); };
+  window.resetearCicloEstudiante = async () => {
+    const dId = document.getElementById('selectEstudianteObs').value; if(!dId) return alert("Seleccione estudiante.");
+    const pass = prompt("Clave reinicio (9218):");
+    if(pass === "9218") {
+        const s = await getDoc(doc(db, "configuracionCiclos", dId));
+        const n = s.exists() ? (s.data().cicloActual + 1) : 2;
+        await setDoc(doc(db, "configuracionCiclos", dId), { cicloActual: n });
+        alert(`Ciclo #${n} iniciado.`); cargarListaObs();
+    }
+  };
+  window.descargarPDFUnificado = async () => {
+    const dId = document.getElementById('selectEstudianteObs').value; if(!dId) return alert("Seleccione.");
+    const est = estudiantesBase.find(e => e.doc === dId);
+    const cicloSnap = await getDoc(doc(db, "configuracionCiclos", dId)); const cAct = cicloSnap.exists() ? (cicloSnap.data().cicloActual || 1) : 1;
+    try {
+        const snapshot = await getDocs(collection(db, "registrosComportamentales"));
+        let registros = []; snapshot.forEach(d => { const r = d.data(); if(r.documentoEstudiante == dId && r.ciclo == cAct) registros.push(r); });
+        if(registros.length === 0) return alert("Sin registros.");
+        registros.sort((a,b) => a.fecha.localeCompare(b.fecha));
+        const { jsPDF } = window.jspdf; const pdf = new jsPDF();
+        pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 210, 35, 'F');
+        pdf.setTextColor(255, 255, 255); pdf.setFontSize(14); pdf.setFont("helvetica", "bold");
+        pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
+        pdf.setFontSize(10); pdf.text(`SEGUIMIENTO UNIFICADO - CICLO #${cAct}`, 105, 25, { align: "center" });
+        try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
+        pdf.setTextColor(0,0,0); pdf.setFontSize(11);
+        pdf.text(`Estudiante: ${est?.nombre || dId}`, 20, 45);
+        pdf.text(`Documento: ${dId}`, 20, 52);
+        const rows = registros.map(r => [r.fecha, r.tipo, r.comportamiento, r.descargos, r.procedimiento]);
+        pdf.autoTable({ startY: 60, head: [['Fecha', 'Tipo', 'Situación', 'Descargos', 'Procedimiento']], body: rows, theme: 'grid', headStyles: { fillColor: [27, 94, 32] }, styles: { fontSize: 8 } });
+        let currentY = pdf.lastAutoTable.finalY + 15;
+        for(let i = 0; i < 3; i++) {
+            const r = registros[i]; if(currentY > 230) { pdf.addPage(); currentY = 20; }
+            pdf.setFontSize(9); pdf.setFont("helvetica", "bold"); pdf.text(`BLOQUE FIRMAS #${i+1}`, 20, currentY); currentY += 5;
+            if(r) {
+                if(r.firmaEstudiante) try { pdf.addImage(r.firmaEstudiante, 'PNG', 20, currentY, 40, 15); } catch(e){}
+                if(r.firmaDocente) try { pdf.addImage(r.firmaDocente, 'PNG', 85, currentY, 40, 15); } catch(e){}
+                if(r.firmaAcudiente) try { pdf.addImage(r.firmaAcudiente, 'PNG', 150, currentY, 40, 15); } catch(e){}
+            }
+            currentY += 15; pdf.line(20, currentY, 70, currentY); pdf.line(85, currentY, 135, currentY); pdf.line(150, currentY, 200, currentY);
+            pdf.setFontSize(7); pdf.text("Estudiante", 20, currentY + 4); pdf.text("Docente", 85, currentY + 4); pdf.text("Acudiente", 150, currentY + 4); currentY += 15;
+        }
+        pdf.save(`Unificado_${dId}.pdf`);
+    } catch (error) { alert("Error PDF."); }
+  };
+
+  // --- EXCUSAS (Variable corregida) ---
+  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  function fechaLarga(fStr) {
+      if(!fStr) return ""; const partes = fStr.split('-');
+      return `${partes[2]} de ${meses[parseInt(partes[1])-1]} de ${partes[0]}`;
+  }
+  function fechaActualLarga() {
+      const today = new Date();
+      return `${today.getDate()} de ${meses[today.getMonth()]} de ${today.getFullYear()}`;
+  }
+
+  window.descargarPDFExcusaCarta = (id) => {
+    const ex = localExcusas.find(x => x.id === id); if(!ex) return;
+    const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+    const { jsPDF } = window.jspdf; const pdf = new jsPDF();
+    
+    // Encabezado
+    pdf.setFillColor(141, 182, 0); pdf.rect(0, 0, 210, 40, 'F');
+    try { pdf.addImage('escudo.png', 'PNG', 15, 5, 30, 30); } catch(e){}
+    pdf.setTextColor(255, 255, 255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
+    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 120, 18, { align: "center" });
+    pdf.setFontSize(12); pdf.text("Sede Rural Santa Juana", 120, 26, { align: "center" });
+    pdf.setFontSize(11); pdf.text("Registro y Control de Asistencia Escolar 2026", 120, 34, { align: "center" });
+
+    // Cuerpo
+    pdf.setTextColor(0, 0, 0); pdf.setFontSize(14); pdf.setFont("helvetica", "normal");
+    
+    // Fecha de diligenciamiento (HOY o Timestamp si existiera, usamos HOY para el PDF generado)
+    pdf.text(`Santa Juana, Yarumal ${fechaActualLarga()}`, 20, 60);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Señor", 20, 75);
+    pdf.text("Oscar Evelio Barrientos", 20, 81);
+    pdf.text("Docente.", 20, 87);
+    
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Cordial saludo.", 20, 100);
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`Asunto: Justificación de inasistencia - ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
+    
+    pdf.text("Fecha de inasistencia:", 20, 128);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${fechaLarga(ex.fechaInasistencia)}`, 85, 128);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Motivo:", 20, 136);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${ex.motivoTipo}`, 45, 136);
+
+    // TEXTO SIN ETIQUETA "DETALLE"
+    const txt = `${ex.motivoDetalle || ''}`;
+    pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
+    
+    pdf.text("Gracias De antemano por su atención prestada.", 20, 180);
+    
+    if(ex.firmaAcudiente) { try { pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); } catch(e){} }
+    pdf.text("__________________________", 105, 225, { align: "center" }); 
+    pdf.setFont("helvetica", "bold"); pdf.text("ACUDIENTE", 105, 232, { align: "center" });
+    pdf.save(`Excusa_${id}.pdf`);
+  };
+  
+  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
+
+  window.filtrarExcusas = () => {
+    const list = document.getElementById('listaExcusas'); const search = document.getElementById('searchExcInput').value.toLowerCase();
+    list.innerHTML = localExcusas.filter(ex => ex.documentoEstudiante.includes(search)).map(ex => {
+        const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+        return `<div class="excusa-card"><div class="excusa-header"><span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span><span class="excusa-date">${ex.fechaInasistencia}</span></div><div class="excusa-body"><b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}</div><div style="display:flex; justify-content:space-between; align-items:center;">${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" height="35" style="border:1px solid #eee; background:#fff; border-radius:4px;">` : '<span></span>'}<div style="display:flex; gap:5px;"><button class="btn-pdf-carta" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF</button><button class="btn-delete-exc" onclick="window.eliminarExcusa('${ex.id}')">Eliminar</button></div></div></div>`;
+    }).join('') || "No hay resultados.";
+  };
+
+  // --- CORRESPONDENCIA ---
+  function cargarCorrespondencia() {
+    onSnapshot(collection(db, "comunicacionPadres"), (snap) => {
+        let html = ""; snap.forEach(d => {
+            const m = d.data(); const id = d.id;
+            html += `<div class="msg-card"><div style="display:flex; justify-content:space-between; align-items:center;"><b style="font-size:13px;">${m.nombreEstudiante}</b><div style="display:flex; gap:5px; align-items:center;"><small>${m.fechaMsg}</small><button class="btn-delete-msg" onclick="window.eliminarMsg('${id}')">✕</button></div></div><div style="font-size:12px; margin:8px 0;"><b>${m.asunto}:</b> ${m.mensaje}</div><div style="background:#f3e5f5; padding:10px; border-radius:10px;">${m.respuestaDocente ? `<b>Respuesta:</b> ${m.respuestaDocente}` : `<textarea id="rep_${id}" rows="2"></textarea><button class="btn-action btn-slate" style="margin-top:5px; font-size:11px;" onclick="responderMsg('${id}')">RESPONDER</button>`}</div></div>`;
+        });
+        document.getElementById('listaCorrespondencia').innerHTML = html || "Sin mensajes.";
+    });
+  }
+  window.responderMsg = async (id) => { const t = document.getElementById(`rep_${id}`).value; await updateDoc(doc(db, "comunicacionPadres", id), { respuestaDocente: t }); alert("✅ Respondido."); };
+  window.eliminarMsg = async (id) => { if(confirm("¿Eliminar mensaje?")) await deleteDoc(doc(db, "comunicacionPadres", id)); };
+
+  function initPad(id){ const c=document.getElementById(id); if(!c) return; const ctx=c.getContext("2d"); const r=window.devicePixelRatio||1; c.width=c.offsetWidth*r; c.height=140*r; ctx.setTransform(r,0,0,r,0,0); ctx.lineWidth=2; ctx.lineCap="round"; let draw=false; const getPos=(e)=>{ const rect=c.getBoundingClientRect(); return { x: (e.touches?e.touches[0].clientX:e.clientX)-rect.left, y: (e.touches?e.touches[0].clientY:e.clientY)-rect.top }; }; c.addEventListener("mousedown",(e)=>{draw=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y);}); c.addEventListener("mousemove",(e)=>{if(!draw)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id,{hasData:true, canvas:c});}); window.addEventListener("mouseup",()=>draw=false); c.addEventListener("touchstart",(e)=>{e.preventDefault(); draw=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y);}); c.addEventListener("touchmove",(e)=>{e.preventDefault(); if(!draw)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id,{hasData:true, canvas:c});}); c.addEventListener("touchend",()=>draw=false); pads.set(id,{hasData:false, canvas:c}); }
+  window.limpiarPad = (id) => { const p = pads.get(id); if(p) { p.canvas.getContext("2d").clearRect(0,0,p.canvas.width, p.canvas.height); pads.set(id, {hasData:false, canvas:p.canvas}); } };
+  window.toggleHistorial = (id) => { const el=document.getElementById(id); el.style.display = (el.style.display==='block')?'none':'block'; };
+  window.toggleHistorialObs = () => { const el = document.getElementById('historialObs'); el.style.display = (el.style.display==='block')?'none':'block'; if(el.style.display==='block') cargarListaObs(); };
+  window.actualizarHistorialObs = () => { if(document.getElementById('historialObs').style.display==='block') cargarListaObs(); };
+
+  window.onload = async () => { 
+    document.getElementById('fechaAsistencia').valueAsDate = new Date(); document.getElementById('fecha').valueAsDate = new Date(); 
+    const sel = document.getElementById('selectEstudianteObs'); estudiantesBase.forEach(e => { const opt = document.createElement('option'); opt.value = e.doc; opt.textContent = e.nombre; sel.appendChild(opt); }); 
+    const sP = await getDoc(doc(db, "configuracionGlobal", "asistencia")); if (sP.exists()) { periodoActualAsis = sP.data().periodoActual || 1; document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`; }
+    onSnapshot(collection(db, "controlAsistencia"), (snap) => { localAsistenciaCompleta = []; snap.forEach(d => localAsistenciaCompleta.push(d.data())); window.renderAsistencia(); }); 
+    onSnapshot(collection(db, "excusasInasistencia"), (snap) => { localExcusas = []; snap.forEach(d => localExcusas.push({id:d.id, ...d.data()})); window.filtrarExcusas(); }); 
+    window.cargarAsistenciaDelDia(); 
+  };
+</script>
 </body>
 </html>
-
