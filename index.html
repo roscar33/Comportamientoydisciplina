@@ -39,7 +39,7 @@
     .student-card { background: #f8fafc; border-radius: 20px; padding: 15px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .stu-info { display: flex; flex-direction: column; gap: 2px; }
     .stu-name { font-weight: 800; font-size: 13px; color: #1e293b; text-transform: uppercase; line-height: 1.2; max-width: 170px; }
-    .stu-doc { font-size: 10px; color: #64748b; font-weight: 600; display: block; } /* NUEVO ESTILO DOCUMENTO */
+    .stu-doc { font-size: 10px; color: #64748b; font-weight: 600; display: block; }
     .stu-faltas { background: #fee2e2; color: #dc2626; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 10px; width: fit-content; margin-top: 4px; }
     .stu-btns { display: flex; gap: 8px; }
     .att-btn { width: 36px; height: 36px; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 10px; font-weight: 800; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
@@ -137,53 +137,98 @@
         <button class="btn-action btn-blue" style="font-size:12px; padding:12px; margin-bottom:8px;" onclick="window.descargarReporteMensualAsis()">📊 DESCARGAR COMPILACIÓN (PDF)</button>
         <button class="btn-period-green" onclick="window.resetearFaltasPeriodo()">🔄 INICIAR NUEVO PERIODO</button>
       </div>
+
       <p style="margin:20px 0 10px; font-weight:800; font-size:14px; color:#0288d1; border-bottom:1px dashed #ccc;">Gestión de Excusas</p>
       <button class="btn-action btn-slate" style="margin-top:0;" onclick="window.toggleHistorial('historialExc')">📩 VER EXCUSAS RECIBIDAS</button>
       
       <div id="historialExc" class="hidden-section">
         <div class="exc-tabs-sub">
-            <button id="tabExcActivas" class="btn-sub-tab active" onclick="window.cambiarVistaExcusa(false)">📥 ACTIVAS</button>
-            <button id="tabExcArchivadas" class="btn-sub-tab" onclick="window.cambiarVistaExcusa(true)">📁 ARCHIVADAS</button>
+          <button id="tabExcActivas" class="btn-sub-tab active" onclick="window.cambiarVistaExcusa(false)">📥 ACTIVAS</button>
+          <button id="tabExcArchivadas" class="btn-sub-tab" onclick="window.cambiarVistaExcusa(true)">📁 ARCHIVADAS</button>
         </div>
+
         <div class="exc-filters">
-            <input type="text" id="searchExcInput" placeholder="Buscar estudiante..." oninput="window.filtrarExcusas()">
-            <input type="date" id="searchExcDate" onchange="window.filtrarExcusas()">
+          <input type="text" id="searchExcInput" placeholder="Buscar estudiante..." oninput="window.filtrarExcusas()">
+          <input type="date" id="searchExcDate" onchange="window.filtrarExcusas()">
         </div>
+
         <div id="listaExcusas"></div>
       </div>
     </section>
   </div>
-
-  <div id="view-obs" style="display:none;">
+      <div id="view-obs" style="display:none;">
     <section class="card" style="border-left: 5px solid #1b5e20;">
       <h2 class="card-title" style="color:#1b5e20;">📝 Registro de Observaciones</h2>
+
       <form id="formRegistro" onsubmit="window.guardarRegistroObs(event)">
         <input type="hidden" id="editId">
-        <select id="tipoRegistro"><option>Comportamental</option><option>Académico</option></select>
+
+        <select id="tipoRegistro">
+          <option>Comportamental</option>
+          <option>Académico</option>
+        </select>
+
         <input type="date" id="fecha" required>
-        <select id="selectEstudianteObs" required onchange="window.actualizarHistorialObs()"><option value="">Seleccione Estudiante...</option></select>
+
+        <select id="selectEstudianteObs" required onchange="window.actualizarHistorialObs()">
+          <option value="">Seleccione Estudiante...</option>
+        </select>
+
         <textarea id="comportamiento" rows="3" placeholder="Descripción de la situación..."></textarea>
         <textarea id="descargos" placeholder="Descargos del estudiante..."></textarea>
         <textarea id="procedimiento" placeholder="Procedimiento seguido..."></textarea>
-        <div class="signature-container"><canvas id="sigStudent"></canvas></div>
-        <button type="button" style="color:red; font-size:9px; border:none; background:none; margin-bottom:10px;" onclick="limpiarPad('sigStudent')">Limpiar Firma Estudiante</button>
-        <div class="signature-container"><canvas id="sigTeacher"></canvas></div>
-        <button type="button" style="color:red; font-size:9px; border:none; background:none;" onclick="limpiarPad('sigTeacher')">Limpiar Firma Docente</button>
-        <button type="submit" class="btn-action btn-green" id="btnSubmitObs">ENVIAR REGISTRO</button>
-        <div class="cycle-box">
-          <p style="font-size:10px; font-weight:900; margin-bottom:12px; color:#e65100;">CONTROLES DE CICLO:</p>
-          <button type="button" class="btn-cycle-orange" onclick="window.resetearCicloEstudiante()">🔄 REINICIAR CICLO PARA ESTE ESTUDIANTE</button>
-          <button type="button" class="btn-cycle-green" onclick="window.descargarPDFUnificado()">📄 GENERAR PDF UNIFICADO</button>
+
+        <div class="signature-container">
+          <canvas id="sigStudent"></canvas>
         </div>
-        <button type="button" class="btn-action btn-slate" style="margin-top:15px;" onclick="window.toggleHistorialObs()">📂 VER HISTORIAL COMPLETO</button>
+
+        <button type="button" style="color:red; font-size:9px; border:none; background:none; margin-bottom:10px;" onclick="limpiarPad('sigStudent')">
+          Limpiar Firma Estudiante
+        </button>
+
+        <div class="signature-container">
+          <canvas id="sigTeacher"></canvas>
+        </div>
+
+        <button type="button" style="color:red; font-size:9px; border:none; background:none;" onclick="limpiarPad('sigTeacher')">
+          Limpiar Firma Docente
+        </button>
+
+        <button type="submit" class="btn-action btn-green" id="btnSubmitObs">
+          ENVIAR REGISTRO
+        </button>
+
+        <div class="cycle-box">
+          <p style="font-size:10px; font-weight:900; margin-bottom:12px; color:#e65100;">
+            CONTROLES DE CICLO:
+          </p>
+
+          <button type="button" class="btn-cycle-orange" onclick="window.resetearCicloEstudiante()">
+            🔄 REINICIAR CICLO PARA ESTE ESTUDIANTE
+          </button>
+
+          <button type="button" class="btn-cycle-green" onclick="window.descargarPDFUnificado()">
+            📄 GENERAR PDF UNIFICADO
+          </button>
+        </div>
+
+        <button type="button" class="btn-action btn-slate" style="margin-top:15px;" onclick="window.toggleHistorialObs()">
+          📂 VER HISTORIAL COMPLETO
+        </button>
       </form>
-      <div id="historialObs" class="hidden-section"><div id="listaRegistros" style="margin-top:15px;"></div></div>
+
+      <div id="historialObs" class="hidden-section">
+        <div id="listaRegistros" style="margin-top:15px;"></div>
+      </div>
     </section>
   </div>
 
   <div id="view-herramientas" style="display:none;">
     <section class="card" style="border-left: 6px solid var(--tools-color);">
-      <h2 class="card-title" style="color:var(--tools-color); display: flex; align-items: center; gap: 10px;">🧰 Herramientas</h2>
+      <h2 class="card-title" style="color:var(--tools-color); display: flex; align-items: center; gap: 10px;">
+        🧰 Herramientas
+      </h2>
+
       <div class="tools-list">
         <a href="https://roscar33.github.io/Diariodeprocesos2026/" target="_blank" class="btn-tool-orange">📓 DIARIO DE PROCESOS</a>
         <a href="https://roscar33.github.io/PLANILLASDENOTAS/" target="_blank" class="btn-tool-orange">📊 PLANILLA DE NOTAS</a>
@@ -196,296 +241,1306 @@
   </div>
 
   <div id="view-corr" style="display:none;">
-    <section class="card" style="border-left: 5px solid var(--corr-color);"><h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2><div id="listaCorrespondencia">Cargando...</div></section>
+    <section class="card" style="border-left: 5px solid var(--corr-color);">
+      <h2 class="card-title" style="color:var(--corr-color);">📨 Correspondencia</h2>
+      <div id="listaCorrespondencia">Cargando...</div>
+    </section>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    setDoc,
+    getDoc,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  const firebaseConfig = { apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8", authDomain: "diariodeprocesos-6f78d.firebaseapp.com", projectId: "diariodeprocesos-6f78d" };
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2MJ-jdwQeT6sOfZ21tCrFYzGiuTNOAJ8",
+    authDomain: "diariodeprocesos-6f78d.firebaseapp.com",
+    projectId: "diariodeprocesos-6f78d"
+  };
+
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
   const estudiantesBase = [
     { doc: "1037780041", nombre: "MARIA FERNANDA GUERRA TORRES" },
-    { doc: "1042155626", nombre: "MARTINEZ ARANGO AYLYN" }, { doc: "1041636979", nombre: "OSORIO MUÑOZ JERONIMO" },
-    { doc: "1041636870", nombre: "GONZALEZ BETANCUR MARIA JOSE" }, { doc: "1042155380", nombre: "GUTIERREZ CHAVARRIA JOSE LEANDRO" },
-    { doc: "1041636841", nombre: "VARELAS BARRIENTOS LUCIANA" }, { doc: "1041636641", nombre: "MARTINEZ MARTINEZ SEBASTIAN" },
+
+    { doc: "1044990151", nombre: "ANTHONY GUTIERREZ MUÑOZ" },
+
+    { doc: "1042155626", nombre: "MARTINEZ ARANGO AYLYN" },
+    { doc: "1041636979", nombre: "OSORIO MUÑOZ JERONIMO" },
+    { doc: "1041636870", nombre: "GONZALEZ BETANCUR MARIA JOSE" },
+    { doc: "1041636841", nombre: "VARELAS BARRIENTOS LUCIANA" },
+    { doc: "1041636641", nombre: "MARTINEZ MARTINEZ SEBASTIAN" },
+
     { doc: "1035922719", nombre: "MOLINA OCHOA BELEN" },
+
+    { doc: "1200214182", nombre: "GUADALUPE PEREZ MUÑOZ" },
+
     { doc: "1044989674", nombre: "GUERRERO DELGADO HELLEN GABRIELA" },
     { doc: "1067959648", nombre: "PACHECO BARRERA JOSE DANIEL" },
-    { doc: "1032328826", nombre: "LOPERA CADAVID LUCIANA" }, { doc: "1042155250", nombre: "CASAS FERNANDEZ ANTONELLA" },
-    { doc: "1035801483", nombre: "RESTREPO VILLA DILMER FELIPE" }, { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
-    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" }, { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" },
+    { doc: "1032328826", nombre: "LOPERA CADAVID LUCIANA" },
+    { doc: "1042155250", nombre: "CASAS FERNANDEZ ANTONELLA" },
+    { doc: "1035801483", nombre: "RESTREPO VILLA DILMER FELIPE" },
+    { doc: "1157463842", nombre: "BERRIO CORREA VALENTINA" },
+    { doc: "1038213324", nombre: "GUZMAN CORREA DYLAN" },
+    { doc: "1041636021", nombre: "VARELAS BARRIENTOS MAXIMILIANO" },
     { doc: "12345678", nombre: "PEDRO PEREZ" }
   ];
 
-  let localAsistenciaCompleta = []; let localExcusas = []; let periodoActualAsis = 1; let asistenciaTemp = {}; let pads = new Map();
-  
+  let localAsistenciaCompleta = [];
+  let localExcusas = [];
+  let periodoActualAsis = 1;
+  let asistenciaTemp = {};
+  let pads = new Map();
+
   // VARIABLE PARA ESTADO DE ARCHIVADO
   let mostrarArchivados = false;
 
   window.switchTab = (t) => {
     ['asis', 'obs', 'herramientas', 'corr'].forEach(key => {
       const v = document.getElementById('view-' + key);
-      const b = document.getElementById('btnTab' + key.charAt(0).toUpperCase() + key.slice(1));
-      if(v) v.style.display = (key === t) ? 'block' : 'none';
-      if(b) b.className = (key === t) ? 'nav-btn active-' + t : 'nav-btn';
+      const b = document.getElementById(
+        'btnTab' + key.charAt(0).toUpperCase() + key.slice(1)
+      );
+
+      if (v) {
+        v.style.display = (key === t) ? 'block' : 'none';
+      }
+
+      if (b) {
+        b.className = (key === t)
+          ? 'nav-btn active-' + t
+          : 'nav-btn';
+      }
     });
-    if(t==='obs') setTimeout(() => { initPad('sigStudent'); initPad('sigTeacher'); }, 300);
-    if(t==='corr') cargarCorrespondencia();
+
+    if (t === 'obs') {
+      setTimeout(() => {
+        initPad('sigStudent');
+        initPad('sigTeacher');
+      }, 300);
+    }
+
+    if (t === 'corr') {
+      cargarCorrespondencia();
+    }
   };
 
   // --- ASISTENCIA (Render con documento pequeño) ---
   window.renderAsistencia = () => {
-    const list = document.getElementById('attendanceList'); if(!list) return;
+    const list = document.getElementById('attendanceList');
+
+    if (!list) return;
+
     let html = '';
+
     estudiantesBase.forEach(e => {
       const s = asistenciaTemp[e.doc] || 'P';
       let fCount = 0;
-      localAsistenciaCompleta.forEach(r => { if(r.periodo == periodoActualAsis) { const reg = r.detalles?.find(x => x.doc === e.doc); if(reg && (reg.estado==='I'||reg.estado==='E')) fCount++; } });
+
+      localAsistenciaCompleta.forEach(r => {
+        if (r.periodo == periodoActualAsis) {
+          const reg = r.detalles?.find(x => x.doc === e.doc);
+
+          if (reg && (reg.estado === 'I' || reg.estado === 'E')) {
+            fCount++;
+          }
+        }
+      });
+
       html += `<div class="student-card">
         <div class="stu-info">
-            <span class="stu-name">${e.nombre}</span>
-            <span class="stu-doc">CC. ${e.doc}</span>
-            <span class="stu-faltas">${fCount} FALTAS</span>
+          <span class="stu-name">${e.nombre}</span>
+          <span class="stu-doc">CC. ${e.doc}</span>
+          <span class="stu-faltas">${fCount} FALTAS</span>
         </div>
+
         <div class="stu-btns">
-            <button class="att-btn ${s==='P'?'active-p':''}" onclick="setAtt('${e.doc}','P')">P</button>
-            <button class="att-btn ${s==='E'?'active-e':''}" onclick="setAtt('${e.doc}','E')">E</button>
-            <button class="att-btn ${s==='I'?'active-i':''}" onclick="setAtt('${e.doc}','I')">I</button>
+          <button class="att-btn ${s === 'P' ? 'active-p' : ''}" onclick="setAtt('${e.doc}','P')">P</button>
+          <button class="att-btn ${s === 'E' ? 'active-e' : ''}" onclick="setAtt('${e.doc}','E')">E</button>
+          <button class="att-btn ${s === 'I' ? 'active-i' : ''}" onclick="setAtt('${e.doc}','I')">I</button>
         </div>
       </div>`;
     });
+
     list.innerHTML = html;
   };
-  window.setAtt = (d, s) => { asistenciaTemp[d] = s; window.renderAsistencia(); };
-  window.cargarAsistenciaDelDia = async () => { const f = document.getElementById('fechaAsistencia').value; const s = await getDoc(doc(db, "controlAsistencia", f)); asistenciaTemp = (s.exists() && s.data().detalles) ? s.data().detalles.reduce((acc,d)=>({...acc,[d.doc]:d.estado}),{}) : {}; window.renderAsistencia(); };
-  window.guardarAsistencia = async () => { const f = document.getElementById('fechaAsistencia').value; if(!f) return alert("Fecha?"); const det = estudiantesBase.map(e => ({doc:e.doc, nombre:e.nombre, estado:asistenciaTemp[e.doc]||'P'})); await setDoc(doc(db, "controlAsistencia", f), { fecha:f, detalles:det, periodo: periodoActualAsis }); alert("✅ Guardado."); };
-  window.descargarReporteMensualAsis = async () => {
-    const mes = document.getElementById('mesSeleccionadoAsis').value; const { jsPDF } = window.jspdf; const pdf = new jsPDF('l', 'mm', 'a4');
-    pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 297, 30, 'F');
-    pdf.setTextColor(255, 255, 255); pdf.setFontSize(16); pdf.text("REPORTE MENSUAL DE ASISTENCIA - 2026", 148, 15, { align: "center" });
-    const dias = localAsistenciaCompleta.filter(d => d.fecha?.startsWith(`2026-${mes}`));
-    if(dias.length===0) return alert("Sin datos.");
-    dias.sort((a,b) => a.fecha.localeCompare(b.fecha));
-    const head = [["Estudiante", ...dias.map(x => x.fecha.split("-")[2]), "P", "E", "I"]];
-    const body = [...estudiantesBase].map(est => {
-      let p=0, e=0, i=0; const row = [est.nombre];
-      dias.forEach(dia => { const st = dia.detalles?.find(x => x.doc === est.doc)?.estado || '-'; row.push(st); if (st==='P') p++; if (st==='E') e++; if (st==='I') i++; });
-      return [...row, p, e, i];
-    });
-    pdf.autoTable({ startY: 35, head, body, theme: 'grid', styles: { fontSize: 6.5 }, headStyles: { fillColor: [27, 94, 32] } }); pdf.save(`Asistencia_Mes_${mes}.pdf`);
-  };
-  window.resetearFaltasPeriodo = async () => {
-    const pass = prompt("Clave para nuevo periodo (9218):");
-    if(pass === "9218") {
-        const confirmar = confirm(`¿Iniciar Periodo #${periodoActualAsis + 1}? Se reiniciarán las faltas.`);
-        if(confirmar) {
-            periodoActualAsis++;
-            await setDoc(doc(db, "configuracionGlobal", "asistencia"), { periodoActual: periodoActualAsis });
-            document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`;
-            alert(`✅ Periodo #${periodoActualAsis} iniciado.`); window.renderAsistencia();
-        }
-    } else if (pass !== null) alert("❌ Clave incorrecta.");
+
+  window.setAtt = (d, s) => {
+    asistenciaTemp[d] = s;
+    window.renderAsistencia();
   };
 
-  // --- OBSERVACIONES (VARIABLES UNIFICADAS) ---
+  window.cargarAsistenciaDelDia = async () => {
+    const f = document.getElementById('fechaAsistencia').value;
+    const s = await getDoc(doc(db, "controlAsistencia", f));
+
+    asistenciaTemp = (s.exists() && s.data().detalles)
+      ? s.data().detalles.reduce(
+          (acc, d) => ({ ...acc, [d.doc]: d.estado }),
+          {}
+        )
+      : {};
+
+    window.renderAsistencia();
+  };
+
+  window.guardarAsistencia = async () => {
+    const f = document.getElementById('fechaAsistencia').value;
+
+    if (!f) return alert("Fecha?");
+
+    const det = estudiantesBase.map(e => ({
+      doc: e.doc,
+      nombre: e.nombre,
+      estado: asistenciaTemp[e.doc] || 'P'
+    }));
+
+    await setDoc(doc(db, "controlAsistencia", f), {
+      fecha: f,
+      detalles: det,
+      periodo: periodoActualAsis
+    });
+
+    alert("✅ Guardado.");
+  };
+
+  window.descargarReporteMensualAsis = async () => {
+    const mes = document.getElementById('mesSeleccionadoAsis').value;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('l', 'mm', 'a4');
+
+    pdf.setFillColor(27, 94, 32);
+    pdf.rect(0, 0, 297, 30, 'F');
+
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.text(
+      "REPORTE MENSUAL DE ASISTENCIA - 2026",
+      148,
+      15,
+      { align: "center" }
+    );
+
+    const dias = localAsistenciaCompleta.filter(
+      d => d.fecha?.startsWith(`2026-${mes}`)
+    );
+
+    if (dias.length === 0) {
+      return alert("Sin datos.");
+    }
+
+    dias.sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+    const head = [[
+      "Estudiante",
+      ...dias.map(x => x.fecha.split("-")[2]),
+      "P",
+      "E",
+      "I"
+    ]];
+
+    const body = [...estudiantesBase].map(est => {
+      let p = 0;
+      let e = 0;
+      let i = 0;
+
+      const row = [est.nombre];
+
+      dias.forEach(dia => {
+        const st = dia.detalles?.find(
+          x => x.doc === est.doc
+        )?.estado || '-';
+
+        row.push(st);
+
+        if (st === 'P') p++;
+        if (st === 'E') e++;
+        if (st === 'I') i++;
+      });
+
+      return [...row, p, e, i];
+    });
+
+    pdf.autoTable({
+      startY: 35,
+      head,
+      body,
+      theme: 'grid',
+      styles: { fontSize: 6.5 },
+      headStyles: { fillColor: [27, 94, 32] }
+    });
+
+    pdf.save(`Asistencia_Mes_${mes}.pdf`);
+  };
+
+  window.resetearFaltasPeriodo = async () => {
+    const pass = prompt("Clave para nuevo periodo (9218):");
+
+    if (pass === "9218") {
+      const confirmar = confirm(
+        `¿Iniciar Periodo #${periodoActualAsis + 1}? Se reiniciarán las faltas.`
+      );
+
+      if (confirmar) {
+        periodoActualAsis++;
+
+        await setDoc(
+          doc(db, "configuracionGlobal", "asistencia"),
+          { periodoActual: periodoActualAsis }
+        );
+
+        document.getElementById('periodoActualLabel').innerText =
+          `Periodo Actual: #${periodoActualAsis}`;
+
+        alert(`✅ Periodo #${periodoActualAsis} iniciado.`);
+        window.renderAsistencia();
+      }
+    } else if (pass !== null) {
+      alert("❌ Clave incorrecta.");
+    }
+  };
+      // --- OBSERVACIONES (VARIABLES UNIFICADAS) ---
   window.guardarRegistroObs = async (e) => {
-    e.preventDefault(); const dId = document.getElementById('selectEstudianteObs').value;
+    e.preventDefault();
+
+    const dId = document.getElementById('selectEstudianteObs').value;
     const editId = document.getElementById('editId').value;
-    const cSnap = await getDoc(doc(db, "configuracionCiclos", dId)); const cAct = cSnap.exists() ? (cSnap.data().cicloActual || 1) : 1;
-    const data = { documentoEstudiante: dId, tipo: document.getElementById('tipoRegistro').value, fecha: document.getElementById('fecha').value, comportamiento: document.getElementById('comportamiento').value, descargos: document.getElementById('descargos').value, procedimiento: document.getElementById('procedimiento').value, ciclo: cAct, timestamp: new Date().toISOString() };
-    if (pads.get('sigStudent')?.hasData) data.firmaEstudiante = pads.get('sigStudent').canvas.toDataURL();
-    if (pads.get('sigTeacher')?.hasData) data.firmaDocente = pads.get('sigTeacher').canvas.toDataURL();
-    if (editId) { await updateDoc(doc(db, "registrosComportamentales", editId), data); alert("Actualizado."); }
-    else { data.firmaAcudiente = null; await addDoc(collection(db, "registrosComportamentales"), data); alert("Guardado."); }
-    document.getElementById('formRegistro').reset(); document.getElementById('editId').value = ""; document.getElementById('btnSubmitObs').innerText = "ENVIAR REGISTRO";
-    limpiarPad('sigStudent'); limpiarPad('sigTeacher');
-    if(document.getElementById('historialObs').style.display==='block') cargarListaObs();
+
+    const cSnap = await getDoc(
+      doc(db, "configuracionCiclos", dId)
+    );
+
+    const cAct = cSnap.exists()
+      ? (cSnap.data().cicloActual || 1)
+      : 1;
+
+    const data = {
+      documentoEstudiante: dId,
+      tipo: document.getElementById('tipoRegistro').value,
+      fecha: document.getElementById('fecha').value,
+      comportamiento: document.getElementById('comportamiento').value,
+      descargos: document.getElementById('descargos').value,
+      procedimiento: document.getElementById('procedimiento').value,
+      ciclo: cAct,
+      timestamp: new Date().toISOString()
+    };
+
+    if (pads.get('sigStudent')?.hasData) {
+      data.firmaEstudiante =
+        pads.get('sigStudent').canvas.toDataURL();
+    }
+
+    if (pads.get('sigTeacher')?.hasData) {
+      data.firmaDocente =
+        pads.get('sigTeacher').canvas.toDataURL();
+    }
+
+    if (editId) {
+      await updateDoc(
+        doc(db, "registrosComportamentales", editId),
+        data
+      );
+
+      alert("Actualizado.");
+    } else {
+      data.firmaAcudiente = null;
+
+      await addDoc(
+        collection(db, "registrosComportamentales"),
+        data
+      );
+
+      alert("Guardado.");
+    }
+
+    document.getElementById('formRegistro').reset();
+    document.getElementById('editId').value = "";
+    document.getElementById('btnSubmitObs').innerText =
+      "ENVIAR REGISTRO";
+
+    limpiarPad('sigStudent');
+    limpiarPad('sigTeacher');
+
+    if (
+      document.getElementById('historialObs').style.display === 'block'
+    ) {
+      cargarListaObs();
+    }
   };
 
   window.cargarListaObs = async () => {
-    const dId = document.getElementById('selectEstudianteObs').value; const cont = document.getElementById('listaRegistros'); if(!dId) return;
-    onSnapshot(collection(db, "registrosComportamentales"), (snap) => {
-        let html = ""; let list = [];
-        snap.forEach(d => { if(d.data().documentoEstudiante == dId) list.push({id: d.id, ...d.data()}); });
-        list.sort((a,b) => b.timestamp.localeCompare(a.timestamp));
-        list.forEach(r => {
-            html += `<div class="obs-item">
-                <b>${r.fecha} (Ciclo #${r.ciclo})</b><br>${r.comportamiento}
-                <div class="obs-sigs-preview">
-                    <div class="sig-thumb"><span>Estudiante</span>${r.firmaEstudiante?`<img src="${r.firmaEstudiante}">`:'-'}</div>
-                    <div class="sig-thumb"><span>Docente</span>${r.firmaDocente?`<img src="${r.firmaDocente}">`:'-'}</div>
-                    <div class="sig-thumb"><span>Padre</span>${r.firmaAcudiente?`<img src="${r.firmaAcudiente}">`:'-'}</div>
-                </div>
-                <div class="obs-controls">
-                    <button class="btn-edit" onclick="window.editarObs('${r.id}')">EDITAR</button>
-                    <button class="btn-delete" onclick="window.eliminarObs('${r.id}')">ELIMINAR</button>
-                </div>
-            </div>`;
+    const dId =
+      document.getElementById('selectEstudianteObs').value;
+
+    const cont =
+      document.getElementById('listaRegistros');
+
+    if (!dId) return;
+
+    onSnapshot(
+      collection(db, "registrosComportamentales"),
+      (snap) => {
+        let html = "";
+        let list = [];
+
+        snap.forEach(d => {
+          if (d.data().documentoEstudiante == dId) {
+            list.push({
+              id: d.id,
+              ...d.data()
+            });
+          }
         });
+
+        list.sort(
+          (a, b) => b.timestamp.localeCompare(a.timestamp)
+        );
+
+        list.forEach(r => {
+          html += `<div class="obs-item">
+            <b>${r.fecha} (Ciclo #${r.ciclo})</b><br>
+            ${r.comportamiento}
+
+            <div class="obs-sigs-preview">
+              <div class="sig-thumb">
+                <span>Estudiante</span>
+                ${r.firmaEstudiante
+                  ? `<img src="${r.firmaEstudiante}">`
+                  : '-'}
+              </div>
+
+              <div class="sig-thumb">
+                <span>Docente</span>
+                ${r.firmaDocente
+                  ? `<img src="${r.firmaDocente}">`
+                  : '-'}
+              </div>
+
+              <div class="sig-thumb">
+                <span>Padre</span>
+                ${r.firmaAcudiente
+                  ? `<img src="${r.firmaAcudiente}">`
+                  : '-'}
+              </div>
+            </div>
+
+            <div class="obs-controls">
+              <button class="btn-edit" onclick="window.editarObs('${r.id}')">
+                EDITAR
+              </button>
+
+              <button class="btn-delete" onclick="window.eliminarObs('${r.id}')">
+                ELIMINAR
+              </button>
+            </div>
+          </div>`;
+        });
+
         cont.innerHTML = html || "Sin registros.";
-    });
+      }
+    );
   };
 
-  window.editarObs = async (id) => { const s = await getDoc(doc(db, "registrosComportamentales", id)); if(!s.exists()) return; const d = s.data(); document.getElementById('editId').value = id; document.getElementById('tipoRegistro').value = d.tipo; document.getElementById('fecha').value = d.fecha; document.getElementById('comportamiento').value = d.comportamiento; document.getElementById('descargos').value = d.descargos; document.getElementById('procedimiento').value = d.procedimiento; document.getElementById('btnSubmitObs').innerText = "ACTUALIZAR REGISTRO"; window.scrollTo(0, 0); };
-  window.eliminarObs = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "registrosComportamentales", id)); };
-  window.resetearCicloEstudiante = async () => {
-    const dId = document.getElementById('selectEstudianteObs').value; if(!dId) return alert("Seleccione estudiante.");
-    const pass = prompt("Clave reinicio (9218):");
-    if(pass === "9218") {
-        const s = await getDoc(doc(db, "configuracionCiclos", dId));
-        const n = s.exists() ? (s.data().cicloActual + 1) : 2;
-        await setDoc(doc(db, "configuracionCiclos", dId), { cicloActual: n });
-        alert(`Ciclo #${n} iniciado.`); cargarListaObs();
+  window.editarObs = async (id) => {
+    const s = await getDoc(
+      doc(db, "registrosComportamentales", id)
+    );
+
+    if (!s.exists()) return;
+
+    const d = s.data();
+
+    document.getElementById('editId').value = id;
+    document.getElementById('tipoRegistro').value = d.tipo;
+    document.getElementById('fecha').value = d.fecha;
+    document.getElementById('comportamiento').value =
+      d.comportamiento;
+    document.getElementById('descargos').value =
+      d.descargos;
+    document.getElementById('procedimiento').value =
+      d.procedimiento;
+
+    document.getElementById('btnSubmitObs').innerText =
+      "ACTUALIZAR REGISTRO";
+
+    window.scrollTo(0, 0);
+  };
+
+  window.eliminarObs = async (id) => {
+    if (confirm("¿Eliminar?")) {
+      await deleteDoc(
+        doc(db, "registrosComportamentales", id)
+      );
     }
   };
+
+  window.resetearCicloEstudiante = async () => {
+    const dId =
+      document.getElementById('selectEstudianteObs').value;
+
+    if (!dId) {
+      return alert("Seleccione estudiante.");
+    }
+
+    const pass = prompt("Clave reinicio (9218):");
+
+    if (pass === "9218") {
+      const s = await getDoc(
+        doc(db, "configuracionCiclos", dId)
+      );
+
+      const n = s.exists()
+        ? (s.data().cicloActual + 1)
+        : 2;
+
+      await setDoc(
+        doc(db, "configuracionCiclos", dId),
+        { cicloActual: n }
+      );
+
+      alert(`Ciclo #${n} iniciado.`);
+      cargarListaObs();
+    }
+  };
+
   window.descargarPDFUnificado = async () => {
-    const dId = document.getElementById('selectEstudianteObs').value; if(!dId) return alert("Seleccione.");
-    const est = estudiantesBase.find(e => e.doc === dId);
-    const cicloSnap = await getDoc(doc(db, "configuracionCiclos", dId)); const cAct = cicloSnap.exists() ? (cicloSnap.data().cicloActual || 1) : 1;
+    const dId =
+      document.getElementById('selectEstudianteObs').value;
+
+    if (!dId) {
+      return alert("Seleccione.");
+    }
+
+    const est =
+      estudiantesBase.find(e => e.doc === dId);
+
+    const cicloSnap = await getDoc(
+      doc(db, "configuracionCiclos", dId)
+    );
+
+    const cAct = cicloSnap.exists()
+      ? (cicloSnap.data().cicloActual || 1)
+      : 1;
+
     try {
-        const snapshot = await getDocs(collection(db, "registrosComportamentales"));
-        let registros = []; snapshot.forEach(d => { const r = d.data(); if(r.documentoEstudiante == dId && r.ciclo == cAct) registros.push(r); });
-        if(registros.length === 0) return alert("Sin registros.");
-        registros.sort((a,b) => a.fecha.localeCompare(b.fecha));
-        const { jsPDF } = window.jspdf; const pdf = new jsPDF();
-        pdf.setFillColor(27, 94, 32); pdf.rect(0, 0, 210, 35, 'F');
-        pdf.setTextColor(255, 255, 255); pdf.setFontSize(14); pdf.setFont("helvetica", "bold");
-        pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 105, 15, { align: "center" });
-        pdf.setFontSize(10); pdf.text(`SEGUIMIENTO UNIFICADO - CICLO #${cAct}`, 105, 25, { align: "center" });
-        try { pdf.addImage('escudo.png', 'PNG', 15, 2, 30, 30); } catch(e){}
-        pdf.setTextColor(0,0,0); pdf.setFontSize(11);
-        pdf.text(`Estudiante: ${est?.nombre || dId}`, 20, 45);
-        pdf.text(`Documento: ${dId}`, 20, 52);
-        const rows = registros.map(r => [r.fecha, r.tipo, r.comportamiento, r.descargos, r.procedimiento]);
-        pdf.autoTable({ startY: 60, head: [['Fecha', 'Tipo', 'Situación', 'Descargos', 'Procedimiento']], body: rows, theme: 'grid', headStyles: { fillColor: [27, 94, 32] }, styles: { fontSize: 8 } });
-        let currentY = pdf.lastAutoTable.finalY + 15;
-        for(let i = 0; i < 3; i++) {
-            const r = registros[i]; if(currentY > 230) { pdf.addPage(); currentY = 20; }
-            pdf.setFontSize(9); pdf.setFont("helvetica", "bold"); pdf.text(`BLOQUE FIRMAS #${i+1}`, 20, currentY); currentY += 5;
-            if(r) {
-                if(r.firmaEstudiante) try { pdf.addImage(r.firmaEstudiante, 'PNG', 20, currentY, 40, 15); } catch(e){}
-                if(r.firmaDocente) try { pdf.addImage(r.firmaDocente, 'PNG', 85, currentY, 40, 15); } catch(e){}
-                if(r.firmaAcudiente) try { pdf.addImage(r.firmaAcudiente, 'PNG', 150, currentY, 40, 15); } catch(e){}
-            }
-            currentY += 15; pdf.line(20, currentY, 70, currentY); pdf.line(85, currentY, 135, currentY); pdf.line(150, currentY, 200, currentY);
-            pdf.setFontSize(7); pdf.text("Estudiante", 20, currentY + 4); pdf.text("Docente", 85, currentY + 4); pdf.text("Acudiente", 150, currentY + 4); currentY += 15;
+      const snapshot = await getDocs(
+        collection(db, "registrosComportamentales")
+      );
+
+      let registros = [];
+
+      snapshot.forEach(d => {
+        const r = d.data();
+
+        if (
+          r.documentoEstudiante == dId &&
+          r.ciclo == cAct
+        ) {
+          registros.push(r);
         }
-        pdf.save(`Unificado_${dId}.pdf`);
-    } catch (error) { alert("Error PDF."); }
+      });
+
+      if (registros.length === 0) {
+        return alert("Sin registros.");
+      }
+
+      registros.sort(
+        (a, b) => a.fecha.localeCompare(b.fecha)
+      );
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+
+      pdf.setFillColor(27, 94, 32);
+      pdf.rect(0, 0, 210, 35, 'F');
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+
+      pdf.text(
+        "INSTITUCIÓN EDUCATIVA DE MARÍA",
+        105,
+        15,
+        { align: "center" }
+      );
+
+      pdf.setFontSize(10);
+
+      pdf.text(
+        `SEGUIMIENTO UNIFICADO - CICLO #${cAct}`,
+        105,
+        25,
+        { align: "center" }
+      );
+
+      try {
+        pdf.addImage(
+          'escudo.png',
+          'PNG',
+          15,
+          2,
+          30,
+          30
+        );
+      } catch (e) {}
+
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(11);
+
+      pdf.text(
+        `Estudiante: ${est?.nombre || dId}`,
+        20,
+        45
+      );
+
+      pdf.text(
+        `Documento: ${dId}`,
+        20,
+        52
+      );
+
+      const rows = registros.map(r => [
+        r.fecha,
+        r.tipo,
+        r.comportamiento,
+        r.descargos,
+        r.procedimiento
+      ]);
+
+      pdf.autoTable({
+        startY: 60,
+        head: [[
+          'Fecha',
+          'Tipo',
+          'Situación',
+          'Descargos',
+          'Procedimiento'
+        ]],
+        body: rows,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [27, 94, 32]
+        },
+        styles: {
+          fontSize: 8
+        }
+      });
+
+      let currentY =
+        pdf.lastAutoTable.finalY + 15;
+
+      for (let i = 0; i < 3; i++) {
+        const r = registros[i];
+
+        if (currentY > 230) {
+          pdf.addPage();
+          currentY = 20;
+        }
+
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "bold");
+
+        pdf.text(
+          `BLOQUE FIRMAS #${i + 1}`,
+          20,
+          currentY
+        );
+
+        currentY += 5;
+
+        if (r) {
+          if (r.firmaEstudiante) {
+            try {
+              pdf.addImage(
+                r.firmaEstudiante,
+                'PNG',
+                20,
+                currentY,
+                40,
+                15
+              );
+            } catch (e) {}
+          }
+
+          if (r.firmaDocente) {
+            try {
+              pdf.addImage(
+                r.firmaDocente,
+                'PNG',
+                85,
+                currentY,
+                40,
+                15
+              );
+            } catch (e) {}
+          }
+
+          if (r.firmaAcudiente) {
+            try {
+              pdf.addImage(
+                r.firmaAcudiente,
+                'PNG',
+                150,
+                currentY,
+                40,
+                15
+              );
+            } catch (e) {}
+          }
+        }
+
+        currentY += 15;
+
+        pdf.line(
+          20,
+          currentY,
+          70,
+          currentY
+        );
+
+        pdf.line(
+          85,
+          currentY,
+          135,
+          currentY
+        );
+
+        pdf.line(
+          150,
+          currentY,
+          200,
+          currentY
+        );
+
+        pdf.setFontSize(7);
+
+        pdf.text(
+          "Estudiante",
+          20,
+          currentY + 4
+        );
+
+        pdf.text(
+          "Docente",
+          85,
+          currentY + 4
+        );
+
+        pdf.text(
+          "Acudiente",
+          150,
+          currentY + 4
+        );
+
+        currentY += 15;
+      }
+
+      pdf.save(`Unificado_${dId}.pdf`);
+    } catch (error) {
+      alert("Error PDF.");
+    }
   };
 
   // --- EXCUSAS (QUIRÚRGICO) ---
-  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const meses = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre"
+  ];
+
   function fechaLarga(fStr) {
-      if(!fStr) return ""; const partes = fStr.split('-');
-      return `${partes[2]} de ${meses[parseInt(partes[1])-1]} de ${partes[0]}`;
+    if (!fStr) return "";
+
+    const partes = fStr.split('-');
+
+    return `${partes[2]} de ${meses[parseInt(partes[1]) - 1]} de ${partes[0]}`;
   }
+
   function fechaActualLarga() {
-      const today = new Date();
-      return `${today.getDate()} de ${meses[today.getMonth()]} de ${today.getFullYear()}`;
+    const today = new Date();
+
+    return `${today.getDate()} de ${meses[today.getMonth()]} de ${today.getFullYear()}`;
   }
 
   window.cambiarVistaExcusa = (estado) => {
     mostrarArchivados = estado;
-    document.getElementById('tabExcActivas').className = !estado ? 'btn-sub-tab active' : 'btn-sub-tab';
-    document.getElementById('tabExcArchivadas').className = estado ? 'btn-sub-tab active' : 'btn-sub-tab';
+
+    document.getElementById('tabExcActivas').className =
+      !estado
+        ? 'btn-sub-tab active'
+        : 'btn-sub-tab';
+
+    document.getElementById('tabExcArchivadas').className =
+      estado
+        ? 'btn-sub-tab active'
+        : 'btn-sub-tab';
+
     window.filtrarExcusas();
   };
 
   window.archivarExcusa = async (id, estado) => {
-    await updateDoc(doc(db, "excusasInasistencia", id), { archivado: estado });
-    alert(estado ? "📁 Excusa archivada." : "📥 Excusa restaurada.");
+    await updateDoc(
+      doc(db, "excusasInasistencia", id),
+      { archivado: estado }
+    );
+
+    alert(
+      estado
+        ? "📁 Excusa archivada."
+        : "📥 Excusa restaurada."
+    );
   };
 
   window.filtrarExcusas = () => {
-    const list = document.getElementById('listaExcusas');
-    const searchTxt = document.getElementById('searchExcInput').value.toLowerCase();
-    const searchDate = document.getElementById('searchExcDate').value;
-    if(!list) return;
+    const list =
+      document.getElementById('listaExcusas');
 
-    list.innerHTML = localExcusas.filter(ex => {
-        const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-        const nombreMatch = est ? est.nombre.toLowerCase().includes(searchTxt) : false;
-        const docMatch = ex.documentoEstudiante.includes(searchTxt);
-        const fechaMatch = searchDate ? ex.fechaInasistencia === searchDate : true;
-        const archivoMatch = (ex.archivado || false) === mostrarArchivados;
-        return (nombreMatch || docMatch) && fechaMatch && archivoMatch;
-    }).map(ex => {
-        const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
+    const searchTxt =
+      document.getElementById('searchExcInput')
+        .value
+        .toLowerCase();
+
+    const searchDate =
+      document.getElementById('searchExcDate').value;
+
+    if (!list) return;
+
+    list.innerHTML = localExcusas
+      .filter(ex => {
+        const est = estudiantesBase.find(
+          e => e.doc === ex.documentoEstudiante
+        );
+
+        const nombreMatch = est
+          ? est.nombre.toLowerCase().includes(searchTxt)
+          : false;
+
+        const docMatch =
+          ex.documentoEstudiante.includes(searchTxt);
+
+        const fechaMatch = searchDate
+          ? ex.fechaInasistencia === searchDate
+          : true;
+
+        const archivoMatch =
+          (ex.archivado || false) === mostrarArchivados;
+
+        return (
+          (nombreMatch || docMatch) &&
+          fechaMatch &&
+          archivoMatch
+        );
+      })
+      .map(ex => {
+        const est = estudiantesBase.find(
+          e => e.doc === ex.documentoEstudiante
+        );
+
         return `<div class="excusa-card" style="border-left-color: ${mostrarArchivados ? '#64748b' : '#0288d1'}">
-            <div class="excusa-header"><span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span><span class="excusa-date">${ex.fechaInasistencia}</span></div>
-            <div class="excusa-body"><b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                ${ex.firmaAcudiente ? `<img src="${ex.firmaAcudiente}" height="35" style="border:1px solid #eee; background:#fff; border-radius:4px;">` : '<span></span>'}
-                <div style="display:flex; gap:5px;">
-                    <button class="btn-pdf-carta" onclick="window.descargarPDFExcusaCarta('${ex.id}')">📄 PDF</button>
-                    <button class="btn-archive" onclick="window.archivarExcusa('${ex.id}', ${!mostrarArchivados})">${mostrarArchivados ? '📥 RESTAURAR' : '📁 ARCHIVAR'}</button>
-                    <button class="btn-delete-exc" onclick="window.eliminarExcusa('${ex.id}')">Eliminar</button>
-                </div>
-            </div>
-        </div>`;
-    }).join('') || `<p style="text-align:center; padding:20px; font-size:12px; color:#666;">No hay registros para mostrar.</p>`;
-  };
+          <div class="excusa-header">
+            <span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span>
+            <span class="excusa-date">${ex.fechaInasistencia}</span>
+          </div>
 
-  window.descargarPDFExcusaCarta = (id) => {
-    const ex = localExcusas.find(x => x.id === id); if(!ex) return;
-    const est = estudiantesBase.find(e => e.doc === ex.documentoEstudiante);
-    const { jsPDF } = window.jspdf; const pdf = new jsPDF();
-    pdf.setFillColor(141, 182, 0); pdf.rect(0, 0, 210, 40, 'F');
-    try { pdf.addImage('escudo.png', 'PNG', 15, 5, 30, 30); } catch(e){}
-    pdf.setTextColor(255, 255, 255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
-    pdf.text("INSTITUCIÓN EDUCATIVA DE MARÍA", 120, 18, { align: "center" });
-    pdf.setFontSize(12); pdf.text("Sede Rural Santa Juana", 120, 26, { align: "center" });
-    pdf.setFontSize(11); pdf.text("Registro y Control de Asistencia Escolar 2026", 120, 34, { align: "center" });
-    pdf.setTextColor(0, 0, 0); pdf.setFontSize(14); pdf.setFont("helvetica", "normal");
-    pdf.text(`Santa Juana, Yarumal ${fechaActualLarga()}`, 20, 60);
+          <div class="excusa-body">
+            <b>${ex.motivoTipo}:</b> ${ex.motivoDetalle}
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            ${
+              ex.firmaAcudiente
+                ? `<img src="${ex.firmaAcudiente}" height="35" style="border:1px solid #eee; background:#fff; border-radius:4px;">`
+                : '<span></span>'
+            }
+
+            <div style="display:flex; gap:5px;">
+              <button class="btn-pdf-carta" onclick="window.descargarPDFExcusaCarta('${ex.id}')">
+                📄 PDF
+              </button>
+
+              <button class="btn-archive" onclick="window.archivarExcusa('${ex.id}', ${!mostrarArchivados})">
+                ${mostrarArchivados ? '📥 RESTAURAR' : '📁 ARCHIVAR'}
+              </button>
+
+              <button class="btn-delete-exc" onclick="window.eliminarExcusa('${ex.id}')">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>`;
+      })
+      .join('') || `<p style="text-align:center; padding:20px; font-size:12px; color:#666;">No hay registros para mostrar.</p>`;
+  };
+      window.descargarPDFExcusaCarta = (id) => {
+    const ex = localExcusas.find(
+      x => x.id === id
+    );
+
+    if (!ex) return;
+
+    const est = estudiantesBase.find(
+      e => e.doc === ex.documentoEstudiante
+    );
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    pdf.setFillColor(141, 182, 0);
+    pdf.rect(0, 0, 210, 40, 'F');
+
+    try {
+      pdf.addImage(
+        'escudo.png',
+        'PNG',
+        15,
+        5,
+        30,
+        30
+      );
+    } catch (e) {}
+
+    pdf.setTextColor(255, 255, 255);
     pdf.setFont("helvetica", "bold");
-    pdf.text("Señor", 20, 75); pdf.text("Oscar Evelio Barrientos", 20, 81); pdf.text("Docente.", 20, 87);
-    pdf.setFont("helvetica", "normal"); pdf.text("Cordial saludo.", 20, 100);
-    pdf.setFont("helvetica", "bold"); pdf.text(`Asunto: Justificación de inasistencia - ${est?.nombre || ex.documentoEstudiante}`, 20, 115);
-    pdf.text("Fecha de inasistencia:", 20, 128); pdf.setFont("helvetica", "normal"); pdf.text(`${fechaLarga(ex.fechaInasistencia)}`, 85, 128);
-    pdf.setFont("helvetica", "bold"); pdf.text("Motivo:", 20, 136); pdf.setFont("helvetica", "normal"); pdf.text(`${ex.motivoTipo}`, 45, 136);
-    const txt = `${ex.motivoDetalle || ''}`; pdf.text(pdf.splitTextToSize(txt, 170), 20, 148);
-    pdf.text("Gracias De antemano por su atención prestada.", 20, 180);
-    if(ex.firmaAcudiente) { try { pdf.addImage(ex.firmaAcudiente, 'PNG', 80, 195, 50, 25); } catch(e){} }
-    pdf.text("__________________________", 105, 225, { align: "center" }); 
-    pdf.setFont("helvetica", "bold"); pdf.text("ACUDIENTE", 105, 232, { align: "center" });
+    pdf.setFontSize(14);
+
+    pdf.text(
+      "INSTITUCIÓN EDUCATIVA DE MARÍA",
+      120,
+      18,
+      { align: "center" }
+    );
+
+    pdf.setFontSize(12);
+
+    pdf.text(
+      "Sede Rural Santa Juana",
+      120,
+      26,
+      { align: "center" }
+    );
+
+    pdf.setFontSize(11);
+
+    pdf.text(
+      "Registro y Control de Asistencia Escolar 2026",
+      120,
+      34,
+      { align: "center" }
+    );
+
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "normal");
+
+    pdf.text(
+      `Santa Juana, Yarumal ${fechaActualLarga()}`,
+      20,
+      60
+    );
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Señor", 20, 75);
+    pdf.text("Oscar Evelio Barrientos", 20, 81);
+    pdf.text("Docente.", 20, 87);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Cordial saludo.", 20, 100);
+
+    pdf.setFont("helvetica", "bold");
+
+    pdf.text(
+      `Asunto: Justificación de inasistencia - ${est?.nombre || ex.documentoEstudiante}`,
+      20,
+      115
+    );
+
+    pdf.text(
+      "Fecha de inasistencia:",
+      20,
+      128
+    );
+
+    pdf.setFont("helvetica", "normal");
+
+    pdf.text(
+      `${fechaLarga(ex.fechaInasistencia)}`,
+      85,
+      128
+    );
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Motivo:", 20, 136);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${ex.motivoTipo}`, 45, 136);
+
+    const txt = `${ex.motivoDetalle || ''}`;
+
+    pdf.text(
+      pdf.splitTextToSize(txt, 170),
+      20,
+      148
+    );
+
+    pdf.text(
+      "Gracias De antemano por su atención prestada.",
+      20,
+      180
+    );
+
+    if (ex.firmaAcudiente) {
+      try {
+        pdf.addImage(
+          ex.firmaAcudiente,
+          'PNG',
+          80,
+          195,
+          50,
+          25
+        );
+      } catch (e) {}
+    }
+
+    pdf.text(
+      "__________________________",
+      105,
+      225,
+      { align: "center" }
+    );
+
+    pdf.setFont("helvetica", "bold");
+
+    pdf.text(
+      "ACUDIENTE",
+      105,
+      232,
+      { align: "center" }
+    );
+
     pdf.save(`Excusa_${id}.pdf`);
   };
-  
-  window.eliminarExcusa = async (id) => { if(confirm("¿Eliminar excusa?")) { await deleteDoc(doc(db, "excusasInasistencia", id)); alert("Eliminada."); } };
+
+  window.eliminarExcusa = async (id) => {
+    if (confirm("¿Eliminar excusa?")) {
+      await deleteDoc(
+        doc(db, "excusasInasistencia", id)
+      );
+
+      alert("Eliminada.");
+    }
+  };
 
   // --- CORRESPONDENCIA ---
   function cargarCorrespondencia() {
-    onSnapshot(collection(db, "comunicacionPadres"), (snap) => {
-        let html = ""; snap.forEach(d => {
-            const m = d.data(); const id = d.id;
-            html += `<div class="msg-card"><div style="display:flex; justify-content:space-between; align-items:center;"><b style="font-size:13px;">${m.nombreEstudiante}</b><div style="display:flex; gap:5px; align-items:center;"><small>${m.fechaMsg}</small><button class="btn-delete-msg" onclick="window.eliminarMsg('${id}')">✕</button></div></div><div style="font-size:12px; margin:8px 0;"><b>${m.asunto}:</b> ${m.mensaje}</div><div style="background:#f3e5f5; padding:10px; border-radius:10px;">${m.respuestaDocente ? `<b>Respuesta:</b> ${m.respuestaDocente}` : `<textarea id="rep_${id}" rows="2"></textarea><button class="btn-action btn-slate" style="margin-top:5px; font-size:11px;" onclick="responderMsg('${id}')">RESPONDER</button>`}</div></div>`;
+    onSnapshot(
+      collection(db, "comunicacionPadres"),
+      (snap) => {
+        let html = "";
+
+        snap.forEach(d => {
+          const m = d.data();
+          const id = d.id;
+
+          html += `<div class="msg-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <b style="font-size:13px;">${m.nombreEstudiante}</b>
+
+              <div style="display:flex; gap:5px; align-items:center;">
+                <small>${m.fechaMsg}</small>
+
+                <button class="btn-delete-msg" onclick="window.eliminarMsg('${id}')">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size:12px; margin:8px 0;">
+              <b>${m.asunto}:</b> ${m.mensaje}
+            </div>
+
+            <div style="background:#f3e5f5; padding:10px; border-radius:10px;">
+              ${
+                m.respuestaDocente
+                  ? `<b>Respuesta:</b> ${m.respuestaDocente}`
+                  : `<textarea id="rep_${id}" rows="2"></textarea>
+                     <button class="btn-action btn-slate" style="margin-top:5px; font-size:11px;" onclick="responderMsg('${id}')">
+                       RESPONDER
+                     </button>`
+              }
+            </div>
+          </div>`;
         });
-        document.getElementById('listaCorrespondencia').innerHTML = html || "Sin mensajes.";
+
+        document.getElementById(
+          'listaCorrespondencia'
+        ).innerHTML = html || "Sin mensajes.";
+      }
+    );
+  }
+
+  window.responderMsg = async (id) => {
+    const t =
+      document.getElementById(`rep_${id}`).value;
+
+    await updateDoc(
+      doc(db, "comunicacionPadres", id),
+      { respuestaDocente: t }
+    );
+
+    alert("✅ Respondido.");
+  };
+
+  window.eliminarMsg = async (id) => {
+    if (confirm("¿Eliminar mensaje?")) {
+      await deleteDoc(
+        doc(db, "comunicacionPadres", id)
+      );
+    }
+  };
+
+  function initPad(id) {
+    const c = document.getElementById(id);
+
+    if (!c) return;
+
+    const ctx = c.getContext("2d");
+    const r = window.devicePixelRatio || 1;
+
+    c.width = c.offsetWidth * r;
+    c.height = 140 * r;
+
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+
+    let draw = false;
+
+    const getPos = (e) => {
+      const rect = c.getBoundingClientRect();
+
+      return {
+        x: (
+          e.touches
+            ? e.touches[0].clientX
+            : e.clientX
+        ) - rect.left,
+
+        y: (
+          e.touches
+            ? e.touches[0].clientY
+            : e.clientY
+        ) - rect.top
+      };
+    };
+
+    c.addEventListener("mousedown", (e) => {
+      draw = true;
+      ctx.beginPath();
+
+      const p = getPos(e);
+      ctx.moveTo(p.x, p.y);
+    });
+
+    c.addEventListener("mousemove", (e) => {
+      if (!draw) return;
+
+      const p = getPos(e);
+
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+
+      pads.set(id, {
+        hasData: true,
+        canvas: c
+      });
+    });
+
+    window.addEventListener(
+      "mouseup",
+      () => draw = false
+    );
+
+    c.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      draw = true;
+      ctx.beginPath();
+
+      const p = getPos(e);
+      ctx.moveTo(p.x, p.y);
+    });
+
+    c.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+
+      if (!draw) return;
+
+      const p = getPos(e);
+
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+
+      pads.set(id, {
+        hasData: true,
+        canvas: c
+      });
+    });
+
+    c.addEventListener(
+      "touchend",
+      () => draw = false
+    );
+
+    pads.set(id, {
+      hasData: false,
+      canvas: c
     });
   }
-  window.responderMsg = async (id) => { const t = document.getElementById(`rep_${id}`).value; await updateDoc(doc(db, "comunicacionPadres", id), { respuestaDocente: t }); alert("✅ Respondido."); };
-  window.eliminarMsg = async (id) => { if(confirm("¿Eliminar mensaje?")) await deleteDoc(doc(db, "comunicacionPadres", id)); };
 
-  function initPad(id){ const c=document.getElementById(id); if(!c) return; const ctx=c.getContext("2d"); const r=window.devicePixelRatio||1; c.width=c.offsetWidth*r; c.height=140*r; ctx.setTransform(r,0,0,r,0,0); ctx.lineWidth=2; ctx.lineCap="round"; let draw=false; const getPos=(e)=>{ const rect=c.getBoundingClientRect(); return { x: (e.touches?e.touches[0].clientX:e.clientX)-rect.left, y: (e.touches?e.touches[0].clientY:e.clientY)-rect.top }; }; c.addEventListener("mousedown",(e)=>{draw=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y);}); c.addEventListener("mousemove",(e)=>{if(!draw)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id,{hasData:true, canvas:c});}); window.addEventListener("mouseup",()=>draw=false); c.addEventListener("touchstart",(e)=>{e.preventDefault(); draw=true; ctx.beginPath(); const p=getPos(e); ctx.moveTo(p.x,p.y);}); c.addEventListener("touchmove",(e)=>{e.preventDefault(); if(!draw)return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); pads.set(id,{hasData:true, canvas:c});}); c.addEventListener("touchend",()=>draw=false); pads.set(id,{hasData:false, canvas:c}); }
-  window.limpiarPad = (id) => { const p = pads.get(id); if(p) { p.canvas.getContext("2d").clearRect(0,0,p.canvas.width, p.canvas.height); pads.set(id, {hasData:false, canvas:p.canvas}); } };
-  window.toggleHistorial = (id) => { const el=document.getElementById(id); el.style.display = (el.style.display==='block')?'none':'block'; };
-  window.toggleHistorialObs = () => { const el = document.getElementById('historialObs'); el.style.display = (el.style.display==='block')?'none':'block'; if(el.style.display==='block') cargarListaObs(); };
-  window.actualizarHistorialObs = () => { if(document.getElementById('historialObs').style.display==='block') cargarListaObs(); };
+  window.limpiarPad = (id) => {
+    const p = pads.get(id);
 
-  window.onload = async () => { 
-    document.getElementById('fechaAsistencia').valueAsDate = new Date(); document.getElementById('fecha').valueAsDate = new Date(); 
-    const sel = document.getElementById('selectEstudianteObs'); estudiantesBase.forEach(e => { const opt = document.createElement('option'); opt.value = e.doc; opt.textContent = e.nombre; sel.appendChild(opt); }); 
-    const sP = await getDoc(doc(db, "configuracionGlobal", "asistencia")); if (sP.exists()) { periodoActualAsis = sP.data().periodoActual || 1; document.getElementById('periodoActualLabel').innerText = `Periodo Actual: #${periodoActualAsis}`; }
-    onSnapshot(collection(db, "controlAsistencia"), (snap) => { localAsistenciaCompleta = []; snap.forEach(d => localAsistenciaCompleta.push(d.data())); window.renderAsistencia(); }); 
-    onSnapshot(collection(db, "excusasInasistencia"), (snap) => { localExcusas = []; snap.forEach(d => localExcusas.push({id:d.id, ...d.data()})); window.filtrarExcusas(); }); 
-    window.cargarAsistenciaDelDia(); 
+    if (p) {
+      p.canvas
+        .getContext("2d")
+        .clearRect(
+          0,
+          0,
+          p.canvas.width,
+          p.canvas.height
+        );
+
+      pads.set(id, {
+        hasData: false,
+        canvas: p.canvas
+      });
+    }
+  };
+
+  window.toggleHistorial = (id) => {
+    const el = document.getElementById(id);
+
+    el.style.display =
+      el.style.display === 'block'
+        ? 'none'
+        : 'block';
+  };
+
+  window.toggleHistorialObs = () => {
+    const el =
+      document.getElementById('historialObs');
+
+    el.style.display =
+      el.style.display === 'block'
+        ? 'none'
+        : 'block';
+
+    if (el.style.display === 'block') {
+      cargarListaObs();
+    }
+  };
+
+  window.actualizarHistorialObs = () => {
+    if (
+      document.getElementById('historialObs')
+        .style
+        .display === 'block'
+    ) {
+      cargarListaObs();
+    }
+  };
+
+  window.onload = async () => {
+    document.getElementById(
+      'fechaAsistencia'
+    ).valueAsDate = new Date();
+
+    document.getElementById(
+      'fecha'
+    ).valueAsDate = new Date();
+
+    const sel =
+      document.getElementById(
+        'selectEstudianteObs'
+      );
+
+    estudiantesBase.forEach(e => {
+      const opt =
+        document.createElement('option');
+
+      opt.value = e.doc;
+      opt.textContent = e.nombre;
+
+      sel.appendChild(opt);
+    });
+
+    const sP = await getDoc(
+      doc(db, "configuracionGlobal", "asistencia")
+    );
+
+    if (sP.exists()) {
+      periodoActualAsis =
+        sP.data().periodoActual || 1;
+
+      document.getElementById(
+        'periodoActualLabel'
+      ).innerText =
+        `Periodo Actual: #${periodoActualAsis}`;
+    }
+
+    onSnapshot(
+      collection(db, "controlAsistencia"),
+      (snap) => {
+        localAsistenciaCompleta = [];
+
+        snap.forEach(d => {
+          localAsistenciaCompleta.push(
+            d.data()
+          );
+        });
+
+        window.renderAsistencia();
+      }
+    );
+
+    onSnapshot(
+      collection(db, "excusasInasistencia"),
+      (snap) => {
+        localExcusas = [];
+
+        snap.forEach(d => {
+          localExcusas.push({
+            id: d.id,
+            ...d.data()
+          });
+        });
+
+        window.filtrarExcusas();
+      }
+    );
+
+    window.cargarAsistenciaDelDia();
   };
 </script>
 </body>
