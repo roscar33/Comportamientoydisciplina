@@ -64,6 +64,7 @@
     .excusa-card { background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; border-left: 5px solid #0288d1; }
     .btn-pdf-carta { background: #f1f5f9; border: 1.5px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .btn-delete-exc { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .excusa-badge-new { display: inline-flex; align-items: center; background: #dc2626; color: #fff; padding: 3px 8px; border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: 0.4px; }
 
     /* ESTILOS QUIRÚRGICOS FILTROS EXCUSAS */
     .exc-filters { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -273,8 +274,6 @@
   const db = getFirestore(app);
 
   const estudiantesBase = [
-    { doc: "1037780041", nombre: "MARIA FERNANDA GUERRA TORRES" },
-
     { doc: "1044990151", nombre: "ANTHONY GUTIERREZ MUÑOZ" },
 
     { doc: "1042155626", nombre: "MARTINEZ ARANGO AYLYN" },
@@ -286,6 +285,7 @@
     { doc: "1035922719", nombre: "MOLINA OCHOA BELEN" },
 
     { doc: "1200214182", nombre: "GUADALUPE PEREZ MUÑOZ" },
+    { doc: "1044507556", nombre: "RADAMEL DANILO ZULETA ALVEREZ", tipoDoc: "T.I." },
 
     { doc: "1044989674", nombre: "GUERRERO DELGADO HELLEN GABRIELA" },
     { doc: "1067959648", nombre: "PACHECO BARRERA JOSE DANIEL" },
@@ -306,6 +306,18 @@
 
   // VARIABLE PARA ESTADO DE ARCHIVADO
   let mostrarArchivados = false;
+
+  // CONTROL LOCAL DE EXCUSAS NUEVAS / VISTAS
+  const EXCUSAS_VISTAS_KEY = "excusasVistasDocente2026";
+  let excusasVistas = new Set();
+
+  try {
+    excusasVistas = new Set(
+      JSON.parse(localStorage.getItem(EXCUSAS_VISTAS_KEY) || "[]")
+    );
+  } catch (e) {
+    excusasVistas = new Set();
+  }
 
   window.switchTab = (t) => {
     ['asis', 'obs', 'herramientas', 'corr'].forEach(key => {
@@ -336,7 +348,6 @@
       cargarCorrespondencia();
     }
   };
-
   // --- ASISTENCIA (Render con documento pequeño) ---
   window.renderAsistencia = () => {
     const list = document.getElementById('attendanceList');
@@ -362,7 +373,7 @@
       html += `<div class="student-card">
         <div class="stu-info">
           <span class="stu-name">${e.nombre}</span>
-          <span class="stu-doc">CC. ${e.doc}</span>
+          <span class="stu-doc">${e.tipoDoc || 'CC.'} ${e.doc}</span>
           <span class="stu-faltas">${fCount} FALTAS</span>
         </div>
 
@@ -953,7 +964,6 @@
       alert("Error PDF.");
     }
   };
-
   // --- EXCUSAS (QUIRÚRGICO) ---
   const meses = [
     "enero",
@@ -982,6 +992,65 @@
     const today = new Date();
 
     return `${today.getDate()} de ${meses[today.getMonth()]} de ${today.getFullYear()}`;
+  }
+
+
+  function obtenerMarcaTiempoExcusa(ex) {
+    const posiblesFechas = [
+      ex.timestamp,
+      ex.fechaEnvio,
+      ex.fechaRegistro,
+      ex.createdAt,
+      ex.fechaCreacion
+    ];
+
+    for (const valor of posiblesFechas) {
+      if (!valor) continue;
+
+      if (typeof valor.toMillis === 'function') {
+        return valor.toMillis();
+      }
+
+      if (typeof valor.seconds === 'number') {
+        return valor.seconds * 1000;
+      }
+
+      const fecha = new Date(valor);
+
+      if (!Number.isNaN(fecha.getTime())) {
+        return fecha.getTime();
+      }
+    }
+
+    const fechaInasistencia = new Date(
+      `${ex.fechaInasistencia || '1970-01-01'}T00:00:00`
+    );
+
+    return Number.isNaN(fechaInasistencia.getTime())
+      ? 0
+      : fechaInasistencia.getTime();
+  }
+
+  function guardarExcusasVistas() {
+    localStorage.setItem(
+      EXCUSAS_VISTAS_KEY,
+      JSON.stringify([...excusasVistas])
+    );
+  }
+
+  function marcarExcusasActivasComoVistas() {
+    let huboCambios = false;
+
+    localExcusas.forEach(ex => {
+      if (!(ex.archivado || false) && !excusasVistas.has(ex.id)) {
+        excusasVistas.add(ex.id);
+        huboCambios = true;
+      }
+    });
+
+    if (huboCambios) {
+      guardarExcusasVistas();
+    }
   }
 
   window.cambiarVistaExcusa = (estado) => {
@@ -1053,14 +1122,24 @@
           archivoMatch
         );
       })
+      .sort(
+        (a, b) => obtenerMarcaTiempoExcusa(b) - obtenerMarcaTiempoExcusa(a)
+      )
       .map(ex => {
         const est = estudiantesBase.find(
           e => e.doc === ex.documentoEstudiante
         );
 
+        const esNueva =
+          !mostrarArchivados &&
+          !excusasVistas.has(ex.id);
+
         return `<div class="excusa-card" style="border-left-color: ${mostrarArchivados ? '#64748b' : '#0288d1'}">
           <div class="excusa-header">
-            <span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="excusa-name">${est?.nombre || ex.documentoEstudiante}</span>
+              ${esNueva ? '<span class="excusa-badge-new">NUEVA</span>' : ''}
+            </div>
             <span class="excusa-date">${ex.fechaInasistencia}</span>
           </div>
 
@@ -1440,11 +1519,19 @@
 
   window.toggleHistorial = (id) => {
     const el = document.getElementById(id);
+    const abrir = el.style.display !== 'block';
 
-    el.style.display =
-      el.style.display === 'block'
-        ? 'none'
-        : 'block';
+    el.style.display = abrir
+      ? 'block'
+      : 'none';
+
+    if (id === 'historialExc' && abrir) {
+      window.filtrarExcusas();
+
+      setTimeout(() => {
+        marcarExcusasActivasComoVistas();
+      }, 1500);
+    }
   };
 
   window.toggleHistorialObs = () => {
